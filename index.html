@@ -1,709 +1,630 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Снежана — 3D Валентинка</title>
+    <title>Our Story | Alisher & Snezhana</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&family=Pacifico&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            overflow-x: hidden;
-            background: #1a1a2e;
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Nunito', sans-serif;
+            background-color: #1a1a2e;
         }
-
+        
         #canvas-container {
-            position: fixed;
+            position: absolute;
             top: 0;
             left: 0;
             width: 100%;
-            height: 100vh;
+            height: 100%;
             z-index: 1;
         }
 
-        .ui-layer {
-            position: relative;
+        /* UI Layer */
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             z-index: 10;
-            pointer-events: none;
-        }
-
-        .section {
-            min-height: 100vh;
+            pointer-events: none; /* Let clicks pass through to 3D */
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 40px;
-            position: relative;
+        }
+
+        .interactive-element {
+            pointer-events: auto;
+        }
+
+        /* Typography & Effects */
+        .cinematic-text {
+            font-family: 'Pacifico', cursive;
+            color: white;
+            text-shadow: 0 4px 20px rgba(255, 105, 180, 0.6);
+            opacity: 0;
+            transform: translateY(20px);
+            text-align: center;
+            padding: 0 20px;
         }
 
         .glass-panel {
             background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(20px);
+            backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 30px;
-            padding: 50px;
-            max-width: 700px;
-            text-align: center;
-            pointer-events: auto;
-            transform-style: preserve-3d;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
         }
 
-        h1 {
-            font-size: 3.5rem;
-            color: #fff;
-            text-shadow: 0 0 30px rgba(255, 107, 157, 0.8);
-            margin-bottom: 20px;
-            font-weight: 800;
-        }
-
-        h2 {
-            font-size: 2.5rem;
-            color: #fff;
-            margin-bottom: 30px;
-            text-shadow: 0 0 20px rgba(255, 107, 157, 0.6);
-        }
-
-        p {
-            color: rgba(255,255,255,0.9);
-            font-size: 1.3rem;
-            line-height: 1.8;
-            margin-bottom: 30px;
-        }
-
-        .btn-3d {
-            padding: 20px 50px;
-            background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%);
-            color: white;
-            border: none;
-            border-radius: 50px;
-            font-size: 1.3rem;
-            font-weight: 700;
+        /* The Heart Button */
+        .heart-btn {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             cursor: pointer;
-            box-shadow: 0 10px 30px rgba(255, 107, 157, 0.4);
-            transition: all 0.3s;
-            pointer-events: auto;
+            box-shadow: 0 0 30px rgba(255, 107, 107, 0.6);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: float 3s ease-in-out infinite;
             position: relative;
-            overflow: hidden;
         }
 
-        .btn-3d:hover {
-            transform: translateY(-5px) scale(1.05);
-            box-shadow: 0 20px 40px rgba(255, 107, 157, 0.6);
+        .heart-btn:hover {
+            transform: scale(1.2);
         }
 
-        .btn-3d::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-            transition: 0.5s;
-        }
-
-        .btn-3d:hover::before {
-            left: 100%;
-        }
-
-        .question-card {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 30px;
-            padding: 40px;
-            max-width: 600px;
-            color: #333;
-            pointer-events: auto;
-            transform-style: preserve-3d;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
-        }
-
-        .question-card h3 {
-            font-size: 1.8rem;
-            color: #ff6b9d;
-            margin-bottom: 25px;
-        }
-
-        .options {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .option-btn {
-            padding: 15px 30px;
-            border: 3px solid #ff6b9d;
-            background: white;
-            border-radius: 20px;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            pointer-events: auto;
-        }
-
-        .option-btn:hover {
-            background: #ff6b9d;
+        .heart-btn::after {
+            content: '❤';
+            font-size: 40px;
             color: white;
-            transform: scale(1.1);
         }
 
-        .hint-reveal {
-            margin-top: 25px;
-            padding: 25px;
-            background: linear-gradient(135deg, #fff5f7 0%, #ffe0ec 100%);
-            border-radius: 20px;
-            border: 3px dashed #ff6b9d;
-            display: none;
-            animation: popIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
         }
 
-        .hint-reveal.show {
-            display: block;
-        }
-
-        @keyframes popIn {
-            0% { transform: scale(0) rotate(-10deg); opacity: 0; }
-            100% { transform: scale(1) rotate(0deg); opacity: 1; }
-        }
-
-        .scroll-indicator {
-            position: absolute;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
+        /* Final Button */
+        .final-btn {
+            background: linear-gradient(45deg, #ff00cc, #333399);
+            border: none;
             color: white;
-            font-size: 2rem;
-            animation: bounce 2s infinite;
-            pointer-events: auto;
-            cursor: pointer;
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateX(-50%) translateY(0); }
-            50% { transform: translateX(-50%) translateY(-20px); }
-        }
-
-        .final-question {
-            font-size: 3rem;
-            color: white;
-            text-shadow: 0 0 40px rgba(255, 107, 157, 1);
-            margin-bottom: 40px;
-        }
-
-        .runaway-btn {
-            position: absolute;
             padding: 15px 40px;
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid rgba(255, 255, 255, 0.5);
-            color: white;
-            border-radius: 50px;
-            cursor: not-allowed;
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            pointer-events: auto;
-        }
-
-        .success-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(26, 26, 46, 0.98);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            z-index: 1000;
-            opacity: 0;
-            transition: opacity 0.5s;
-        }
-
-        .success-screen.active {
-            display: flex;
-            opacity: 1;
-        }
-
-        .success-text {
-            font-size: 4rem;
-            color: white;
-            text-shadow: 0 0 50px rgba(255, 107, 157, 1);
-            margin-bottom: 30px;
-            animation: heartbeat 1.5s infinite;
-        }
-
-        @keyframes heartbeat {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-
-        .loading {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #1a1a2e;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            color: white;
             font-size: 1.5rem;
-            transition: opacity 0.5s;
-        }
-
-        .loading.hidden {
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: 'Pacifico', cursive;
+            box-shadow: 0 0 20px rgba(255, 0, 204, 0.5);
+            transition: all 0.3s ease;
             opacity: 0;
             pointer-events: none;
+            transform: scale(0.8);
         }
 
-        @media (max-width: 768px) {
-            h1 { font-size: 2.2rem; }
-            h2 { font-size: 1.8rem; }
-            .glass-panel { padding: 30px; }
-            .final-question { font-size: 2rem; }
+        .final-btn.visible {
+            opacity: 1;
+            pointer-events: auto;
+            transform: scale(1);
+        }
+
+        .final-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 40px rgba(255, 0, 204, 0.8);
+        }
+
+        #particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
         }
     </style>
 </head>
 <body>
 
-    <div class="loading" id="loading">Загрузка 3D мира... 💕</div>
-
+    <!-- 3D Canvas -->
     <div id="canvas-container"></div>
+    
+    <!-- 2D Overlay Effects (Confetti) -->
+    <canvas id="particles"></canvas>
 
-    <div class="ui-layer">
-        <!-- Экран 1: Интро -->
-        <section class="section" id="intro">
-            <div class="glass-panel">
-                <h1>Снежана, это для тебя</h1>
-                <p>Алишер создал целый 3D-мир, чтобы сказать кое-что важное...</p>
-                <button class="btn-3d" onclick="scrollToSection('quiz')">Начать путешествие</button>
-            </div>
-            <div class="scroll-indicator" onclick="scrollToSection('quiz')">↓</div>
-        </section>
+    <!-- UI Layer -->
+    <div id="ui-layer">
+        <h1 id="story-text" class="cinematic-text text-4xl md:text-6xl mb-12">Once we were just two people...</h1>
+        
+        <div id="interaction-container" class="interactive-element">
+            <div id="heart-trigger" class="heart-btn"></div>
+        </div>
 
-        <!-- Экран 2: Викторина -->
-        <section class="section" id="quiz">
-            <div class="question-card" id="q1">
-                <h3>🍕 Ты готова вкусно покушать?</h3>
-                <div class="options">
-                    <button class="option-btn" onclick="showHint(1, 'yes')">Всегда!</button>
-                    <button class="option-btn" onclick="showHint(1, 'no')">Не голодна</button>
-                </div>
-                <div class="hint-reveal" id="hint1">
-                    <div style="font-size: 3rem; margin-bottom: 15px;">🎁</div>
-                    <p id="hintText1"></p>
-                </div>
-            </div>
-
-            <div class="question-card" id="q2" style="display:none; margin-top: 30px;">
-                <h3>🎁 Любишь сюрпризы?</h3>
-                <div class="options">
-                    <button class="option-btn" onclick="showHint(2, 'yes')">Обожаю!</button>
-                    <button class="option-btn" onclick="showHint(2, 'no')">Боюсь</button>
-                </div>
-                <div class="hint-reveal" id="hint2">
-                    <div style="font-size: 3rem; margin-bottom: 15px;">👀</div>
-                    <p id="hintText2"></p>
-                </div>
-            </div>
-
-            <div class="question-card" id="q3" style="display:none; margin-top: 30px;">
-                <h3>💝 Готова найти подарок?</h3>
-                <div class="options">
-                    <button class="option-btn" onclick="showHint(3, 'yes')">Веди меня!</button>
-                    <button class="option-btn" onclick="showHint(3, 'later')">Позже</button>
-                </div>
-                <div class="hint-reveal" id="hint3">
-                    <div style="font-size: 3rem; margin-bottom: 15px;">🗝️</div>
-                    <p id="hintText3"></p>
-                </div>
-            </div>
-
-            <button class="btn-3d" style="margin-top: 40px;" onclick="scrollToSection('final')">
-                К финальному вопросу →
-            </button>
-        </section>
-
-        <!-- Экран 3: Финал -->
-        <section class="section" id="final">
-            <h2 class="final-question">Ты будешь моей валентинкой?</h2>
-            <div style="position: relative; width: 300px; height: 100px;">
-                <button class="btn-3d" style="position: absolute; left: 0;" onclick="sayYes()">
-                    Да! 💖
-                </button>
-                <button class="runaway-btn" id="noBtn" onmouseenter="moveButton()" style="right: 0;">
-                    Нет
-                </button>
-            </div>
-        </section>
-    </div>
-
-    <!-- Экран успеха -->
-    <div class="success-screen" id="successScreen">
-        <div class="success-text">Я так и знал! 💕</div>
-        <p style="color: white; font-size: 1.5rem; margin-bottom: 30px;">
-            Теперь иди искать подарок там, где пахнет вкусно... 🍕✨
-        </p>
-        <button class="btn-3d" onclick="location.reload()">Начать заново</button>
+        <button id="final-step-btn" class="final-btn interactive-element">Take the final step</button>
     </div>
 
     <script>
-        // ===== THREE.JS 3D СЦЕНА =====
-        let scene, camera, renderer;
-        let heartGroup, floatingHearts = [];
-        let particles;
-        let mouseX = 0, mouseY = 0;
-        let targetRotationX = 0, targetRotationY = 0;
+        // --- CONFIGURATION & STATE ---
+        const state = {
+            scene: 1,
+            distance: 15, // Initial distance between characters
+            targetDistance: 15,
+            lightIntensity: 0.2,
+            colorHue: 220, // Blueish start
+            isHoldingHands: false
+        };
 
-        function initThree() {
-            const container = document.getElementById('canvas-container');
+        // --- THREE.JS SETUP ---
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x1a1a2e, 0.02);
 
-            // Сцена
-            scene = new THREE.Scene();
-            scene.fog = new THREE.FogExp2(0x1a1a2e, 0.02);
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 5, 30);
+        camera.lookAt(0, 0, 0);
 
-            // Камера
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.z = 30;
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        container.appendChild(renderer.domElement);
 
-            // Рендерер
-            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-            renderer.shadowMap.enabled = true;
-            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-            container.appendChild(renderer.domElement);
+        // --- LIGHTING ---
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
+        scene.add(ambientLight);
 
-            // Освещение
-            const ambientLight = new THREE.AmbientLight(0xffc8dd, 0.6);
-            scene.add(ambientLight);
+        const mainLight = new THREE.DirectionalLight(0xffd1dc, 0.5);
+        mainLight.position.set(10, 20, 10);
+        mainLight.castShadow = true;
+        mainLight.shadow.mapSize.width = 2048;
+        mainLight.shadow.mapSize.height = 2048;
+        scene.add(mainLight);
 
-            const pointLight = new THREE.PointLight(0xff6b9d, 1, 100);
-            pointLight.position.set(10, 10, 10);
-            pointLight.castShadow = true;
-            scene.add(pointLight);
+        // Warm point light that grows
+        const loveLight = new THREE.PointLight(0xff69b4, 0, 50);
+        loveLight.position.set(0, 5, 0);
+        scene.add(loveLight);
 
-            const pointLight2 = new THREE.PointLight(0xcdb4db, 1, 100);
-            pointLight2.position.set(-10, -10, 10);
-            scene.add(pointLight2);
+        // --- ENVIRONMENT ---
+        // Floor
+        const planeGeometry = new THREE.PlaneGeometry(200, 200);
+        const planeMaterial = new THREE.MeshStandardMaterial({ 
+            color: 0x2a2a40,
+            roughness: 0.8,
+            metalness: 0.2
+        });
+        const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+        plane.rotation.x = -Math.PI / 2;
+        plane.position.y = -2;
+        plane.receiveShadow = true;
+        scene.add(plane);
 
-            // Создаём главное 3D-сердце
-            createMainHeart();
-
-            // Создаём плавающие сердечки
-            createFloatingHearts();
-
-            // Создаём частицы
-            createParticles();
-
-            // Обработчики событий
-            document.addEventListener('mousemove', onMouseMove);
-            window.addEventListener('resize', onWindowResize);
-
-            // Скрываем загрузку
-            setTimeout(() => {
-                document.getElementById('loading').classList.add('hidden');
-            }, 1000);
-
-            animate();
+        // Floating Particles (Stars/Hearts)
+        const particlesGeometry = new THREE.BufferGeometry();
+        const particlesCount = 300;
+        const posArray = new Float32Array(particlesCount * 3);
+        
+        for(let i = 0; i < particlesCount * 3; i++) {
+            posArray[i] = (Math.random() - 0.5) * 60;
         }
+        
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        const particlesMaterial = new THREE.PointsMaterial({
+            size: 0.2,
+            color: 0xffffff,
+            transparent: true,
+            opacity: 0.6,
+            blending: THREE.AdditiveBlending
+        });
+        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particlesMesh);
 
-        function createMainHeart() {
-            heartGroup = new THREE.Group();
+        // --- CHARACTER GENERATION (Procedural Chibi) ---
+        function createCharacter(color, isMale) {
+            const group = new THREE.Group();
 
-            // Форма сердца через параметрическую геометрию
-            const x = 0, y = 0;
-            const heartShape = new THREE.Shape();
+            // Materials
+            const skinMat = new THREE.MeshStandardMaterial({ color: 0xffdbac, roughness: 0.3 });
+            const clothesMat = new THREE.MeshStandardMaterial({ color: color, roughness: 0.7 });
+            const hairMat = new THREE.MeshStandardMaterial({ color: isMale ? 0x3d2314 : 0xe6c229, roughness: 0.9 });
+            const eyeMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.1 });
+
+            // Body (Chibi proportions - big head, small body)
+            const bodyGeo = new THREE.CylinderGeometry(0.8, 1, 2.5, 16);
+            const body = new THREE.Mesh(bodyGeo, clothesMat);
+            body.position.y = 0;
+            body.castShadow = true;
+            group.add(body);
+
+            // Head
+            const headGeo = new THREE.SphereGeometry(1.4, 32, 32);
+            const head = new THREE.Mesh(headGeo, skinMat);
+            head.position.y = 2.2;
+            head.castShadow = true;
+            group.add(head);
+
+            // Hair (Simple stylized cap)
+            const hairGeo = new THREE.SphereGeometry(1.5, 32, 32, 0, Math.PI * 2, 0, Math.PI/2.5);
+            const hair = new THREE.Mesh(hairGeo, hairMat);
+            hair.position.y = 2.2;
+            hair.rotation.x = Math.PI; // Flip to cover top
+            group.add(hair);
+
+            // Eyes (Big and expressive)
+            const eyeGeo = new THREE.SphereGeometry(0.25, 16, 16);
             
-            heartShape.moveTo(x + 5, y + 5);
-            heartShape.bezierCurveTo(x + 5, y + 5, x + 4, y, x, y);
-            heartShape.bezierCurveTo(x - 6, y, x - 6, y + 7, x - 6, y + 7);
-            heartShape.bezierCurveTo(x - 6, y + 11, x - 3, y + 15.4, x + 5, y + 19);
-            heartShape.bezierCurveTo(x + 12, y + 15.4, x + 16, y + 11, x + 16, y + 7);
-            heartShape.bezierCurveTo(x + 16, y + 7, x + 16, y, x + 10, y);
-            heartShape.bezierCurveTo(x + 7, y, x + 5, y + 5, x + 5, y + 5);
+            const leftEye = new THREE.Mesh(eyeGeo, eyeMat);
+            leftEye.position.set(-0.5, 2.3, 1.15);
+            group.add(leftEye);
 
-            const extrudeSettings = {
-                depth: 8,
-                bevelEnabled: true,
-                bevelSegments: 5,
-                steps: 2,
-                bevelSize: 2,
-                bevelThickness: 2
+            const rightEye = new THREE.Mesh(eyeGeo, eyeMat);
+            rightEye.position.set(0.5, 2.3, 1.15);
+            group.add(rightEye);
+
+            // Blush
+            const blushGeo = new THREE.CircleGeometry(0.2, 16);
+            const blushMat = new THREE.MeshBasicMaterial({ color: 0xffa0a0, transparent: true, opacity: 0.5 });
+            
+            const leftBlush = new THREE.Mesh(blushGeo, blushMat);
+            leftBlush.position.set(-0.8, 2.0, 1.2);
+            leftBlush.rotation.y = -0.5;
+            group.add(leftBlush);
+
+            const rightBlush = new THREE.Mesh(blushGeo, blushMat);
+            rightBlush.position.set(0.8, 2.0, 1.2);
+            rightBlush.rotation.y = 0.5;
+            group.add(rightBlush);
+
+            // Arms
+            const armGeo = new THREE.CapsuleGeometry(0.25, 1.2, 4, 8);
+            
+            const leftArm = new THREE.Mesh(armGeo, clothesMat);
+            leftArm.position.set(-1.1, 0.5, 0);
+            leftArm.rotation.z = 0.5;
+            group.add(leftArm);
+
+            const rightArm = new THREE.Mesh(armGeo, clothesMat);
+            rightArm.position.set(1.1, 0.5, 0);
+            rightArm.rotation.z = -0.5;
+            group.add(rightArm);
+
+            // Store references for animation
+            group.userData = {
+                head: head,
+                leftEye: leftEye,
+                rightEye: rightEye,
+                leftArm: leftArm,
+                rightArm: rightArm,
+                baseY: 0,
+                jumpOffset: 0
             };
 
-            const geometry = new THREE.ExtrudeGeometry(heartShape, extrudeSettings);
-            
-            // Центрируем геометрию
-            geometry.center();
-
-            // Материал с градиентом
-            const material = new THREE.MeshPhysicalMaterial({
-                color: 0xff6b9d,
-                metalness: 0.1,
-                roughness: 0.2,
-                clearcoat: 1.0,
-                clearcoatRoughness: 0.1,
-                emissive: 0xff1744,
-                emissiveIntensity: 0.2,
-                side: THREE.DoubleSide
-            });
-
-            const heartMesh = new THREE.Mesh(geometry, material);
-            heartMesh.castShadow = true;
-            heartMesh.receiveShadow = true;
-            heartMesh.scale.set(0.8, 0.8, 0.8);
-            
-            heartGroup.add(heartMesh);
-
-            // Добавляем свечение вокруг сердца
-            const glowGeometry = new THREE.SphereGeometry(15, 32, 32);
-            const glowMaterial = new THREE.MeshBasicMaterial({
-                color: 0xff6b9d,
-                transparent: true,
-                opacity: 0.1
-            });
-            const glow = new THREE.Mesh(glowGeometry, glowMaterial);
-            heartGroup.add(glow);
-
-            scene.add(heartGroup);
+            return group;
         }
 
-        function createFloatingHearts() {
-            const heartGeometry = new THREE.SphereGeometry(0.5, 16, 16);
-            const heartMaterial = new THREE.MeshPhysicalMaterial({
-                color: 0xffc8dd,
-                emissive: 0xff6b9d,
-                emissiveIntensity: 0.5,
-                metalness: 0.5,
-                roughness: 0.1
-            });
+        // Create Characters
+        const alisher = createCharacter(0x6495ED, true); // Blue hoodie
+        const snezhana = createCharacter(0xFFB6C1, false); // Pink dress
 
-            for (let i = 0; i < 50; i++) {
-                const heart = new THREE.Mesh(heartGeometry, heartMaterial.clone());
-                
-                // Случайная позиция
-                heart.position.x = (Math.random() - 0.5) * 100;
-                heart.position.y = (Math.random() - 0.5) * 100;
-                heart.position.z = (Math.random() - 0.5) * 50 - 20;
-                
-                // Случайный размер
-                const scale = Math.random() * 0.5 + 0.3;
-                heart.scale.set(scale, scale, scale);
-                
-                // Случайный цвет
-                heart.material.color.setHSL(
-                    0.9 + Math.random() * 0.1, // розовые оттенки
-                    0.8,
-                    0.6
-                );
-                
-                // Сохраняем параметры для анимации
-                heart.userData = {
-                    speedY: Math.random() * 0.02 + 0.01,
-                    speedRot: Math.random() * 0.02,
-                    offset: Math.random() * Math.PI * 2
-                };
-                
-                floatingHearts.push(heart);
-                scene.add(heart);
-            }
-        }
+        scene.add(alisher);
+        scene.add(snezhana);
 
-        function createParticles() {
-            const particlesGeometry = new THREE.BufferGeometry();
-            const particlesCount = 1000;
-            
-            const posArray = new Float32Array(particlesCount * 3);
-            const colorArray = new Float32Array(particlesCount * 3);
-            
-            for(let i = 0; i < particlesCount * 3; i += 3) {
-                // Позиции
-                posArray[i] = (Math.random() - 0.5) * 150;
-                posArray[i+1] = (Math.random() - 0.5) * 150;
-                posArray[i+2] = (Math.random() - 0.5) * 100;
-                
-                // Цвета (розовые и фиолетовые оттенки)
-                colorArray[i] = 1; // R
-                colorArray[i+1] = 0.5 + Math.random() * 0.5; // G
-                colorArray[i+2] = 0.7 + Math.random() * 0.3; // B
-            }
-            
-            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-            particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colorArray, 3));
-            
-            const particlesMaterial = new THREE.PointsMaterial({
-                size: 0.5,
-                vertexColors: true,
-                transparent: true,
-                opacity: 0.8,
-                blending: THREE.AdditiveBlending
-            });
-            
-            particles = new THREE.Points(particlesGeometry, particlesMaterial);
-            scene.add(particles);
-        }
-
-        function onMouseMove(event) {
-            mouseX = (event.clientX / window.innerWidth) * 2 - 1;
-            mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
-        }
-
-        function onWindowResize() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        }
+        // --- ANIMATION LOOP ---
+        const clock = new THREE.Clock();
 
         function animate() {
             requestAnimationFrame(animate);
+            const time = clock.getElapsedTime();
 
-            const time = Date.now() * 0.001;
+            // 1. Character Movement (Lerp towards target distance)
+            // Alisher is on left (-x), Snezhana on right (+x)
+            // Center is 0. So if distance is 10, Alisher is -5, Snezhana is +5.
+            
+            const halfDist = state.distance / 2;
+            
+            // Smooth movement
+            alisher.position.x = THREE.MathUtils.lerp(alisher.position.x, -halfDist, 0.05);
+            snezhana.position.x = THREE.MathUtils.lerp(snezhana.position.x, halfDist, 0.05);
 
-            // Анимируем главное сердце
-            if (heartGroup) {
-                // Плавное вращение
-                targetRotationX = mouseY * 0.5;
-                targetRotationY = mouseX * 0.5;
+            // Make them face each other
+            alisher.lookAt(snezhana.position.x, 0, 0);
+            snezhana.lookAt(alisher.position.x, 0, 0);
+
+            // 2. Idle Animations (Breathing/Bouncing)
+            if (!state.isHoldingHands) {
+                const bounce = Math.sin(time * 3) * 0.05;
+                alisher.position.y = bounce;
+                snezhana.position.y = bounce;
                 
-                heartGroup.rotation.x += (targetRotationX - heartGroup.rotation.x) * 0.05;
-                heartGroup.rotation.y += (targetRotationY - heartGroup.rotation.y) * 0.05;
+                // Subtle head bob
+                alisher.userData.head.rotation.y = Math.sin(time * 1.5) * 0.1;
+                snezhana.userData.head.rotation.y = Math.cos(time * 1.5) * 0.1;
+            } else {
+                // Holding hands animation (Happy jump)
+                const jump = Math.abs(Math.sin(time * 8)) * 0.5;
+                alisher.position.y = jump;
+                snezhana.position.y = jump;
                 
-                // Пульсация
-                const scale = 1 + Math.sin(time * 2) * 0.05;
-                heartGroup.scale.set(scale, scale, scale);
-                
-                // Плавание вверх-вниз
-                heartGroup.position.y = Math.sin(time) * 2;
+                // Rotate towards camera slightly
+                alisher.rotation.y += (0 - alisher.rotation.y) * 0.1;
+                snezhana.rotation.y += (0 - snezhana.rotation.y) * 0.1;
             }
 
-            // Анимируем плавающие сердечки
-            floatingHearts.forEach((heart, i) => {
-                heart.position.y += heart.userData.speedY;
-                heart.rotation.x += heart.userData.speedRot;
-                heart.rotation.y += heart.userData.speedRot;
-                
-                // Колебание
-                heart.position.x += Math.sin(time + heart.userData.offset) * 0.02;
-                
-                // Если улетело слишком высоко — возвращаем вниз
-                if (heart.position.y > 50) {
-                    heart.position.y = -50;
-                }
-            });
+            // 3. Environment Animation
+            particlesMesh.rotation.y = time * 0.05;
+            
+            // Dynamic Lighting
+            loveLight.intensity = THREE.MathUtils.lerp(loveLight.intensity, state.lightIntensity, 0.05);
+            
+            // Background Color Shift
+            const targetColor = new THREE.Color().setHSL(state.colorHue / 360, 0.6, 0.1);
+            scene.background = targetColor;
+            scene.fog.color = targetColor;
 
-            // Анимируем частицы
-            if (particles) {
-                particles.rotation.y = time * 0.05;
-                particles.rotation.x = time * 0.02;
-            }
+            // 4. Camera Parallax (Mouse follow)
+            // Simple implementation: Camera slightly moves based on mouse
+            // (Added in event listener)
 
             renderer.render(scene, camera);
         }
 
-        // ===== ЛОГИКА САЙТА =====
+        // --- INTERACTION LOGIC ---
 
-        const hints = {
-            1: {
-                yes: "Отлично! Загляни в холодильник — там тебя ждёт что-то вкусное! 🍰 А если там пусто... значит, я уже всё съел 😅",
-                no: "Не голодна? Тогда посмотри под подушку на диване — там точно не еда! 🎁"
-            },
-            2: {
-                yes: "Сюрприз ждёт тебя там, где мы храним самое ценное... Проверь полку с книгами! 📚✨",
-                no: "Боишься? Не бойся! Подарок в безопасном месте — за шторой! 🪟"
-            },
-            3: {
-                yes: "Финальная подсказка: подарок спрятан там, где ты проводишь много времени... Возможно, рядом с твоим рабочим местом? 💻🎀",
-                later: "Нет времени? Окей, подарок подождёт... Но он уже скучает по тебе! 😢 Проверь шкаф с одеждой! 👗"
-            }
-        };
+        const storyText = document.getElementById('story-text');
+        const heartBtn = document.getElementById('heart-trigger');
+        const finalBtn = document.getElementById('final-step-btn');
 
-        function showHint(qNum, answer) {
-            const hintBox = document.getElementById(`hint${qNum}`);
-            const hintText = document.getElementById(`hintText${qNum}`);
-            
-            hintText.textContent = hints[qNum][answer];
-            hintBox.classList.add('show');
-            
-            // Показываем следующий вопрос
-            if (qNum < 3) {
-                setTimeout(() => {
-                    document.getElementById(`q${qNum + 1}`).style.display = 'block';
-                    gsap.from(`#q${qNum + 1}`, {
-                        y: 50,
-                        opacity: 0,
-                        duration: 0.5
-                    });
-                }, 1000);
-            }
-            
-            // Конфетти
-            confetti({
-                particleCount: 50,
-                spread: 60,
-                origin: { y: 0.7 },
-                colors: ['#ff6b9d', '#ffc8dd', '#cdb4db']
+        // Typewriter effect helper
+        function updateText(text) {
+            gsap.to(storyText, {
+                opacity: 0,
+                y: -20,
+                duration: 0.5,
+                onComplete: () => {
+                    storyText.innerText = text;
+                    gsap.to(storyText, { opacity: 1, y: 0, duration: 0.8, ease: "back.out(1.7)" });
+                }
             });
         }
 
-        function scrollToSection(id) {
-            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
-        }
+        // SCENE 1: Initial State
+        gsap.to(storyText, { opacity: 1, y: 0, duration: 1.5, delay: 0.5 });
 
-        // Убегающая кнопка
-        const noBtn = document.getElementById('noBtn');
-        const noTexts = ['Нет', 'Точно?', 'Подумай!', 'Ну please', '🥺', 'Не-а!'];
-        
-        function moveButton() {
-            const x = (Math.random() - 0.5) * 200;
-            const y = (Math.random() - 0.5) * 100;
-            noBtn.style.transform = `translate(${x}px, ${y}px)`;
-            noBtn.textContent = noTexts[Math.floor(Math.random() * noTexts.length)];
-        }
-
-        if (window.innerWidth > 768) {
-            document.addEventListener('mousemove', (e) => {
-                const rect = noBtn.getBoundingClientRect();
-                const dist = Math.sqrt(
-                    Math.pow(e.clientX - (rect.left + rect.width/2), 2) +
-                    Math.pow(e.clientY - (rect.top + rect.height/2), 2)
-                );
-                if (dist < 100) moveButton();
-            });
-        }
-
-        function sayYes() {
-            // Массивный взрыв
-            const end = Date.now() + 3000;
-            const colors = ['#ff6b9d', '#ffc8dd', '#cdb4db', '#ffd700'];
+        // SCENE 2: First Click
+        heartBtn.addEventListener('click', () => {
+            if (state.scene !== 1) return;
             
-            const frame = () => {
-                confetti({
-                    particleCount: 10,
-                    spread: 100,
-                    origin: { x: Math.random(), y: Math.random() * 0.5 },
-                    colors: colors,
-                    shapes: ['circle', 'heart']
-                });
-                if (Date.now() < end) requestAnimationFrame(frame);
-            };
-            frame();
+            state.scene = 2;
+            
+            // Animate Heart Button away
+            gsap.to(heartBtn, { scale: 0, opacity: 0, duration: 0.5 });
+            
+            // Move characters closer
+            state.targetDistance = 8;
+            state.distance = 8;
+            
+            // Brighten world
+            state.lightIntensity = 2;
+            state.colorHue = 280; // Shift to purple/pink
+            
+            updateText("And everything started with a single step…");
+            
+            // Trigger Scene 3 after delay
+            setTimeout(() => {
+                startScene3();
+            }, 4000);
+        });
+
+        function startScene3() {
+            state.scene = 3;
+            updateText("Laughter, support, and 'we' instead of 'me'…");
+            
+            // Characters move even closer
+            state.targetDistance = 3;
+            state.distance = 3;
+            
+            // World becomes alive
+            state.lightIntensity = 4;
+            state.colorHue = 320; // Pink
+            
+            // Spawn floating hearts in 3D
+            spawnFloatingHearts();
+
+            setTimeout(() => {
+                startScene4();
+            }, 5000);
+        }
+
+        function startScene4() {
+            state.scene = 4;
+            updateText("Almost 4 years…");
+            
+            state.targetDistance = 1.5; // Very close
+            state.distance = 1.5;
+            
+            state.lightIntensity = 5;
             
             setTimeout(() => {
-                document.getElementById('successScreen').classList.add('active');
-            }, 500);
+                updateText("And I choose you every day.");
+                setTimeout(() => {
+                    startScene5();
+                }, 3000);
+            }, 3000);
         }
 
-        // Запускаем Three.js
-        initThree();
+        function startScene5() {
+            state.scene = 5;
+            storyText.style.opacity = 0; // Hide text to focus on button
+            
+            // Show Final Button
+            finalBtn.classList.add('visible');
+            
+            // Characters look at camera
+            // (Handled in animate loop via isHoldingHands flag later, but here we prep)
+        }
+
+        finalBtn.addEventListener('click', () => {
+            state.scene = 6;
+            state.isHoldingHands = true;
+            
+            // Hide Button
+            gsap.to(finalBtn, { scale: 0, opacity: 0, duration: 0.5 });
+            
+            // Final Embrace
+            state.targetDistance = 0.5; // Touching
+            state.distance = 0.5;
+            
+            // Light Burst
+            state.lightIntensity = 10;
+            
+            // Confetti
+            fireConfetti();
+            
+            // Final Text
+            setTimeout(() => {
+                storyText.innerHTML = "Will you be my Valentine? 💝";
+                storyText.style.fontSize = "4rem";
+                gsap.to(storyText, { opacity: 1, scale: 1.2, duration: 1, ease: "elastic.out(1, 0.3)" });
+            }, 1000);
+        });
+
+        // --- VISUAL EFFECTS ---
+
+        function spawnFloatingHearts() {
+            const heartShape = new THREE.Shape();
+            const x = 0, y = 0;
+            heartShape.moveTo( x + 0.25, y + 0.25 );
+            heartShape.bezierCurveTo( x + 0.25, y + 0.25, x + 0.20, y, x, y );
+            heartShape.bezierCurveTo( x - 0.30, y, x - 0.30, y + 0.35, x - 0.30, y + 0.35 );
+            heartShape.bezierCurveTo( x - 0.30, y + 0.55, x - 0.10, y + 0.77, x + 0.25, y + 0.95 );
+            heartShape.bezierCurveTo( x + 0.60, y + 0.77, x + 0.80, y + 0.55, x + 0.80, y + 0.35 );
+            heartShape.bezierCurveTo( x + 0.80, y + 0.35, x + 0.80, y, x + 0.50, y );
+            heartShape.bezierCurveTo( x + 0.35, y, x + 0.25, y + 0.25, x + 0.25, y + 0.25 );
+
+            const geometry = new THREE.ShapeGeometry( heartShape );
+            const material = new THREE.MeshBasicMaterial( { color: 0xff69b4, side: THREE.DoubleSide } );
+            
+            for (let i = 0; i < 20; i++) {
+                const heart = new THREE.Mesh( geometry, material );
+                heart.scale.set(0.5, 0.5, 0.5);
+                heart.position.set(
+                    (Math.random() - 0.5) * 20,
+                    Math.random() * 10,
+                    (Math.random() - 0.5) * 10
+                );
+                heart.rotation.z = Math.PI; // Flip upright
+                
+                scene.add( heart );
+                
+                // Animate individual hearts
+                gsap.to(heart.position, {
+                    y: heart.position.y + 5,
+                    x: heart.position.x + (Math.random() - 0.5) * 5,
+                    duration: 3 + Math.random() * 2,
+                    repeat: -1,
+                    yoyo: true,
+                    ease: "sine.inOut"
+                });
+                
+                gsap.to(heart.rotation, {
+                    z: Math.PI + Math.random(),
+                    duration: 4,
+                    repeat: -1,
+                    yoyo: true
+                });
+            }
+        }
+
+        // 2D Canvas Confetti
+        const particleCanvas = document.getElementById('particles');
+        const ctx = particleCanvas.getContext('2d');
+        let confettiParticles = [];
+
+        function resizeCanvas() {
+            particleCanvas.width = window.innerWidth;
+            particleCanvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        function fireConfetti() {
+            const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
+            
+            for (let i = 0; i < 200; i++) {
+                confettiParticles.push({
+                    x: window.innerWidth / 2,
+                    y: window.innerHeight / 2,
+                    vx: (Math.random() - 0.5) * 20,
+                    vy: (Math.random() - 0.5) * 20 - 5,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    size: Math.random() * 10 + 5,
+                    rotation: Math.random() * 360,
+                    rotationSpeed: (Math.random() - 0.5) * 10,
+                    life: 100
+                });
+            }
+            animateConfetti();
+        }
+
+        function animateConfetti() {
+            if (confettiParticles.length === 0) return;
+            
+            ctx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
+            
+            confettiParticles.forEach((p, index) => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.2; // Gravity
+                p.rotation += p.rotationSpeed;
+                p.life--;
+                
+                ctx.save();
+                ctx.translate(p.x, p.y);
+                ctx.rotate(p.rotation * Math.PI / 180);
+                ctx.fillStyle = p.color;
+                ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+                ctx.restore();
+                
+                if (p.life <= 0 || p.y > window.innerHeight) {
+                    confettiParticles.splice(index, 1);
+                }
+            });
+            
+            requestAnimationFrame(animateConfetti);
+        }
+
+        // Mouse Parallax
+        document.addEventListener('mousemove', (e) => {
+            const x = (e.clientX / window.innerWidth) - 0.5;
+            const y = (e.clientY / window.innerHeight) - 0.5;
+            
+            gsap.to(camera.position, {
+                x: x * 2,
+                y: 5 + (y * 2),
+                duration: 1
+            });
+        });
+
+        // Start
+        animate();
+
+        // Handle Resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
     </script>
 </body>
 </html>
