@@ -1,480 +1,219 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>С Днём Святого Валентина! 💕</title>
-    
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&family=Pacifico&display=swap" rel="stylesheet">
-    
-    <!-- Vanilla Tilt.js для 3D эффекта -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
-    
-    <!-- Canvas Confetti для эффекта конфетти -->
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Снежана ❤️ Алишер</title>
 
-        body {
-            min-height: 100vh;
-            background: linear-gradient(135deg, #FFC8DD 0%, #CDB4DB 50%, #FFC8DD 100%);
-            background-size: 400% 400%;
-            animation: gradientShift 15s ease infinite;
-            font-family: 'Comfortaa', cursive;
-            overflow: hidden;
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&family=Pacifico&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
-        /* Анимация градиента фона */
-        @keyframes gradientShift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
-        /* Контейнер для падающих сердечек */
-        .hearts-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 1;
-            overflow: hidden;
-        }
+body {
+    font-family: 'Comfortaa', cursive;
+    background: linear-gradient(135deg, #FFC8DD, #CDB4DB);
+    color: #fff;
+    overflow-x: hidden;
+}
 
-        .falling-heart {
-            position: absolute;
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 20px;
-            animation: fall linear infinite;
-            text-shadow: 0 0 10px rgba(255, 200, 221, 0.8);
-        }
+section {
+    min-height: 100vh;
+    padding: 80px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
 
-        @keyframes fall {
-            0% {
-                transform: translateY(-100px) rotate(0deg);
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(100vh) rotate(360deg);
-                opacity: 0;
-            }
-        }
+/* ===== INTRO ===== */
+.intro h1 {
+    font-family: 'Pacifico', cursive;
+    font-size: 3.5rem;
+    margin-bottom: 20px;
+}
 
-        /* Главная карточка с Glassmorphism */
-        .card-container {
-            perspective: 1000px;
-            z-index: 10;
-        }
+.intro p {
+    font-size: 1.3rem;
+    max-width: 700px;
+}
 
-        .card {
-            width: 400px;
-            height: 500px;
-            background: rgba(255, 255, 255, 0.25);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-radius: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            box-shadow: 
-                0 8px 32px 0 rgba(205, 180, 219, 0.37),
-                inset 0 0 20px rgba(255, 255, 255, 0.3);
-            padding: 40px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            transform-style: preserve-3d;
-            transition: transform 0.1s ease-out;
-            position: relative;
-        }
+.scroll {
+    margin-top: 50px;
+    font-size: 1.1rem;
+    opacity: 0.8;
+    animation: bounce 2s infinite;
+}
 
-        .card-content {
-            transform: translateZ(50px);
-        }
+@keyframes bounce {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(10px); }
+}
 
-        h1 {
-            font-family: 'Pacifico', cursive;
-            font-size: 2.5rem;
-            color: #fff;
-            text-shadow: 0 0 20px rgba(255, 200, 221, 0.8);
-            margin-bottom: 20px;
-            animation: pulse 2s ease-in-out infinite;
-        }
+/* ===== STORY ===== */
+.story h2 {
+    font-size: 2.8rem;
+    margin-bottom: 30px;
+}
 
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
+.story p {
+    max-width: 800px;
+    font-size: 1.2rem;
+    line-height: 1.8;
+}
 
-        .question {
-            font-size: 1.3rem;
-            color: #fff;
-            margin-bottom: 40px;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            font-weight: 700;
-        }
+/* ===== GALLERY ===== */
+.gallery h2 {
+    font-size: 2.8rem;
+    margin-bottom: 40px;
+}
 
-        /* Кнопки */
-        .buttons {
-            display: flex;
-            gap: 30px;
-            transform: translateZ(30px);
-            position: relative;
-        }
+.photos {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    max-width: 1000px;
+    width: 100%;
+}
 
-        .btn {
-            padding: 15px 40px;
-            border: none;
-            border-radius: 50px;
-            font-family: 'Comfortaa', cursive;
-            font-size: 1.1rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            position: relative;
-            overflow: hidden;
-        }
+.photos div {
+    background: rgba(255,255,255,0.3);
+    border-radius: 20px;
+    padding: 40px 10px;
+    font-size: 1.1rem;
+    backdrop-filter: blur(10px);
+}
 
-        .btn-yes {
-            background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%);
-            color: white;
-            animation: glow 2s ease-in-out infinite;
-        }
+/* ===== LETTER ===== */
+.letter h2 {
+    font-size: 2.8rem;
+    margin-bottom: 30px;
+}
 
-        @keyframes glow {
-            0%, 100% { box-shadow: 0 5px 15px rgba(255, 107, 157, 0.4); }
-            50% { box-shadow: 0 5px 30px rgba(255, 107, 157, 0.8), 0 0 20px rgba(255, 255, 255, 0.5); }
-        }
+.letter p {
+    max-width: 800px;
+    font-size: 1.3rem;
+    line-height: 1.9;
+}
 
-        .btn-yes:hover {
-            transform: scale(1.15) translateZ(20px);
-            box-shadow: 0 8px 25px rgba(255, 107, 157, 0.6);
-        }
+/* ===== FINAL ===== */
+.final h2 {
+    font-family: 'Pacifico', cursive;
+    font-size: 3rem;
+    margin-bottom: 30px;
+}
 
-        .btn-no {
-            background: rgba(255, 255, 255, 0.4);
-            color: #c44569;
-            border: 2px solid rgba(255, 255, 255, 0.6);
-            position: absolute;
-            left: 150px;
-            transition: all 0.2s ease;
-        }
+.buttons {
+    display: flex;
+    gap: 30px;
+    margin-top: 30px;
+    position: relative;
+}
 
-        /* Экран успеха (скрыт по умолчанию) */
-        .success-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 200, 221, 0.95);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            z-index: 100;
-            opacity: 0;
-            transition: opacity 0.5s ease;
-        }
+button {
+    padding: 15px 40px;
+    font-size: 1.2rem;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: 700;
+}
 
-        .success-screen.active {
-            display: flex;
-            opacity: 1;
-        }
+.yes {
+    background: #ff6b9d;
+    color: white;
+}
 
-        .success-content {
-            text-align: center;
-            animation: bounceIn 1s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-        }
+.no {
+    background: rgba(255,255,255,0.6);
+    color: #c44569;
+    position: absolute;
+    left: 160px;
+}
 
-        @keyframes bounceIn {
-            0% { transform: scale(0) rotate(0deg); opacity: 0; }
-            50% { transform: scale(1.2) rotate(5deg); }
-            100% { transform: scale(1) rotate(0deg); opacity: 1; }
-        }
-
-        .success-text {
-            font-family: 'Pacifico', cursive;
-            font-size: 3rem;
-            color: #fff;
-            text-shadow: 0 0 30px rgba(205, 180, 219, 1);
-            margin-bottom: 30px;
-        }
-
-        .big-heart {
-            font-size: 150px;
-            animation: heartbeat 1.5s ease-in-out infinite;
-            filter: drop-shadow(0 0 20px rgba(255, 107, 157, 0.8));
-        }
-
-        @keyframes heartbeat {
-            0%, 100% { transform: scale(1); }
-            25% { transform: scale(1.1); }
-            50% { transform: scale(1); }
-            75% { transform: scale(1.05); }
-        }
-
-        /* Кликабельные сердечки */
-        .click-heart {
-            position: absolute;
-            color: #ff6b9d;
-            font-size: 24px;
-            pointer-events: none;
-            animation: floatUp 1.5s ease-out forwards;
-            z-index: 1000;
-        }
-
-        @keyframes floatUp {
-            0% {
-                transform: translateY(0) scale(0);
-                opacity: 1;
-            }
-            50% {
-                transform: translateY(-50px) scale(1.2);
-            }
-            100% {
-                transform: translateY(-100px) scale(0);
-                opacity: 0;
-            }
-        }
-
-        /* Адаптивность */
-        @media (max-width: 480px) {
-            .card {
-                width: 90vw;
-                height: auto;
-                min-height: 400px;
-                padding: 30px 20px;
-            }
-            h1 { font-size: 2rem; }
-            .question { font-size: 1.1rem; }
-            .success-text { font-size: 2rem; }
-            .big-heart { font-size: 100px; }
-        }
-    </style>
+.success {
+    display: none;
+    margin-top: 40px;
+    font-size: 2.2rem;
+    font-family: 'Pacifico', cursive;
+}
+</style>
 </head>
+
 <body>
 
-    <!-- Падающие сердечки на фоне -->
-    <div class="hearts-container" id="heartsContainer"></div>
+<section class="intro">
+    <h1>Снежана 💕</h1>
+    <p>
+        Если ты это читаешь — значит, Алишер снова сделал что-то странное…  
+        но очень искреннее 😌
+    </p>
+    <div class="scroll">Листай вниз ↓</div>
+</section>
 
-    <!-- Главная карточка -->
-    <div class="card-container">
-        <div class="card" data-tilt data-tilt-max="15" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.2">
-            <div class="card-content">
-                <h1>С Днём Святого Валентина!</h1>
-                <p class="question">Ты будешь моей валентинкой? 💝</p>
-                <div class="buttons">
-                    <button class="btn btn-yes" onclick="sayYes()">Да! 💕</button>
-                    <button class="btn btn-no" id="noBtn" onmouseenter="moveButton()" onclick="moveButton()">Нет</button>
-                </div>
-            </div>
-        </div>
+<section class="story">
+    <h2>Наша история</h2>
+    <p>
+        Мы вместе уже почти 4 года.  
+        И за это время было всё: смех, приколы, споры, поддержка,  
+        и миллион моментов, за которые я благодарен тебе каждый день.
+        <br><br>
+        Ты — мой человек. Даже когда вредничаешь 😏
+    </p>
+</section>
+
+<section class="gallery">
+    <h2>Это мы ❤️</h2>
+    <div class="photos">
+        <div>Тут будет ваше фото 📸</div>
+        <div>И тут тоже 💕</div>
+        <div>А здесь — самое любимое 😍</div>
+        <div>Ну и ещё одно, потому что почему бы и нет 😄</div>
     </div>
+</section>
 
-    <!-- Экран успеха -->
-    <div class="success-screen" id="successScreen">
-        <div class="success-content">
-            <div class="big-heart">💖</div>
-            <h2 class="success-text">Ура! Я так и знал(а)! ❤️</h2>
-            <p style="color: white; font-size: 1.2rem; margin-top: 20px; text-shadow: 0 2px 10px rgba(0,0,0,0.2);">
-                Ты сделал(а) мой день особенным! 🌟
-            </p>
-        </div>
+<section class="letter">
+    <h2>Снежана, честно…</h2>
+    <p>
+        Я могу шутить, дурачиться и делать сайты вместо открыток,  
+        но правда простая:  
+        <br><br>
+        Я очень люблю тебя.  
+        И хочу, чтобы ты всегда улыбалась — особенно из-за меня ❤️
+    </p>
+</section>
+
+<section class="final">
+    <h2>Ты будешь моей валентинкой? 💝</h2>
+    <div class="buttons">
+        <button class="yes" onclick="yes()">Да 💖</button>
+        <button class="no" id="noBtn" onmouseenter="move()">Нет</button>
     </div>
+    <div class="success" id="success">
+        Я знал 😌💘
+    </div>
+</section>
 
-    <script>
-        // === СИСТЕМА ПАДАЮЩИХ СЕРДЕЧЕК ===
-        const heartsContainer = document.getElementById('heartsContainer');
-        const heartSymbols = ['💕', '💖', '💗', '💓', '💝', '🤍'];
-        
-        function createFallingHeart() {
-            const heart = document.createElement('div');
-            heart.className = 'falling-heart';
-            heart.innerHTML = heartSymbols[Math.floor(Math.random() * heartSymbols.length)];
-            
-            // Случайная позиция по X
-            heart.style.left = Math.random() * 100 + '%';
-            
-            // Случайный размер
-            const size = Math.random() * 20 + 15;
-            heart.style.fontSize = size + 'px';
-            
-            // Случайная прозрачность
-            heart.style.opacity = Math.random() * 0.5 + 0.3;
-            
-            // Случайная скорость анимации
-            const duration = Math.random() * 5 + 5; // 5-10 секунд
-            heart.style.animationDuration = duration + 's';
-            
-            // Случайная задержка
-            heart.style.animationDelay = Math.random() * 5 + 's';
-            
-            heartsContainer.appendChild(heart);
-            
-            // Удаление после завершения анимации
-            setTimeout(() => {
-                heart.remove();
-            }, (duration + 5) * 1000);
-        }
+<script>
+const noBtn = document.getElementById('noBtn');
 
-        // Создаём начальные сердечки
-        for (let i = 0; i < 20; i++) {
-            setTimeout(createFallingHeart, i * 300);
-        }
+function move() {
+    const x = Math.random() * 200 - 100;
+    const y = Math.random() * 100 - 50;
+    noBtn.style.transform = `translate(${x}px, ${y}px)`;
+}
 
-        // Постоянное создание новых сердечек
-        setInterval(createFallingHeart, 800);
+function yes() {
+    document.getElementById('success').style.display = 'block';
+    confetti({
+        particleCount: 200,
+        spread: 100,
+        origin: { y: 0.6 }
+    });
+}
+</script>
 
-        // === ХИТРАЯ КНОПКА "НЕТ" ===
-        const noBtn = document.getElementById('noBtn');
-        let mouseX = 0;
-        let mouseY = 0;
-        let btnX = 0;
-        let btnY = 0;
-        let isEscaping = false;
-
-        // Отслеживаем позицию мыши
-        document.addEventListener('mousemove', (e) => {
-            mouseX = e.clientX;
-            mouseY = e.clientY;
-            
-            // Проверяем расстояние до кнопки
-            const rect = noBtn.getBoundingClientRect();
-            const btnCenterX = rect.left + rect.width / 2;
-            const btnCenterY = rect.top + rect.height / 2;
-            
-            const distance = Math.sqrt(
-                Math.pow(mouseX - btnCenterX, 2) + 
-                Math.pow(mouseY - btnCenterY, 2)
-            );
-            
-            // Если мышь близко (150px), кнопка начинает убегать
-            if (distance < 150 && !isEscaping) {
-                escapeButton();
-            }
-        });
-
-        function escapeButton() {
-            isEscaping = true;
-            
-            const card = document.querySelector('.card');
-            const cardRect = card.getBoundingClientRect();
-            
-            // Вычисляем новую позицию внутри карточки
-            const maxX = cardRect.width - 100;
-            const maxY = cardRect.height - 50;
-            
-            // Случайная позиция с учётом расстояния от курсора
-            let newX = Math.random() * maxX - maxX/2;
-            let newY = Math.random() * maxY - maxY/2;
-            
-            // Применяем с плавной анимацией
-            noBtn.style.transform = `translate(${newX}px, ${newY}px)`;
-            noBtn.style.transition = 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
-            
-            setTimeout(() => {
-                isEscaping = false;
-            }, 400);
-        }
-
-        function moveButton() {
-            escapeButton();
-        }
-
-        // === ОБРАБОТКА НАЖАТИЯ "ДА" ===
-        function sayYes() {
-            // Запускаем конфетти
-            const duration = 3000;
-            const end = Date.now() + duration;
-
-            // Функция для запуска конфетти с разных сторон
-            const frame = () => {
-                confetti({
-                    particleCount: 5,
-                    angle: 60,
-                    spread: 55,
-                    origin: { x: 0 },
-                    colors: ['#FFC8DD', '#CDB4DB', '#FF6B9D', '#FFFFFF']
-                });
-                confetti({
-                    particleCount: 5,
-                    angle: 120,
-                    spread: 55,
-                    origin: { x: 1 },
-                    colors: ['#FFC8DD', '#CDB4DB', '#FF6B9D', '#FFFFFF']
-                });
-
-                if (Date.now() < end) {
-                    requestAnimationFrame(frame);
-                }
-            };
-            
-            frame();
-
-            // Показываем экран успеха с задержкой
-            setTimeout(() => {
-                document.getElementById('successScreen').classList.add('active');
-                
-                // Дополнительный взрыв конфетти по центру
-                confetti({
-                    particleCount: 150,
-                    spread: 100,
-                    origin: { y: 0.6 },
-                    colors: ['#FFC8DD', '#CDB4DB', '#FF6B9D', '#FFFFFF', '#FFD700'],
-                    shapes: ['circle', 'square'],
-                    scalar: 1.2
-                });
-            }, 500);
-        }
-
-        // === СЕКРЕТНАЯ ФИЧА: КЛИК ПО ЭКРАНУ ===
-        document.addEventListener('click', (e) => {
-            // Не создаём сердечко если клик по кнопке
-            if (e.target.classList.contains('btn')) return;
-            
-            const heart = document.createElement('div');
-            heart.className = 'click-heart';
-            heart.innerHTML = '💕';
-            heart.style.left = e.clientX + 'px';
-            heart.style.top = e.clientY + 'px';
-            
-            // Случайный размер
-            const size = Math.random() * 15 + 20;
-            heart.style.fontSize = size + 'px';
-            
-            document.body.appendChild(heart);
-            
-            // Удаляем после анимации
-            setTimeout(() => {
-                heart.remove();
-            }, 1500);
-        });
-
-        // === ИНИЦИАЛИЗАЦИЯ TILT ЭФФЕКТА ===
-        // Настройки уже заданы через data-атрибуты в HTML
-        // VanillaTilt автоматически инициализирует элементы с data-tilt
-        
-        // Дополнительные настройки для мобильных устройств
-        if (window.matchMedia("(max-width: 768px)").matches) {
-            // На мобильных уменьшаем эффект наклона
-            document.querySelector('.card').setAttribute('data-tilt-max', '5');
-        }
-    </script>
 </body>
 </html>
