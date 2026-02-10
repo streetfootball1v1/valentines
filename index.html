@@ -128,14 +128,6 @@
     </div>
 
     <script>
-        // Проверка загрузки библиотек
-        if (typeof THREE === 'undefined') {
-            alert('Ошибка: Three.js не загрузился. Проверьте интернет-соединение.');
-        }
-        if (typeof gsap === 'undefined') {
-            alert('Ошибка: GSAP не загрузился. Проверьте интернет-соединение.');
-        }
-
         // --- STATE ---
         const state = {
             scene: 1,
@@ -199,7 +191,7 @@
         const stars = new THREE.Points(starsGeo, starsMat);
         scene.add(stars);
 
-        // --- CHARACTERS ---
+        // --- CHARACTERS (Fixed for r128) ---
         function createChibi(color, isMale) {
             const group = new THREE.Group();
 
@@ -208,14 +200,34 @@
             const clothesMat = new THREE.MeshStandardMaterial({ color: color });
             const hairMat = new THREE.MeshStandardMaterial({ color: isMale ? 0x4a3728 : 0xf4d03f });
 
-            // Body
-            const body = new THREE.Mesh(
-                new THREE.CapsuleGeometry(0.7, 1.5, 4, 8),
+            // Body (Cylinder + Sphere top instead of Capsule)
+            const bodyGroup = new THREE.Group();
+            
+            const bodyCyl = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.7, 0.7, 1.5, 16),
                 clothesMat
             );
-            body.position.y = 0;
-            body.castShadow = true;
-            group.add(body);
+            bodyCyl.position.y = 0;
+            bodyCyl.castShadow = true;
+            bodyGroup.add(bodyCyl);
+            
+            // Rounded top for body
+            const bodyTop = new THREE.Mesh(
+                new THREE.SphereGeometry(0.7, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2),
+                clothesMat
+            );
+            bodyTop.position.y = 0.75;
+            bodyGroup.add(bodyTop);
+            
+            // Rounded bottom for body
+            const bodyBot = new THREE.Mesh(
+                new THREE.SphereGeometry(0.7, 16, 16, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2),
+                clothesMat
+            );
+            bodyBot.position.y = -0.75;
+            bodyGroup.add(bodyBot);
+            
+            group.add(bodyGroup);
 
             // Head (Big for chibi style)
             const head = new THREE.Mesh(
