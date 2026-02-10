@@ -1,219 +1,1050 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Снежана ❤️ Алишер</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Снежана, это для тебя 💕</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Pacifico&display=swap" rel="stylesheet">
+    
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <!-- GSAP для плавных анимаций -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&family=Pacifico&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+        :root {
+            --pink-light: #FFC8DD;
+            --pink-medium: #FF9EBB;
+            --lavender: #CDB4DB;
+            --lavender-dark: #B8A9C9;
+            --white: #FFFFFF;
+            --glass-bg: rgba(255, 255, 255, 0.25);
+            --glass-border: rgba(255, 255, 255, 0.4);
+        }
 
-<style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
+        html {
+            scroll-behavior: smooth;
+        }
 
-body {
-    font-family: 'Comfortaa', cursive;
-    background: linear-gradient(135deg, #FFC8DD, #CDB4DB);
-    color: #fff;
-    overflow-x: hidden;
-}
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, var(--pink-light) 0%, var(--lavender) 50%, var(--pink-light) 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 20s ease infinite;
+            overflow-x: hidden;
+            color: #333;
+            min-height: 100vh;
+        }
 
-section {
-    min-height: 100vh;
-    padding: 80px 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-}
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
 
-/* ===== INTRO ===== */
-.intro h1 {
-    font-family: 'Pacifico', cursive;
-    font-size: 3.5rem;
-    margin-bottom: 20px;
-}
+        /* Фоновые плавающие элементы */
+        .floating-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
 
-.intro p {
-    font-size: 1.3rem;
-    max-width: 700px;
-}
+        .floating-item {
+            position: absolute;
+            opacity: 0.6;
+            animation: float 15s infinite ease-in-out;
+            filter: drop-shadow(0 0 10px rgba(255, 200, 221, 0.8));
+        }
 
-.scroll {
-    margin-top: 50px;
-    font-size: 1.1rem;
-    opacity: 0.8;
-    animation: bounce 2s infinite;
-}
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
+            33% { transform: translateY(-30px) rotate(120deg) scale(1.1); }
+            66% { transform: translateY(20px) rotate(240deg) scale(0.9); }
+        }
 
-@keyframes bounce {
-    0%,100% { transform: translateY(0); }
-    50% { transform: translateY(10px); }
-}
+        /* Общие стили секций */
+        .section {
+            min-height: 100vh;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 10;
+        }
 
-/* ===== STORY ===== */
-.story h2 {
-    font-size: 2.8rem;
-    margin-bottom: 30px;
-}
+        /* Glass Card Style */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            box-shadow: 
+                0 8px 32px 0 rgba(205, 180, 219, 0.37),
+                inset 0 0 20px rgba(255, 255, 255, 0.3);
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+            transform-style: preserve-3d;
+            transition: transform 0.3s ease;
+        }
 
-.story p {
-    max-width: 800px;
-    font-size: 1.2rem;
-    line-height: 1.8;
-}
+        /* === ЭКРАН 1: ИНТРО === */
+        .intro-screen {
+            position: relative;
+            overflow: hidden;
+        }
 
-/* ===== GALLERY ===== */
-.gallery h2 {
-    font-size: 2.8rem;
-    margin-bottom: 40px;
-}
+        .intro-content {
+            text-align: center;
+            z-index: 20;
+        }
 
-.photos {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-    max-width: 1000px;
-    width: 100%;
-}
+        .main-title {
+            font-family: 'Pacifico', cursive;
+            font-size: clamp(2.5rem, 8vw, 5rem);
+            color: white;
+            text-shadow: 
+                0 0 20px rgba(255, 200, 221, 0.8),
+                0 0 40px rgba(205, 180, 219, 0.6);
+            margin-bottom: 20px;
+            animation: titlePulse 3s ease-in-out infinite;
+            line-height: 1.2;
+        }
 
-.photos div {
-    background: rgba(255,255,255,0.3);
-    border-radius: 20px;
-    padding: 40px 10px;
-    font-size: 1.1rem;
-    backdrop-filter: blur(10px);
-}
+        @keyframes titlePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
 
-/* ===== LETTER ===== */
-.letter h2 {
-    font-size: 2.8rem;
-    margin-bottom: 30px;
-}
+        .subtitle {
+            font-size: clamp(1rem, 3vw, 1.5rem);
+            color: white;
+            opacity: 0.9;
+            font-weight: 600;
+            margin-bottom: 40px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
 
-.letter p {
-    max-width: 800px;
-    font-size: 1.3rem;
-    line-height: 1.9;
-}
+        .scroll-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px 30px;
+            background: white;
+            color: var(--pink-medium);
+            border: none;
+            border-radius: 50px;
+            font-family: 'Nunito', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(255, 158, 187, 0.4);
+            animation: bounce 2s infinite;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            text-decoration: none;
+        }
 
-/* ===== FINAL ===== */
-.final h2 {
-    font-family: 'Pacifico', cursive;
-    font-size: 3rem;
-    margin-bottom: 30px;
-}
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
 
-.buttons {
-    display: flex;
-    gap: 30px;
-    margin-top: 30px;
-    position: relative;
-}
+        .scroll-btn:hover {
+            transform: scale(1.1) translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255, 158, 187, 0.6);
+        }
 
-button {
-    padding: 15px 40px;
-    font-size: 1.2rem;
-    border: none;
-    border-radius: 50px;
-    cursor: pointer;
-    font-weight: 700;
-}
+        /* 3D Сердечки вокруг текста */
+        .hearts-around {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
 
-.yes {
-    background: #ff6b9d;
-    color: white;
-}
+        .heart-3d {
+            position: absolute;
+            font-size: 2rem;
+            animation: orbit 8s linear infinite;
+            filter: drop-shadow(0 0 10px rgba(255, 200, 221, 0.8));
+        }
 
-.no {
-    background: rgba(255,255,255,0.6);
-    color: #c44569;
-    position: absolute;
-    left: 160px;
-}
+        @keyframes orbit {
+            0% { transform: rotate(0deg) translateX(150px) rotate(0deg); }
+            100% { transform: rotate(360deg) translateX(150px) rotate(-360deg); }
+        }
 
-.success {
-    display: none;
-    margin-top: 40px;
-    font-size: 2.2rem;
-    font-family: 'Pacifico', cursive;
-}
-</style>
+        /* === ЭКРАН 2: ИСТОРИЯ === */
+        .timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .section-title {
+            font-family: 'Pacifico', cursive;
+            font-size: clamp(2rem, 5vw, 3rem);
+            color: white;
+            text-align: center;
+            margin-bottom: 40px;
+            text-shadow: 0 0 20px rgba(255, 200, 221, 0.8);
+        }
+
+        .story-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-radius: 25px;
+            padding: 30px;
+            transform-style: preserve-3d;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .story-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .story-card:hover::before {
+            opacity: 1;
+        }
+
+        .story-card:hover {
+            transform: translateY(-10px) rotateX(5deg) rotateY(5deg) scale(1.02);
+            box-shadow: 0 20px 40px rgba(205, 180, 219, 0.4);
+        }
+
+        .story-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .story-title {
+            font-family: 'Pacifico', cursive;
+            font-size: 1.5rem;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .story-text {
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+            font-size: 1.1rem;
+        }
+
+        /* === ЭКРАН 3: ГАЛЕРЕЯ === */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            width: 100%;
+            max-width: 1000px;
+            perspective: 1000px;
+        }
+
+        .photo-card {
+            background: white;
+            padding: 15px 15px 60px 15px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transform: rotate(-3deg);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            position: relative;
+            transform-style: preserve-3d;
+        }
+
+        .photo-card:nth-child(even) {
+            transform: rotate(3deg);
+        }
+
+        .photo-card:hover {
+            transform: rotate(0deg) scale(1.1) translateZ(50px);
+            z-index: 100;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+
+        .photo-placeholder {
+            width: 100%;
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, var(--pink-light), var(--lavender));
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .photo-placeholder::after {
+            content: '📸';
+            opacity: 0.5;
+        }
+
+        .photo-caption {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            right: 15px;
+            text-align: center;
+            font-family: 'Pacifico', cursive;
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        /* === ЭКРАН 4: ПОСЛАНИЕ === */
+        .letter-container {
+            max-width: 700px;
+            width: 100%;
+        }
+
+        .letter-card {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 50px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(205, 180, 219, 0.3);
+            position: relative;
+            transform-style: preserve-3d;
+        }
+
+        .letter-card::before {
+            content: '💌';
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 4rem;
+            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.2));
+        }
+
+        .letter-text {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            color: #555;
+            margin-top: 30px;
+        }
+
+        .letter-line {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .signature {
+            font-family: 'Pacifico', cursive;
+            font-size: 1.5rem;
+            color: var(--pink-medium);
+            text-align: right;
+            margin-top: 30px;
+            opacity: 0;
+        }
+
+        /* === ЭКРАН 5: ФИНАЛ === */
+        .final-screen {
+            position: relative;
+        }
+
+        .question-box {
+            text-align: center;
+            max-width: 600px;
+        }
+
+        .final-title {
+            font-family: 'Pacifico', cursive;
+            font-size: clamp(2rem, 6vw, 3.5rem);
+            color: white;
+            margin-bottom: 50px;
+            text-shadow: 0 0 30px rgba(255, 200, 221, 1);
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { text-shadow: 0 0 30px rgba(255, 200, 221, 0.8); }
+            50% { text-shadow: 0 0 50px rgba(255, 200, 221, 1), 0 0 70px rgba(205, 180, 219, 0.8); }
+        }
+
+        .buttons-container {
+            display: flex;
+            gap: 40px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            position: relative;
+            min-height: 200px;
+        }
+
+        .btn-3d {
+            padding: 20px 50px;
+            border: none;
+            border-radius: 50px;
+            font-family: 'Nunito', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            position: relative;
+            transform-style: preserve-3d;
+        }
+
+        .btn-yes {
+            background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%);
+            color: white;
+            box-shadow: 
+                0 10px 30px rgba(255, 107, 157, 0.4),
+                0 0 0 0 rgba(255, 107, 157, 0.7);
+            animation: pulse-ring 2s infinite;
+            font-size: 1.5rem;
+        }
+
+        @keyframes pulse-ring {
+            0% { box-shadow: 0 10px 30px rgba(255, 107, 157, 0.4), 0 0 0 0 rgba(255, 107, 157, 0.7); }
+            70% { box-shadow: 0 10px 30px rgba(255, 107, 157, 0.4), 0 0 0 20px rgba(255, 107, 157, 0); }
+            100% { box-shadow: 0 10px 30px rgba(255, 107, 157, 0.4), 0 0 0 0 rgba(255, 107, 157, 0); }
+        }
+
+        .btn-yes:hover {
+            transform: scale(1.15) translateY(-5px);
+            box-shadow: 0 15px 40px rgba(255, 107, 157, 0.6);
+        }
+
+        .btn-no {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            position: absolute;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* Экран успеха */
+        .success-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 200, 221, 0.98);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .success-screen.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .success-content {
+            text-align: center;
+            animation: successBounce 1s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes successBounce {
+            0% { transform: scale(0) rotate(-10deg); }
+            50% { transform: scale(1.2) rotate(5deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        .big-heart {
+            font-size: 150px;
+            animation: heartbeat 1.2s ease-in-out infinite;
+            filter: drop-shadow(0 0 30px rgba(255, 107, 157, 0.8));
+            margin-bottom: 20px;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(1.15); }
+            50% { transform: scale(1); }
+            75% { transform: scale(1.08); }
+        }
+
+        .success-text {
+            font-family: 'Pacifico', cursive;
+            font-size: clamp(2rem, 5vw, 3rem);
+            color: white;
+            text-shadow: 0 0 20px rgba(205, 180, 219, 1);
+            margin-bottom: 20px;
+        }
+
+        .success-subtext {
+            font-size: 1.3rem;
+            color: white;
+            opacity: 0.9;
+        }
+
+        /* Клик-эффекты */
+        .click-effect {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            font-size: 24px;
+            animation: clickFloat 1s ease-out forwards;
+        }
+
+        @keyframes clickFloat {
+            0% { transform: translateY(0) scale(0); opacity: 1; }
+            50% { transform: translateY(-50px) scale(1.2); opacity: 0.8; }
+            100% { transform: translateY(-100px) scale(0); opacity: 0; }
+        }
+
+        /* Музыкальная нотка */
+        .music-hint {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: white;
+            z-index: 100;
+            opacity: 0.8;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .glass-card {
+                padding: 25px;
+            }
+            
+            .story-card:hover {
+                transform: translateY(-5px) scale(1.02);
+            }
+            
+            .photo-card:hover {
+                transform: scale(1.05);
+            }
+            
+            .buttons-container {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .btn-no {
+                position: relative !important;
+                transform: none !important;
+            }
+        }
+
+        /* Прогресс-бар прокрутки */
+        .scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--pink-medium), var(--lavender));
+            z-index: 1000;
+            width: 0%;
+            transition: width 0.1s;
+        }
+    </style>
 </head>
-
 <body>
 
-<section class="intro">
-    <h1>Снежана 💕</h1>
-    <p>
-        Если ты это читаешь — значит, Алишер снова сделал что-то странное…  
-        но очень искреннее 😌
-    </p>
-    <div class="scroll">Листай вниз ↓</div>
-</section>
+    <!-- Индикатор прокрутки -->
+    <div class="scroll-progress" id="scrollProgress"></div>
 
-<section class="story">
-    <h2>Наша история</h2>
-    <p>
-        Мы вместе уже почти 4 года.  
-        И за это время было всё: смех, приколы, споры, поддержка,  
-        и миллион моментов, за которые я благодарен тебе каждый день.
-        <br><br>
-        Ты — мой человек. Даже когда вредничаешь 😏
-    </p>
-</section>
+    <!-- Фоновые плавающие элементы -->
+    <div class="floating-bg" id="floatingBg"></div>
 
-<section class="gallery">
-    <h2>Это мы ❤️</h2>
-    <div class="photos">
-        <div>Тут будет ваше фото 📸</div>
-        <div>И тут тоже 💕</div>
-        <div>А здесь — самое любимое 😍</div>
-        <div>Ну и ещё одно, потому что почему бы и нет 😄</div>
+    <!-- === ЭКРАН 1: ИНТРО === -->
+    <section class="section intro-screen" id="intro">
+        <div class="hearts-around" id="orbitHearts"></div>
+        
+        <div class="intro-content">
+            <h1 class="main-title">Снежана,<br>это сайт только для тебя 💕</h1>
+            <p class="subtitle">Алишер снова сделал что-то странное…<br>но от души 😌</p>
+            
+            <a href="#story" class="scroll-btn">
+                Листай вниз 
+                <span style="font-size: 1.3rem;">↓</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- === ЭКРАН 2: ИСТОРИЯ === -->
+    <section class="section" id="story">
+        <div class="timeline">
+            <h2 class="section-title">Наша история 💫</h2>
+            
+            <div class="story-card" data-tilt>
+                <span class="story-icon">🎯</span>
+                <h3 class="story-title">Как мы познакомились</h3>
+                <p class="story-text">
+                    Помнишь тот день? Я точно помню. Ты стояла там, светилась ярче солнца, 
+                    а я думал только о том, как бы не опозориться при первой же фразе. 
+                    Спойлер: я немного опозорился, но ты улыбнулась — и я понял, что это начало чего-то особенного.
+                </p>
+            </div>
+
+            <div class="story-card" data-tilt>
+                <span class="story-icon">☕</span>
+                <h3 class="story-title">Первые свидания</h3>
+                <p class="story-text">
+                    Кофе, прогулки, неловкие молчания, которые почему-то не были неловкими. 
+                    Ты смеялась над моим юмором (или притворялась, что смеёшься — но мне всё равно было приятно). 
+                    Каждая встреча казалась маленьким праздником.
+                </p>
+            </div>
+
+            <div class="story-card" data-tilt>
+                <span class="story-icon">🎉</span>
+                <h3 class="story-title">Почти 4 года вместе</h3>
+                <p class="story-text">
+                    1460 дней (плюс-минус парочка), миллионы смс, сотни часов разговоров, 
+                    бесконечное количество мемов и внутренних шуток, которые не понимает никто, кроме нас. 
+                    И знаешь что? Я бы не променял ни одну из этих секунд.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- === ЭКРАН 3: ГАЛЕРЕЯ === -->
+    <section class="section" id="gallery">
+        <h2 class="section-title">Наши моменты 📸</h2>
+        
+        <div class="gallery-grid">
+            <div class="photo-card" onclick="createSparkles(event)">
+                <div class="photo-placeholder"></div>
+                <div class="photo-caption">Наше первое фото</div>
+            </div>
+            
+            <div class="photo-card" onclick="createSparkles(event)">
+                <div class="photo-placeholder"></div>
+                <div class="photo-caption">Тот самый день 💕</div>
+            </div>
+            
+            <div class="photo-card" onclick="createSparkles(event)">
+                <div class="photo-placeholder"></div>
+                <div class="photo-caption">Смех до слёз</div>
+            </div>
+            
+            <div class="photo-card" onclick="createSparkles(event)">
+                <div class="photo-placeholder"></div>
+                <div class="photo-caption">Просто мы</div>
+            </div>
+            
+            <div class="photo-card" onclick="createSparkles(event)">
+                <div class="photo-placeholder"></div>
+                <div class="photo-caption">Лучший день</div>
+            </div>
+            
+            <div class="photo-card" onclick="createSparkles(event)">
+                <div class="photo-placeholder"></div>
+                <div class="photo-caption">И ещё много-много...</div>
+            </div>
+        </div>
+        
+        <p style="color: white; margin-top: 30px; opacity: 0.8; font-style: italic;">
+            * Здесь должны быть ваши настоящие фото — просто замени placeholder'ы!
+        </p>
+    </section>
+
+    <!-- === ЭКРАН 4: ПОСЛАНИЕ === -->
+    <section class="section" id="letter">
+        <div class="letter-container">
+            <h2 class="section-title">Моё послание 💌</h2>
+            
+            <div class="letter-card">
+                <div class="letter-text" id="letterText">
+                    <p class="letter-line">Привет, моя Снежана.</p>
+                    <br>
+                    <p class="letter-line">Знаешь, я не поэт и не писатель. Мой код обычно лучше, чем мои тексты.</p>
+                    <br>
+                    <p class="letter-line">Но для тебя я готов на всё — даже на попытку передать в словах то, что чувствую.</p>
+                    <br>
+                    <p class="letter-line">Ты — мой самый любимый человек. Мой лучший друг. Мой союзник в борьбе против скуки.</p>
+                    <br>
+                    <p class="letter-line">С тобой даже обычные дни становятся приключениями. С тобой я могу быть собой — со всеми моими странностями, мемами и странными идеями (типа этого сайта).</p>
+                    <br>
+                    <p class="letter-line">Спасибо, что терпишь меня. Спасибо, что смеёшься со мной. Спасибо, что ты есть.</p>
+                    <br>
+                    <p class="letter-line">Я люблю тебя. Не потому что должен, а потому что не могу по-другому.</p>
+                </div>
+                <div class="signature" id="signature">Твой Алишер ❤️</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- === ЭКРАН 5: ФИНАЛ === -->
+    <section class="section final-screen" id="final">
+        <div class="question-box">
+            <h2 class="final-title">Ты будешь моей валентинкой? 💝</h2>
+            
+            <div class="buttons-container" id="buttonsContainer">
+                <button class="btn-3d btn-yes" onclick="sayYes()">
+                    Да! 💖
+                </button>
+                
+                <button class="btn-3d btn-no" id="noBtn" onmouseenter="moveNoButton()" onclick="moveNoButton()">
+                    Нет
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Экран успеха -->
+    <div class="success-screen" id="successScreen">
+        <div class="success-content">
+            <div class="big-heart">💖</div>
+            <h2 class="success-text">Я так и знал! 😌❤️</h2>
+            <p class="success-subtext">Ты сделала мой день (и жизнь) особенной!</p>
+            <p style="color: white; margin-top: 20px; font-size: 3rem;">🎉💕🌟</p>
+        </div>
     </div>
-</section>
 
-<section class="letter">
-    <h2>Снежана, честно…</h2>
-    <p>
-        Я могу шутить, дурачиться и делать сайты вместо открыток,  
-        но правда простая:  
-        <br><br>
-        Я очень люблю тебя.  
-        И хочу, чтобы ты всегда улыбалась — особенно из-за меня ❤️
-    </p>
-</section>
+    <!-- Подсказка -->
+    <div class="music-hint">💡 Кликай по экрану — будут сердечки!</div>
 
-<section class="final">
-    <h2>Ты будешь моей валентинкой? 💝</h2>
-    <div class="buttons">
-        <button class="yes" onclick="yes()">Да 💖</button>
-        <button class="no" id="noBtn" onmouseenter="move()">Нет</button>
-    </div>
-    <div class="success" id="success">
-        Я знал 😌💘
-    </div>
-</section>
+    <script>
+        // === ИНИЦИАЛИЗАЦИЯ GSAP ===
+        gsap.registerPlugin(ScrollTrigger);
 
-<script>
-const noBtn = document.getElementById('noBtn');
+        // === СОЗДАНИЕ ФОНОВЫХ ЭЛЕМЕНТОВ ===
+        const floatingBg = document.getElementById('floatingBg');
+        const floatingItems = ['💕', '💖', '💗', '💓', '💝', '🤍', '✨', '⭐', '🌟'];
+        
+        for (let i = 0; i < 20; i++) {
+            const item = document.createElement('div');
+            item.className = 'floating-item';
+            item.innerHTML = floatingItems[Math.floor(Math.random() * floatingItems.length)];
+            item.style.left = Math.random() * 100 + '%';
+            item.style.top = Math.random() * 100 + '%';
+            item.style.fontSize = (Math.random() * 20 + 20) + 'px';
+            item.style.animationDelay = Math.random() * 5 + 's';
+            item.style.animationDuration = (Math.random() * 10 + 10) + 's';
+            floatingBg.appendChild(item);
+        }
 
-function move() {
-    const x = Math.random() * 200 - 100;
-    const y = Math.random() * 100 - 50;
-    noBtn.style.transform = `translate(${x}px, ${y}px)`;
-}
+        // === ОРБИТАЛЬНЫЕ СЕРДЕЧКИ (Интро) ===
+        const orbitContainer = document.getElementById('orbitHearts');
+        for (let i = 0; i < 6; i++) {
+            const heart = document.createElement('div');
+            heart.className = 'heart-3d';
+            heart.innerHTML = '💖';
+            heart.style.left = '50%';
+            heart.style.top = '50%';
+            heart.style.animationDelay = (i * 1.3) + 's';
+            heart.style.animationDuration = '8s';
+            // Разные радиусы орбиты
+            const radius = 120 + (i * 30);
+            heart.style.setProperty('--orbit-radius', radius + 'px');
+            // Модифицируем анимацию для каждого
+            heart.style.transform = `rotate(${i * 60}deg) translateX(${radius}px) rotate(-${i * 60}deg)`;
+            
+            // Динамическая анимация через CSS-in-JS
+            const style = document.createElement('style');
+            style.innerHTML = `
+                @keyframes orbit-${i} {
+                    0% { transform: rotate(${i * 60}deg) translateX(${radius}px) rotate(-${i * 60}deg); }
+                    100% { transform: rotate(${i * 60 + 360}deg) translateX(${radius}px) rotate(-${i * 60 - 360}deg); }
+                }
+            `;
+            document.head.appendChild(style);
+            heart.style.animation = `orbit-${i} ${8 + i}s linear infinite`;
+            
+            orbitContainer.appendChild(heart);
+        }
 
-function yes() {
-    document.getElementById('success').style.display = 'block';
-    confetti({
-        particleCount: 200,
-        spread: 100,
-        origin: { y: 0.6 }
-    });
-}
-</script>
+        // === 3D TILT ЭФФЕКТ ДЛЯ КАРТОЧЕК ===
+        document.querySelectorAll('.story-card, .photo-card, .letter-card').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const rotateX = (y - centerY) / 10;
+                const rotateY = (centerX - x) / 10;
+                
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)';
+            });
+        });
 
+        // === АНИМАЦИЯ ПИСЬМА ПРИ СКРОЛЛЕ ===
+        const letterLines = document.querySelectorAll('.letter-line');
+        const signature = document.getElementById('signature');
+
+        gsap.to(letterLines, {
+            scrollTrigger: {
+                trigger: '#letter',
+                start: 'top 70%',
+                toggleActions: 'play none none reverse'
+            },
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            stagger: 0.3,
+            ease: 'power2.out'
+        });
+
+        gsap.to(signature, {
+            scrollTrigger: {
+                trigger: '#letter',
+                start: 'top 30%',
+                toggleActions: 'play none none reverse'
+            },
+            opacity: 1,
+            duration: 1,
+            delay: 2
+        });
+
+        // === АНИМАЦИЯ КАРТОЧЕК ИСТОРИИ ===
+        gsap.from('.story-card', {
+            scrollTrigger: {
+                trigger: '#story',
+                start: 'top 80%',
+            },
+            y: 100,
+            opacity: 0,
+            duration: 1,
+            stagger: 0.2,
+            ease: 'back.out(1.7)'
+        });
+
+        // === АНИМАЦИЯ ФОТО ===
+        gsap.from('.photo-card', {
+            scrollTrigger: {
+                trigger: '#gallery',
+                start: 'top 80%',
+            },
+            scale: 0,
+            rotation: -10,
+            opacity: 0,
+            duration: 0.8,
+            stagger: 0.1,
+            ease: 'back.out(1.7)'
+        });
+
+        // === ХИТРАЯ КНОПКА "НЕТ" ===
+        const noBtn = document.getElementById('noBtn');
+        const buttonsContainer = document.getElementById('buttonsContainer');
+        let isMoving = false;
+
+        function moveNoButton() {
+            if (window.innerWidth < 768) {
+                // На мобильных просто перемещаем в случайное место контейнера
+                const containerRect = buttonsContainer.getBoundingClientRect();
+                const maxX = containerRect.width - 100;
+                const maxY = 150;
+                
+                const newX = (Math.random() - 0.5) * maxX;
+                const newY = (Math.random() - 0.5) * maxY;
+                
+                noBtn.style.transform = `translate(${newX}px, ${newY}px)`;
+            } else {
+                // На десктопе убегаем от курсора
+                const rect = noBtn.getBoundingClientRect();
+                const containerRect = buttonsContainer.getBoundingClientRect();
+                
+                // Вычисляем направление от курсора
+                const btnCenterX = rect.left + rect.width / 2;
+                const btnCenterY = rect.top + rect.height / 2;
+                
+                // Случайная позиция в пределах контейнера
+                const maxMove = 150;
+                const newX = (Math.random() - 0.5) * maxMove * 2;
+                const newY = (Math.random() - 0.5) * maxMove * 2;
+                
+                noBtn.style.transform = `translate(${newX}px, ${newY}px)`;
+                
+                // Меняем текст иногда
+                const texts = ['Нет', 'Точно?', 'Подумай!', 'А если...?', 'Ну please', '🥺'];
+                if (Math.random() > 0.7) {
+                    noBtn.innerHTML = texts[Math.floor(Math.random() * texts.length)];
+                }
+            }
+        }
+
+        // Усиленное убегание на десктопе
+        if (window.innerWidth > 768) {
+            document.addEventListener('mousemove', (e) => {
+                const rect = noBtn.getBoundingClientRect();
+                const btnCenterX = rect.left + rect.width / 2;
+                const btnCenterY = rect.top + rect.height / 2;
+                
+                const distance = Math.sqrt(
+                    Math.pow(e.clientX - btnCenterX, 2) + 
+                    Math.pow(e.clientY - btnCenterY, 2)
+                );
+                
+                if (distance < 100) {
+                    moveNoButton();
+                }
+            });
+        }
+
+        // === ОБРАБОТКА "ДА" ===
+        function sayYes() {
+            // Конфетти-взрыв
+            const duration = 3000;
+            const end = Date.now() + duration;
+
+            const frame = () => {
+                confetti({
+                    particleCount: 5,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 },
+                    colors: ['#FFC8DD', '#CDB4DB', '#FF6B9D', '#FFFFFF', '#FFD700']
+                });
+                confetti({
+                    particleCount: 5,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 },
+                    colors: ['#FFC8DD', '#CDB4DB', '#FF6B9D', '#FFFFFF', '#FFD700']
+                });
+
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame);
+                }
+            };
+            frame();
+
+            // Показываем экран успеха
+            setTimeout(() => {
+                document.getElementById('successScreen').classList.add('active');
+                
+                // Большой взрыв по центру
+                confetti({
+                    particleCount: 200,
+                    spread: 120,
+                    origin: { y: 0.6 },
+                    colors: ['#FFC8DD', '#CDB4DB', '#FF6B9D', '#FFFFFF', '#FFD700', '#FF1493'],
+                    shapes: ['circle', 'square', 'heart'],
+                    scalar: 1.5
+                });
+            }, 500);
+        }
+
+        // === ЭФФЕКТ КЛИКА (СЕРДЕЧКИ) ===
+        document.addEventListener('click', (e) => {
+            // Игнорируем клики по кнопкам и карточкам
+            if (e.target.closest('.btn-3d') || e.target.closest('.photo-card')) return;
+            
+            const heart = document.createElement('div');
+            heart.className = 'click-effect';
+            heart.innerHTML = ['💕', '💖', '💗', '✨', '⭐'][Math.floor(Math.random() * 5)];
+            heart.style.left = e.clientX + 'px';
+            heart.style.top = e.clientY + 'px';
+            heart.style.fontSize = (Math.random() * 20 + 20) + 'px';
+            
+            document.body.appendChild(heart);
+            
+            setTimeout(() => heart.remove(), 1000);
+        });
+
+        // === SPARKLES ДЛЯ ФОТО ===
+        function createSparkles(e) {
+            const rect = e.currentTarget.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            
+            for (let i = 0; i < 8; i++) {
+                setTimeout(() => {
+                    const sparkle = document.createElement('div');
+                    sparkle.className = 'click-effect';
+                    sparkle.innerHTML = '✨';
+                    sparkle.style.left = (centerX + (Math.random() - 0.5) * 100) + 'px';
+                    sparkle.style.top = (centerY + (Math.random() - 0.5) * 100) + 'px';
+                    sparkle.style.fontSize = '30px';
+                    document.body.appendChild(sparkle);
+                    setTimeout(() => sparkle.remove(), 1000);
+                }, i * 50);
+            }
+        }
+
+        // === ПРОГРЕСС-БАР СКРОЛЛА ===
+        window.addEventListener('scroll', () => {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById('scrollProgress').style.width = scrolled + '%';
+        });
+
+        // === ПАРАЛЛАКС ЭФФЕКТ ===
+        document.addEventListener('mousemove', (e) => {
+            const mouseX = e.clientX / window.innerWidth - 0.5;
+            const mouseY = e.clientY / window.innerHeight - 0.5;
+            
+            gsap.to('.floating-item', {
+                x: mouseX * 30,
+                y: mouseY * 30,
+                duration: 1,
+                ease: 'power2.out'
+            });
+        });
+
+        // === ИНИЦИАЛИЗАЦИЯ АНИМАЦИИ ИНТРО ===
+        gsap.from('.main-title', {
+            scale: 0,
+            rotation: -5,
+            duration: 1.5,
+            ease: 'elastic.out(1, 0.5)',
+            delay: 0.2
+        });
+
+        gsap.from('.subtitle', {
+            y: 50,
+            opacity: 0,
+            duration: 1,
+            delay: 0.8,
+            ease: 'power2.out'
+        });
+
+        gsap.from('.scroll-btn', {
+            y: 30,
+            opacity: 0,
+            duration: 1,
+            delay: 1.2,
+            ease: 'back.out(1.7)'
+        });
+    </script>
 </body>
 </html>
