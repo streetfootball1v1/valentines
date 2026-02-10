@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Для тебя! ❤️</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #ffeef2; /* Нежно-розовый фон */
+            font-family: 'Pacifico', cursive; /* Милый шрифт */
+            overflow: hidden; /* Чтобы сердечки не создавали прокрутку */
+            text-align: center;
+            position: relative; /* Для позиционирования сердечек */
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            position: relative; /* Чтобы контент был поверх сердечек */
+            z-index: 10;
+        }
+
+        h1 { 
+            color: #d63384; 
+            margin-bottom: 20px; 
+            font-size: 2.5rem; /* Увеличим размер заголовка */
+        }
+        
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+            position: relative;
+            z-index: 1; /* Чтобы кнопки не конфликтовали с убегающей кнопкой */
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.3s ease;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Для кнопок более читаемый шрифт */
+        }
+
+        #yesBtn { background-color: #ff4d6d; color: white; }
+        #yesBtn:hover { transform: scale(1.05); background-color: #ff6e87; }
+        
+        #noBtn { 
+            background-color: #adb5bd; 
+            color: white; 
+            position: absolute; 
+            left: 160px; /* Изначальное положение рядом с "ДА" */
+            transition: all 0.3s ease-out; /* Плавное перемещение кнопки "Нет" */
+        }
+        #noBtn:hover { background-color: #9fa6ad; }
+
+        .hidden { display: none; }
+        
+        img { 
+            width: 200px; 
+            height: auto;
+            border-radius: 10px; 
+            margin-bottom: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        /* Анимация для падающих сердечек */
+        .heart {
+            position: absolute;
+            background-color: #ff80a3; /* Цвет сердечек */
+            transform: rotate(-45deg);
+            width: 20px;
+            height: 20px;
+            opacity: 0; /* Изначально невидимы */
+            animation: fall linear infinite;
+            pointer-events: none; /* Чтобы не мешали взаимодействию */
+            z-index: 0; /* Под основным контентом */
+        }
+        .heart::before,
+        .heart::after {
+            content: "";
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: #ff80a3;
+        }
+        .heart::before { top: -10px; left: 0; }
+        .heart::after { left: 10px; top: 0; }
+
+        @keyframes fall {
+            0% { transform: translateY(-10vh) rotate(-45deg); opacity: 0; }
+            10% { opacity: 0.8; }
+            100% { transform: translateY(100vh) rotate(-45deg); opacity: 0; }
+        }
+
+        /* Анимация для появления текста при успехе */
+        .fade-in {
+            animation: fadeIn 1s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container" id="mainCard">
+        <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHpueGZ3bmZ4eGZ3bmZ4eGZ3bmZ4eGZ3bmZ4eGZ3bmZ4ZnduZiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/cLS1cfxvGOPVpf9g3y/giphy.gif" alt="Cute Cat">
+        <h1>Будешь моей половинкой? ❤️</h1>
+        <div class="buttons">
+            <button id="yesBtn">ДА!</button>
+            <button id="noBtn">Нет</button>
+        </div>
+    </div>
+
+    <div class="container hidden" id="successMsg">
+        <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHpueGZ3bmZ4eGZ3bmZ4eGZ3bmZ4eGZ3bmZ4eGZ3bmZ4ZnduZiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/KztT2c4u8mYYUiMKdJ/giphy.gif" alt="Happy Cat">
+        <h1 class="fade-in">Ура! Я так и знал(а)! ✨</h1>
+        <p class="fade-in">Это будет лучший день!</p>
+    </div>
+
+    <script>
+        const noBtn = document.getElementById('noBtn');
+        const yesBtn = document.getElementById('yesBtn');
+        const mainCard = document.getElementById('mainCard');
+        const successMsg = document.getElementById('successMsg');
+
+        // Логика для убегающей кнопки
+        noBtn.addEventListener('mouseover', () => {
+            const containerRect = mainCard.getBoundingClientRect();
+            const btnRect = noBtn.getBoundingClientRect();
+
+            let newX, newY;
+
+            // Генерируем случайные координаты внутри контейнера mainCard
+            // С учетом размеров кнопки, чтобы она не выходила за границы
+            newX = Math.random() * (containerRect.width - btnRect.width);
+            newY = Math.random() * (containerRect.height - btnRect.height);
+
+            // Обновляем позицию кнопки относительно родительского элемента (mainCard)
+            // Изначально noBtn позиционирована абсолютно внутри .buttons,
+            // но для динамического перемещения лучше менять top/left относительно .buttons
+            // или использовать transform для плавности и производительности.
+            // Для простоты сейчас меняем left/top
+            noBtn.style.left = `${newX}px`;
+            noBtn.style.top = `${newY}px`;
+        });
+
+        // Клик по "Да"
+        yesBtn.addEventListener('click', () => {
+            mainCard.classList.add('hidden');
+            successMsg.classList.remove('hidden');
+            document.querySelectorAll('#successMsg .fade-in').forEach(el => el.style.animationPlayState = 'running');
+            startHeartfall();
+        });
+
+        // Функция для запуска падающих сердечек
+        function startHeartfall() {
+            setInterval(() => {
+                const heart = document.createElement('div');
+                heart.classList.add('heart');
+                heart.style.left = Math.random() * 100 + 'vw'; // Случайная позиция по горизонтали
+                heart.style.animationDuration = Math.random() * 2 + 3 + 's'; // Случайная длительность падения
+                heart.style.animationDelay = Math.random() * 0.5 + 's'; // Случайная задержка
+                document.body.appendChild(heart);
+
+                // Удаляем сердечко после того, как оно упадет, чтобы не засорять DOM
+                heart.addEventListener('animationend', () => {
+                    heart.remove();
+                });
+            }, 200); // Создаем новое сердечко каждые 200мс
+        }
+        
+    </script>
+</body>
+</html>
