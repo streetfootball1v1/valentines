@@ -3,21 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Our Story | Alisher & Snezhana</title>
+    <title>Alisher & Snezhana</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&family=Pacifico&display=swap" rel="stylesheet">
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
-            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             overflow: hidden;
-            font-family: 'Nunito', sans-serif;
-            background-color: #1a1a2e;
+            background: #1a1a2e;
         }
         
         #canvas-container {
-            position: absolute;
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
@@ -25,604 +25,465 @@
             z-index: 1;
         }
 
-        /* UI Layer */
         #ui-layer {
-            position: absolute;
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             z-index: 10;
-            pointer-events: none; /* Let clicks pass through to 3D */
+            pointer-events: none;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
         }
 
-        .interactive-element {
-            pointer-events: auto;
-        }
-
-        /* Typography & Effects */
-        .cinematic-text {
-            font-family: 'Pacifico', cursive;
+        .story-text {
             color: white;
-            text-shadow: 0 4px 20px rgba(255, 105, 180, 0.6);
+            font-size: 2rem;
+            text-align: center;
+            padding: 20px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
             opacity: 0;
             transform: translateY(20px);
-            text-align: center;
-            padding: 0 20px;
+            max-width: 80%;
+            pointer-events: none;
         }
 
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 20px;
-            padding: 2rem;
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-        }
-
-        /* The Heart Button */
         .heart-btn {
-            width: 80px;
-            height: 80px;
+            width: 100px;
+            height: 100px;
             background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
             cursor: pointer;
-            box-shadow: 0 0 30px rgba(255, 107, 107, 0.6);
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            animation: float 3s ease-in-out infinite;
-            position: relative;
+            pointer-events: auto;
+            box-shadow: 0 0 40px rgba(255, 107, 107, 0.6);
+            transition: transform 0.3s;
+            animation: pulse 2s infinite;
+            font-size: 50px;
         }
 
         .heart-btn:hover {
-            transform: scale(1.2);
+            transform: scale(1.1);
         }
 
-        .heart-btn::after {
-            content: '❤';
-            font-size: 40px;
-            color: white;
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 40px rgba(255, 107, 107, 0.6); }
+            50% { transform: scale(1.05); box-shadow: 0 0 60px rgba(255, 107, 107, 0.8); }
         }
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-15px); }
-        }
-
-        /* Final Button */
         .final-btn {
             background: linear-gradient(45deg, #ff00cc, #333399);
-            border: none;
             color: white;
-            padding: 15px 40px;
+            padding: 20px 50px;
             font-size: 1.5rem;
             border-radius: 50px;
+            border: none;
             cursor: pointer;
-            font-family: 'Pacifico', cursive;
-            box-shadow: 0 0 20px rgba(255, 0, 204, 0.5);
-            transition: all 0.3s ease;
+            pointer-events: auto;
             opacity: 0;
-            pointer-events: none;
             transform: scale(0.8);
+            transition: all 0.3s;
+            box-shadow: 0 0 30px rgba(255, 0, 204, 0.5);
+            display: none;
         }
 
-        .final-btn.visible {
+        .final-btn.show {
+            display: block;
             opacity: 1;
-            pointer-events: auto;
             transform: scale(1);
         }
 
         .final-btn:hover {
             transform: scale(1.1);
-            box-shadow: 0 0 40px rgba(255, 0, 204, 0.8);
+            box-shadow: 0 0 50px rgba(255, 0, 204, 0.8);
         }
 
-        #particles {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 5;
+        #loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 1.2rem;
+            z-index: 100;
         }
+
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-    <!-- 3D Canvas -->
+    <div id="loading">Загрузка 3D...</div>
     <div id="canvas-container"></div>
     
-    <!-- 2D Overlay Effects (Confetti) -->
-    <canvas id="particles"></canvas>
-
-    <!-- UI Layer -->
     <div id="ui-layer">
-        <h1 id="story-text" class="cinematic-text text-4xl md:text-6xl mb-12">Once we were just two people...</h1>
-        
-        <div id="interaction-container" class="interactive-element">
-            <div id="heart-trigger" class="heart-btn"></div>
-        </div>
-
-        <button id="final-step-btn" class="final-btn interactive-element">Take the final step</button>
+        <div id="text-display" class="story-text">Once we were just two people...</div>
+        <div id="heart-btn" class="heart-btn">❤</div>
+        <button id="final-btn" class="final-btn">Take the final step</button>
     </div>
 
     <script>
-        // --- CONFIGURATION & STATE ---
+        // Проверка загрузки библиотек
+        if (typeof THREE === 'undefined') {
+            alert('Ошибка: Three.js не загрузился. Проверьте интернет-соединение.');
+        }
+        if (typeof gsap === 'undefined') {
+            alert('Ошибка: GSAP не загрузился. Проверьте интернет-соединение.');
+        }
+
+        // --- STATE ---
         const state = {
             scene: 1,
-            distance: 15, // Initial distance between characters
-            targetDistance: 15,
-            lightIntensity: 0.2,
-            colorHue: 220, // Blueish start
+            distance: 12,
+            lightIntensity: 0.5,
             isHoldingHands: false
         };
 
         // --- THREE.JS SETUP ---
         const container = document.getElementById('canvas-container');
         const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x1a1a2e, 0.02);
+        scene.background = new THREE.Color(0x1a1a2e);
+        scene.fog = new THREE.Fog(0x1a1a2e, 10, 50);
 
-        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(0, 5, 30);
-        camera.lookAt(0, 0, 0);
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 3, 15);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         renderer.shadowMap.enabled = true;
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         container.appendChild(renderer.domElement);
 
-        // --- LIGHTING ---
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
+        document.getElementById('loading').classList.add('hidden');
+
+        // --- LIGHTS ---
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
         scene.add(ambientLight);
 
-        const mainLight = new THREE.DirectionalLight(0xffd1dc, 0.5);
-        mainLight.position.set(10, 20, 10);
-        mainLight.castShadow = true;
-        mainLight.shadow.mapSize.width = 2048;
-        mainLight.shadow.mapSize.height = 2048;
-        scene.add(mainLight);
+        const dirLight = new THREE.DirectionalLight(0xffd1dc, 0.5);
+        dirLight.position.set(5, 10, 5);
+        dirLight.castShadow = true;
+        scene.add(dirLight);
 
-        // Warm point light that grows
-        const loveLight = new THREE.PointLight(0xff69b4, 0, 50);
-        loveLight.position.set(0, 5, 0);
+        const loveLight = new THREE.PointLight(0xff69b4, 0, 30);
+        loveLight.position.set(0, 2, 0);
         scene.add(loveLight);
 
         // --- ENVIRONMENT ---
-        // Floor
-        const planeGeometry = new THREE.PlaneGeometry(200, 200);
-        const planeMaterial = new THREE.MeshStandardMaterial({ 
+        // Ground
+        const groundGeo = new THREE.PlaneGeometry(100, 100);
+        const groundMat = new THREE.MeshStandardMaterial({ 
             color: 0x2a2a40,
-            roughness: 0.8,
-            metalness: 0.2
+            roughness: 0.8 
         });
-        const plane = new THREE.Mesh(planeGeometry, planeMaterial);
-        plane.rotation.x = -Math.PI / 2;
-        plane.position.y = -2;
-        plane.receiveShadow = true;
-        scene.add(plane);
+        const ground = new THREE.Mesh(groundGeo, groundMat);
+        ground.rotation.x = -Math.PI / 2;
+        ground.position.y = -2;
+        ground.receiveShadow = true;
+        scene.add(ground);
 
-        // Floating Particles (Stars/Hearts)
-        const particlesGeometry = new THREE.BufferGeometry();
-        const particlesCount = 300;
-        const posArray = new Float32Array(particlesCount * 3);
-        
-        for(let i = 0; i < particlesCount * 3; i++) {
-            posArray[i] = (Math.random() - 0.5) * 60;
+        // Stars
+        const starsGeo = new THREE.BufferGeometry();
+        const starCount = 200;
+        const starPos = new Float32Array(starCount * 3);
+        for(let i = 0; i < starCount * 3; i++) {
+            starPos[i] = (Math.random() - 0.5) * 50;
         }
-        
-        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-        const particlesMaterial = new THREE.PointsMaterial({
-            size: 0.2,
-            color: 0xffffff,
-            transparent: true,
-            opacity: 0.6,
-            blending: THREE.AdditiveBlending
-        });
-        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
-        scene.add(particlesMesh);
+        starsGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+        const starsMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.1 });
+        const stars = new THREE.Points(starsGeo, starsMat);
+        scene.add(stars);
 
-        // --- CHARACTER GENERATION (Procedural Chibi) ---
-        function createCharacter(color, isMale) {
+        // --- CHARACTERS ---
+        function createChibi(color, isMale) {
             const group = new THREE.Group();
 
             // Materials
-            const skinMat = new THREE.MeshStandardMaterial({ color: 0xffdbac, roughness: 0.3 });
-            const clothesMat = new THREE.MeshStandardMaterial({ color: color, roughness: 0.7 });
-            const hairMat = new THREE.MeshStandardMaterial({ color: isMale ? 0x3d2314 : 0xe6c229, roughness: 0.9 });
-            const eyeMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.1 });
+            const skinMat = new THREE.MeshStandardMaterial({ color: 0xffdbac });
+            const clothesMat = new THREE.MeshStandardMaterial({ color: color });
+            const hairMat = new THREE.MeshStandardMaterial({ color: isMale ? 0x4a3728 : 0xf4d03f });
 
-            // Body (Chibi proportions - big head, small body)
-            const bodyGeo = new THREE.CylinderGeometry(0.8, 1, 2.5, 16);
-            const body = new THREE.Mesh(bodyGeo, clothesMat);
+            // Body
+            const body = new THREE.Mesh(
+                new THREE.CapsuleGeometry(0.7, 1.5, 4, 8),
+                clothesMat
+            );
             body.position.y = 0;
             body.castShadow = true;
             group.add(body);
 
-            // Head
-            const headGeo = new THREE.SphereGeometry(1.4, 32, 32);
-            const head = new THREE.Mesh(headGeo, skinMat);
-            head.position.y = 2.2;
+            // Head (Big for chibi style)
+            const head = new THREE.Mesh(
+                new THREE.SphereGeometry(1.2, 32, 32),
+                skinMat
+            );
+            head.position.y = 1.8;
             head.castShadow = true;
             group.add(head);
 
-            // Hair (Simple stylized cap)
-            const hairGeo = new THREE.SphereGeometry(1.5, 32, 32, 0, Math.PI * 2, 0, Math.PI/2.5);
-            const hair = new THREE.Mesh(hairGeo, hairMat);
-            hair.position.y = 2.2;
-            hair.rotation.x = Math.PI; // Flip to cover top
+            // Hair
+            const hair = new THREE.Mesh(
+                new THREE.SphereGeometry(1.25, 32, 32, 0, Math.PI * 2, 0, Math.PI / 2),
+                hairMat
+            );
+            hair.position.y = 1.8;
             group.add(hair);
 
-            // Eyes (Big and expressive)
-            const eyeGeo = new THREE.SphereGeometry(0.25, 16, 16);
+            // Eyes
+            const eyeGeo = new THREE.SphereGeometry(0.15, 16, 16);
+            const eyeMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
             
             const leftEye = new THREE.Mesh(eyeGeo, eyeMat);
-            leftEye.position.set(-0.5, 2.3, 1.15);
+            leftEye.position.set(-0.4, 1.9, 1);
             group.add(leftEye);
-
+            
             const rightEye = new THREE.Mesh(eyeGeo, eyeMat);
-            rightEye.position.set(0.5, 2.3, 1.15);
+            rightEye.position.set(0.4, 1.9, 1);
             group.add(rightEye);
 
             // Blush
-            const blushGeo = new THREE.CircleGeometry(0.2, 16);
-            const blushMat = new THREE.MeshBasicMaterial({ color: 0xffa0a0, transparent: true, opacity: 0.5 });
+            const blushGeo = new THREE.CircleGeometry(0.15, 16);
+            const blushMat = new THREE.MeshBasicMaterial({ color: 0xff9999, transparent: true, opacity: 0.6 });
             
             const leftBlush = new THREE.Mesh(blushGeo, blushMat);
-            leftBlush.position.set(-0.8, 2.0, 1.2);
-            leftBlush.rotation.y = -0.5;
+            leftBlush.position.set(-0.6, 1.7, 0.9);
+            leftBlush.rotation.y = -0.3;
             group.add(leftBlush);
-
-            const rightBlush = new THREE.Mesh(blushGeo, blushMat);
-            rightBlush.position.set(0.8, 2.0, 1.2);
-            rightBlush.rotation.y = 0.5;
-            group.add(rightBlush);
-
-            // Arms
-            const armGeo = new THREE.CapsuleGeometry(0.25, 1.2, 4, 8);
-            
-            const leftArm = new THREE.Mesh(armGeo, clothesMat);
-            leftArm.position.set(-1.1, 0.5, 0);
-            leftArm.rotation.z = 0.5;
-            group.add(leftArm);
-
-            const rightArm = new THREE.Mesh(armGeo, clothesMat);
-            rightArm.position.set(1.1, 0.5, 0);
-            rightArm.rotation.z = -0.5;
-            group.add(rightArm);
-
-            // Store references for animation
-            group.userData = {
-                head: head,
-                leftEye: leftEye,
-                rightEye: rightEye,
-                leftArm: leftArm,
-                rightArm: rightArm,
-                baseY: 0,
-                jumpOffset: 0
-            };
 
             return group;
         }
 
-        // Create Characters
-        const alisher = createCharacter(0x6495ED, true); // Blue hoodie
-        const snezhana = createCharacter(0xFFB6C1, false); // Pink dress
-
+        const alisher = createChibi(0x6495ED, true);  // Blue
+        const snezhana = createChibi(0xFFB6C1, false); // Pink
+        
         scene.add(alisher);
         scene.add(snezhana);
 
         // --- ANIMATION LOOP ---
-        const clock = new THREE.Clock();
-
+        let time = 0;
+        
         function animate() {
             requestAnimationFrame(animate);
-            const time = clock.getElapsedTime();
+            time += 0.016;
 
-            // 1. Character Movement (Lerp towards target distance)
-            // Alisher is on left (-x), Snezhana on right (+x)
-            // Center is 0. So if distance is 10, Alisher is -5, Snezhana is +5.
-            
+            // Move characters
             const halfDist = state.distance / 2;
-            
-            // Smooth movement
-            alisher.position.x = THREE.MathUtils.lerp(alisher.position.x, -halfDist, 0.05);
-            snezhana.position.x = THREE.MathUtils.lerp(snezhana.position.x, halfDist, 0.05);
+            alisher.position.x += (-halfDist - alisher.position.x) * 0.05;
+            snezhana.position.x += (halfDist - snezhana.position.x) * 0.05;
 
-            // Make them face each other
+            // Face each other
             alisher.lookAt(snezhana.position.x, 0, 0);
             snezhana.lookAt(alisher.position.x, 0, 0);
 
-            // 2. Idle Animations (Breathing/Bouncing)
+            // Idle animation
             if (!state.isHoldingHands) {
-                const bounce = Math.sin(time * 3) * 0.05;
+                const bounce = Math.sin(time * 3) * 0.1;
                 alisher.position.y = bounce;
                 snezhana.position.y = bounce;
-                
-                // Subtle head bob
-                alisher.userData.head.rotation.y = Math.sin(time * 1.5) * 0.1;
-                snezhana.userData.head.rotation.y = Math.cos(time * 1.5) * 0.1;
             } else {
-                // Holding hands animation (Happy jump)
-                const jump = Math.abs(Math.sin(time * 8)) * 0.5;
+                // Happy jump
+                const jump = Math.abs(Math.sin(time * 10)) * 0.3;
                 alisher.position.y = jump;
                 snezhana.position.y = jump;
-                
-                // Rotate towards camera slightly
-                alisher.rotation.y += (0 - alisher.rotation.y) * 0.1;
-                snezhana.rotation.y += (0 - snezhana.rotation.y) * 0.1;
+                alisher.rotation.y = 0;
+                snezhana.rotation.y = 0;
             }
 
-            // 3. Environment Animation
-            particlesMesh.rotation.y = time * 0.05;
-            
-            // Dynamic Lighting
-            loveLight.intensity = THREE.MathUtils.lerp(loveLight.intensity, state.lightIntensity, 0.05);
-            
-            // Background Color Shift
-            const targetColor = new THREE.Color().setHSL(state.colorHue / 360, 0.6, 0.1);
-            scene.background = targetColor;
-            scene.fog.color = targetColor;
+            // Rotate stars
+            stars.rotation.y = time * 0.02;
 
-            // 4. Camera Parallax (Mouse follow)
-            // Simple implementation: Camera slightly moves based on mouse
-            // (Added in event listener)
+            // Update light
+            loveLight.intensity += (state.lightIntensity - loveLight.intensity) * 0.05;
+
+            // Color shift
+            const hue = 220 + (state.scene * 20);
+            scene.background.setHSL(hue / 360, 0.5, 0.1);
+            scene.fog.color.setHSL(hue / 360, 0.5, 0.1);
 
             renderer.render(scene, camera);
         }
 
-        // --- INTERACTION LOGIC ---
+        animate();
 
-        const storyText = document.getElementById('story-text');
-        const heartBtn = document.getElementById('heart-trigger');
-        const finalBtn = document.getElementById('final-step-btn');
+        // --- UI & STORY LOGIC ---
+        const textDisplay = document.getElementById('text-display');
+        const heartBtn = document.getElementById('heart-btn');
+        const finalBtn = document.getElementById('final-btn');
 
-        // Typewriter effect helper
-        function updateText(text) {
-            gsap.to(storyText, {
-                opacity: 0,
-                y: -20,
-                duration: 0.5,
-                onComplete: () => {
-                    storyText.innerText = text;
-                    gsap.to(storyText, { opacity: 1, y: 0, duration: 0.8, ease: "back.out(1.7)" });
-                }
-            });
+        function showText(text, delay = 0) {
+            setTimeout(() => {
+                gsap.to(textDisplay, {
+                    opacity: 0,
+                    y: -20,
+                    duration: 0.5,
+                    onComplete: () => {
+                        textDisplay.textContent = text;
+                        gsap.to(textDisplay, { opacity: 1, y: 0, duration: 0.8 });
+                    }
+                });
+            }, delay);
         }
 
-        // SCENE 1: Initial State
-        gsap.to(storyText, { opacity: 1, y: 0, duration: 1.5, delay: 0.5 });
+        // Scene 1: Start
+        gsap.to(textDisplay, { opacity: 1, y: 0, duration: 1, delay: 0.5 });
 
-        // SCENE 2: First Click
+        // Scene 2: Heart click
         heartBtn.addEventListener('click', () => {
             if (state.scene !== 1) return;
-            
             state.scene = 2;
-            
-            // Animate Heart Button away
+
+            // Hide heart
             gsap.to(heartBtn, { scale: 0, opacity: 0, duration: 0.5 });
             
-            // Move characters closer
-            state.targetDistance = 8;
-            state.distance = 8;
-            
-            // Brighten world
+            // Move closer
+            state.distance = 6;
             state.lightIntensity = 2;
-            state.colorHue = 280; // Shift to purple/pink
             
-            updateText("And everything started with a single step…");
-            
-            // Trigger Scene 3 after delay
+            showText("And everything started with a single step…");
+
+            // Scene 3
             setTimeout(() => {
-                startScene3();
+                state.scene = 3;
+                state.distance = 3;
+                state.lightIntensity = 4;
+                showText("Laughter, support, and 'we' instead of 'me'…");
+                
+                // Add floating hearts
+                addFloatingHearts();
             }, 4000);
+
+            // Scene 4
+            setTimeout(() => {
+                state.scene = 4;
+                state.distance = 1.5;
+                showText("Almost 4 years…");
+            }, 8000);
+
+            setTimeout(() => {
+                showText("And I choose you every day.");
+            }, 11000);
+
+            // Scene 5
+            setTimeout(() => {
+                state.scene = 5;
+                gsap.to(textDisplay, { opacity: 0, duration: 0.5 });
+                finalBtn.classList.add('show');
+            }, 14000);
         });
 
-        function startScene3() {
-            state.scene = 3;
-            updateText("Laughter, support, and 'we' instead of 'me'…");
-            
-            // Characters move even closer
-            state.targetDistance = 3;
-            state.distance = 3;
-            
-            // World becomes alive
-            state.lightIntensity = 4;
-            state.colorHue = 320; // Pink
-            
-            // Spawn floating hearts in 3D
-            spawnFloatingHearts();
-
-            setTimeout(() => {
-                startScene4();
-            }, 5000);
-        }
-
-        function startScene4() {
-            state.scene = 4;
-            updateText("Almost 4 years…");
-            
-            state.targetDistance = 1.5; // Very close
-            state.distance = 1.5;
-            
-            state.lightIntensity = 5;
-            
-            setTimeout(() => {
-                updateText("And I choose you every day.");
-                setTimeout(() => {
-                    startScene5();
-                }, 3000);
-            }, 3000);
-        }
-
-        function startScene5() {
-            state.scene = 5;
-            storyText.style.opacity = 0; // Hide text to focus on button
-            
-            // Show Final Button
-            finalBtn.classList.add('visible');
-            
-            // Characters look at camera
-            // (Handled in animate loop via isHoldingHands flag later, but here we prep)
-        }
-
+        // Final button
         finalBtn.addEventListener('click', () => {
-            state.scene = 6;
             state.isHoldingHands = true;
+            state.distance = 0.5;
+            state.lightIntensity = 8;
             
-            // Hide Button
             gsap.to(finalBtn, { scale: 0, opacity: 0, duration: 0.5 });
             
-            // Final Embrace
-            state.targetDistance = 0.5; // Touching
-            state.distance = 0.5;
+            // Confetti effect
+            createConfetti();
             
-            // Light Burst
-            state.lightIntensity = 10;
-            
-            // Confetti
-            fireConfetti();
-            
-            // Final Text
             setTimeout(() => {
-                storyText.innerHTML = "Will you be my Valentine? 💝";
-                storyText.style.fontSize = "4rem";
-                gsap.to(storyText, { opacity: 1, scale: 1.2, duration: 1, ease: "elastic.out(1, 0.3)" });
+                textDisplay.innerHTML = "Will you be my Valentine? 💝";
+                textDisplay.style.fontSize = "3rem";
+                gsap.to(textDisplay, { opacity: 1, scale: 1.1, duration: 1 });
             }, 1000);
         });
 
-        // --- VISUAL EFFECTS ---
-
-        function spawnFloatingHearts() {
+        // Floating hearts in 3D
+        function addFloatingHearts() {
             const heartShape = new THREE.Shape();
-            const x = 0, y = 0;
-            heartShape.moveTo( x + 0.25, y + 0.25 );
-            heartShape.bezierCurveTo( x + 0.25, y + 0.25, x + 0.20, y, x, y );
-            heartShape.bezierCurveTo( x - 0.30, y, x - 0.30, y + 0.35, x - 0.30, y + 0.35 );
-            heartShape.bezierCurveTo( x - 0.30, y + 0.55, x - 0.10, y + 0.77, x + 0.25, y + 0.95 );
-            heartShape.bezierCurveTo( x + 0.60, y + 0.77, x + 0.80, y + 0.55, x + 0.80, y + 0.35 );
-            heartShape.bezierCurveTo( x + 0.80, y + 0.35, x + 0.80, y, x + 0.50, y );
-            heartShape.bezierCurveTo( x + 0.35, y, x + 0.25, y + 0.25, x + 0.25, y + 0.25 );
+            heartShape.moveTo(0.25, 0.25);
+            heartShape.bezierCurveTo(0.25, 0.25, 0.20, 0, 0, 0);
+            heartShape.bezierCurveTo(-0.30, 0, -0.30, 0.35, -0.30, 0.35);
+            heartShape.bezierCurveTo(-0.30, 0.55, -0.10, 0.77, 0.25, 0.95);
+            heartShape.bezierCurveTo(0.60, 0.77, 0.80, 0.55, 0.80, 0.35);
+            heartShape.bezierCurveTo(0.80, 0.35, 0.80, 0, 0.50, 0);
+            heartShape.bezierCurveTo(0.35, 0, 0.25, 0.25, 0.25, 0.25);
 
-            const geometry = new THREE.ShapeGeometry( heartShape );
-            const material = new THREE.MeshBasicMaterial( { color: 0xff69b4, side: THREE.DoubleSide } );
-            
-            for (let i = 0; i < 20; i++) {
-                const heart = new THREE.Mesh( geometry, material );
-                heart.scale.set(0.5, 0.5, 0.5);
+            const geometry = new THREE.ShapeGeometry(heartShape);
+            const material = new THREE.MeshBasicMaterial({ color: 0xff69b4, side: THREE.DoubleSide });
+
+            for (let i = 0; i < 15; i++) {
+                const heart = new THREE.Mesh(geometry, material);
+                heart.scale.set(0.3, 0.3, 0.3);
                 heart.position.set(
-                    (Math.random() - 0.5) * 20,
-                    Math.random() * 10,
+                    (Math.random() - 0.5) * 15,
+                    Math.random() * 8,
                     (Math.random() - 0.5) * 10
                 );
-                heart.rotation.z = Math.PI; // Flip upright
-                
-                scene.add( heart );
-                
-                // Animate individual hearts
+                heart.rotation.z = Math.PI;
+                scene.add(heart);
+
+                // Animate
                 gsap.to(heart.position, {
                     y: heart.position.y + 5,
-                    x: heart.position.x + (Math.random() - 0.5) * 5,
                     duration: 3 + Math.random() * 2,
                     repeat: -1,
                     yoyo: true,
                     ease: "sine.inOut"
                 });
-                
-                gsap.to(heart.rotation, {
-                    z: Math.PI + Math.random(),
-                    duration: 4,
-                    repeat: -1,
-                    yoyo: true
-                });
             }
         }
 
-        // 2D Canvas Confetti
-        const particleCanvas = document.getElementById('particles');
-        const ctx = particleCanvas.getContext('2d');
-        let confettiParticles = [];
-
-        function resizeCanvas() {
-            particleCanvas.width = window.innerWidth;
-            particleCanvas.height = window.innerHeight;
-        }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
-
-        function fireConfetti() {
-            const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
+        // Simple confetti
+        function createConfetti() {
+            const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff];
+            const geometry = new THREE.PlaneGeometry(0.2, 0.2);
             
-            for (let i = 0; i < 200; i++) {
-                confettiParticles.push({
-                    x: window.innerWidth / 2,
-                    y: window.innerHeight / 2,
-                    vx: (Math.random() - 0.5) * 20,
-                    vy: (Math.random() - 0.5) * 20 - 5,
+            for (let i = 0; i < 100; i++) {
+                const material = new THREE.MeshBasicMaterial({ 
                     color: colors[Math.floor(Math.random() * colors.length)],
-                    size: Math.random() * 10 + 5,
-                    rotation: Math.random() * 360,
-                    rotationSpeed: (Math.random() - 0.5) * 10,
-                    life: 100
+                    side: THREE.DoubleSide
+                });
+                const confetti = new THREE.Mesh(geometry, material);
+                
+                confetti.position.set(0, 5, 0);
+                confetti.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, 0);
+                
+                scene.add(confetti);
+
+                // Explode outward
+                const angle = Math.random() * Math.PI * 2;
+                const velocity = 5 + Math.random() * 10;
+                
+                gsap.to(confetti.position, {
+                    x: Math.cos(angle) * velocity,
+                    y: Math.random() * 10,
+                    z: Math.sin(angle) * velocity,
+                    duration: 2,
+                    ease: "power2.out"
+                });
+                
+                gsap.to(confetti.rotation, {
+                    x: Math.random() * 10,
+                    y: Math.random() * 10,
+                    duration: 2
                 });
             }
-            animateConfetti();
         }
 
-        function animateConfetti() {
-            if (confettiParticles.length === 0) return;
-            
-            ctx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
-            
-            confettiParticles.forEach((p, index) => {
-                p.x += p.vx;
-                p.y += p.vy;
-                p.vy += 0.2; // Gravity
-                p.rotation += p.rotationSpeed;
-                p.life--;
-                
-                ctx.save();
-                ctx.translate(p.x, p.y);
-                ctx.rotate(p.rotation * Math.PI / 180);
-                ctx.fillStyle = p.color;
-                ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
-                ctx.restore();
-                
-                if (p.life <= 0 || p.y > window.innerHeight) {
-                    confettiParticles.splice(index, 1);
-                }
-            });
-            
-            requestAnimationFrame(animateConfetti);
-        }
-
-        // Mouse Parallax
-        document.addEventListener('mousemove', (e) => {
-            const x = (e.clientX / window.innerWidth) - 0.5;
-            const y = (e.clientY / window.innerHeight) - 0.5;
-            
-            gsap.to(camera.position, {
-                x: x * 2,
-                y: 5 + (y * 2),
-                duration: 1
-            });
-        });
-
-        // Start
-        animate();
-
-        // Handle Resize
+        // Resize handler
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Mouse parallax
+        document.addEventListener('mousemove', (e) => {
+            const x = (e.clientX / window.innerWidth - 0.5) * 2;
+            const y = (e.clientY / window.innerHeight - 0.5) * 2;
+            
+            gsap.to(camera.position, {
+                x: x * 2,
+                y: 3 + y * 0.5,
+                duration: 1
+            });
         });
 
     </script>
