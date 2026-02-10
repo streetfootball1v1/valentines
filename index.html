@@ -5,15 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Снежана, это для тебя 💕</title>
     
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Pacifico&display=swap" rel="stylesheet">
     
-    <!-- Canvas Confetti -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    
-    <!-- GSAP для плавных анимаций -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     
@@ -27,6 +23,7 @@
         :root {
             --pink-light: #FFC8DD;
             --pink-medium: #FF9EBB;
+            --pink-dark: #FF6B9D;
             --lavender: #CDB4DB;
             --lavender-dark: #B8A9C9;
             --white: #FFFFFF;
@@ -54,7 +51,7 @@
             100% { background-position: 0% 50%; }
         }
 
-        /* Фоновые плавающие элементы */
+        /* Улучшенные плавающие элементы */
         .floating-bg {
             position: fixed;
             top: 0;
@@ -68,18 +65,61 @@
 
         .floating-item {
             position: absolute;
-            opacity: 0.6;
-            animation: float 15s infinite ease-in-out;
-            filter: drop-shadow(0 0 10px rgba(255, 200, 221, 0.8));
+            opacity: 0.7;
+            filter: drop-shadow(0 0 15px rgba(255, 200, 221, 0.9));
+            animation: float 12s infinite ease-in-out;
         }
 
         @keyframes float {
-            0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
-            33% { transform: translateY(-30px) rotate(120deg) scale(1.1); }
-            66% { transform: translateY(20px) rotate(240deg) scale(0.9); }
+            0%, 100% { 
+                transform: translateY(0) rotate(0deg) scale(1); 
+            }
+            25% { 
+                transform: translateY(-40px) rotate(90deg) scale(1.15); 
+            }
+            50% { 
+                transform: translateY(20px) rotate(180deg) scale(0.9); 
+            }
+            75% { 
+                transform: translateY(-30px) rotate(270deg) scale(1.05); 
+            }
         }
 
-        /* Общие стили секций */
+        /* Мультяшные облака */
+        .cloud {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 100px;
+            opacity: 0.8;
+            animation: cloudFloat 20s infinite linear;
+        }
+
+        .cloud::before {
+            content: '';
+            position: absolute;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 100px;
+        }
+
+        .cloud1 {
+            width: 100px;
+            height: 40px;
+            top: 20%;
+            left: -150px;
+        }
+
+        .cloud1::before {
+            width: 50px;
+            height: 50px;
+            top: -25px;
+            left: 10px;
+        }
+
+        @keyframes cloudFloat {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(calc(100vw + 200px)); }
+        }
+
         .section {
             min-height: 100vh;
             width: 100%;
@@ -92,24 +132,52 @@
             z-index: 10;
         }
 
-        /* Glass Card Style */
-        .glass-card {
+        /* Мультяшные карточки с улучшенным 3D */
+        .cartoon-card {
             background: var(--glass-bg);
             backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
+            border: 3px solid var(--white);
             border-radius: 30px;
             box-shadow: 
-                0 8px 32px 0 rgba(205, 180, 219, 0.37),
-                inset 0 0 20px rgba(255, 255, 255, 0.3);
+                0 10px 0 rgba(255, 255, 255, 0.3),
+                0 20px 40px rgba(205, 180, 219, 0.4),
+                inset 0 0 30px rgba(255, 255, 255, 0.3);
             padding: 40px;
             max-width: 800px;
             width: 100%;
             transform-style: preserve-3d;
-            transition: transform 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            position: relative;
         }
 
-        /* === ЭКРАН 1: ИНТРО === */
+        .cartoon-card::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 5%;
+            right: 5%;
+            height: 20px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 50%;
+            filter: blur(10px);
+            z-index: -1;
+            transition: all 0.4s;
+        }
+
+        .cartoon-card:hover {
+            transform: translateY(-15px) rotateX(10deg) rotateY(5deg) scale(1.02);
+            box-shadow: 
+                0 20px 0 rgba(255, 255, 255, 0.2),
+                0 40px 60px rgba(205, 180, 219, 0.5),
+                inset 0 0 40px rgba(255, 255, 255, 0.4);
+        }
+
+        .cartoon-card:hover::after {
+            transform: scale(0.8);
+            opacity: 0.5;
+        }
+
+        /* === ЭКРАН 1: ИНТРО С МУЛЬТЯШНЫМИ ЭЛЕМЕНТАМИ === */
         .intro-screen {
             position: relative;
             overflow: hidden;
@@ -118,6 +186,7 @@
         .intro-content {
             text-align: center;
             z-index: 20;
+            position: relative;
         }
 
         .main-title {
@@ -125,276 +194,607 @@
             font-size: clamp(2.5rem, 8vw, 5rem);
             color: white;
             text-shadow: 
-                0 0 20px rgba(255, 200, 221, 0.8),
-                0 0 40px rgba(205, 180, 219, 0.6);
+                4px 4px 0 var(--pink-dark),
+                8px 8px 0 rgba(205, 180, 219, 0.5),
+                0 0 40px rgba(255, 200, 221, 0.9);
             margin-bottom: 20px;
-            animation: titlePulse 3s ease-in-out infinite;
+            animation: cartoonBounce 2s ease-in-out infinite;
             line-height: 1.2;
+            transform-style: preserve-3d;
         }
 
-        @keyframes titlePulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.02); }
+        @keyframes cartoonBounce {
+            0%, 100% { 
+                transform: translateY(0) scale(1) rotate(0deg); 
+            }
+            25% { 
+                transform: translateY(-20px) scale(1.05) rotate(-2deg); 
+            }
+            50% { 
+                transform: translateY(0) scale(1) rotate(0deg); 
+            }
+            75% { 
+                transform: translateY(-10px) scale(1.02) rotate(2deg); 
+            }
         }
 
         .subtitle {
             font-size: clamp(1rem, 3vw, 1.5rem);
             color: white;
-            opacity: 0.9;
-            font-weight: 600;
+            font-weight: 700;
             margin-bottom: 40px;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-shadow: 
+                2px 2px 0 var(--lavender-dark),
+                0 0 20px rgba(255,255,255,0.5);
+            animation: wiggle 3s ease-in-out infinite;
         }
 
-        .scroll-btn {
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-1deg); }
+            75% { transform: rotate(1deg); }
+        }
+
+        /* Мультяшная кнопка */
+        .cartoon-btn {
             display: inline-flex;
             align-items: center;
             gap: 10px;
-            padding: 15px 30px;
-            background: white;
-            color: var(--pink-medium);
+            padding: 20px 40px;
+            background: linear-gradient(135deg, var(--pink-medium) 0%, var(--pink-dark) 100%);
+            color: white;
             border: none;
             border-radius: 50px;
             font-family: 'Nunito', sans-serif;
-            font-size: 1.1rem;
-            font-weight: 700;
+            font-size: 1.3rem;
+            font-weight: 800;
             cursor: pointer;
-            box-shadow: 0 5px 20px rgba(255, 158, 187, 0.4);
-            animation: bounce 2s infinite;
-            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 
+                0 8px 0 #c44569,
+                0 15px 30px rgba(255, 107, 157, 0.4);
+            transition: all 0.1s;
             text-decoration: none;
+            position: relative;
+            transform-style: preserve-3d;
         }
 
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+        .cartoon-btn:active {
+            transform: translateY(8px);
+            box-shadow: 
+                0 0 0 #c44569,
+                0 5px 15px rgba(255, 107, 157, 0.4);
         }
 
-        .scroll-btn:hover {
-            transform: scale(1.1) translateY(-5px);
-            box-shadow: 0 10px 30px rgba(255, 158, 187, 0.6);
+        .cartoon-btn:hover {
+            animation: btnWiggle 0.5s ease;
         }
 
-        /* 3D Сердечки вокруг текста */
-        .hearts-around {
+        @keyframes btnWiggle {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-5deg); }
+            75% { transform: rotate(5deg); }
+        }
+
+        /* Мультяшные летающие сердечки */
+        .flying-heart {
             position: absolute;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
+            font-size: 3rem;
+            filter: drop-shadow(0 5px 0 rgba(0,0,0,0.1));
+            animation: flyAround 10s infinite linear;
+            z-index: 5;
         }
 
-        .heart-3d {
-            position: absolute;
-            font-size: 2rem;
-            animation: orbit 8s linear infinite;
-            filter: drop-shadow(0 0 10px rgba(255, 200, 221, 0.8));
+        @keyframes flyAround {
+            0% {
+                transform: translate(0, 0) rotate(0deg) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--fly-x), var(--fly-y)) rotate(720deg) scale(0);
+                opacity: 0;
+            }
         }
 
-        @keyframes orbit {
-            0% { transform: rotate(0deg) translateX(150px) rotate(0deg); }
-            100% { transform: rotate(360deg) translateX(150px) rotate(-360deg); }
-        }
-
-        /* === ЭКРАН 2: ИСТОРИЯ === */
-        .timeline {
-            display: flex;
-            flex-direction: column;
-            gap: 30px;
+        /* === ЭКРАН 2: ИНТЕРАКТИВНЫЕ ВОПРОСЫ === */
+        .quiz-container {
             width: 100%;
             max-width: 900px;
         }
 
-        .section-title {
-            font-family: 'Pacifico', cursive;
-            font-size: clamp(2rem, 5vw, 3rem);
-            color: white;
-            text-align: center;
-            margin-bottom: 40px;
-            text-shadow: 0 0 20px rgba(255, 200, 221, 0.8);
-        }
-
-        .story-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(15px);
-            border: 1px solid var(--glass-border);
-            border-radius: 25px;
-            padding: 30px;
+        .quiz-card {
+            background: rgba(255, 255, 255, 0.9);
+            border: 4px solid var(--pink-medium);
+            border-radius: 30px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 
+                0 10px 0 var(--pink-dark),
+                0 20px 40px rgba(0,0,0,0.1);
             transform-style: preserve-3d;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
             position: relative;
             overflow: hidden;
         }
 
-        .story-card::before {
+        .quiz-card::before {
             content: '';
             position: absolute;
             top: -50%;
             left: -50%;
             width: 200%;
             height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(255,200,221,0.3) 0%, transparent 70%);
             opacity: 0;
             transition: opacity 0.3s;
         }
 
-        .story-card:hover::before {
+        .quiz-card:hover::before {
             opacity: 1;
         }
 
+        .quiz-card:hover {
+            transform: translateY(-10px) rotateX(5deg) scale(1.02);
+            box-shadow: 
+                0 15px 0 var(--pink-dark),
+                0 30px 50px rgba(0,0,0,0.15);
+        }
+
+        .quiz-question {
+            font-family: 'Pacifico', cursive;
+            font-size: 1.8rem;
+            color: var(--pink-dark);
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .quiz-options {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .quiz-btn {
+            padding: 15px 30px;
+            border: 3px solid var(--lavender);
+            background: white;
+            border-radius: 20px;
+            font-family: 'Nunito', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: var(--lavender-dark);
+            box-shadow: 0 5px 0 var(--lavender);
+        }
+
+        .quiz-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 0 var(--lavender);
+            background: var(--pink-light);
+            color: var(--pink-dark);
+            border-color: var(--pink-medium);
+        }
+
+        .quiz-btn:active {
+            transform: translateY(5px);
+            box-shadow: 0 0 0 var(--lavender);
+        }
+
+        .hint-box {
+            margin-top: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, #fff5f7 0%, #f0e6ff 100%);
+            border-radius: 20px;
+            border: 3px dashed var(--pink-medium);
+            display: none;
+            animation: popIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            position: relative;
+        }
+
+        .hint-box.show {
+            display: block;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0) rotate(-10deg); opacity: 0; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        .hint-text {
+            font-size: 1.2rem;
+            color: #555;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .hint-emoji {
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 10px;
+            animation: bounce 1s infinite;
+        }
+
+        /* === ЭКРАН 3: ИСТОРИЯ С МУЛЬТЯШНЫМИ КАРТОЧКАМИ === */
+        .section-title {
+            font-family: 'Pacifico', cursive;
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            color: white;
+            text-align: center;
+            margin-bottom: 50px;
+            text-shadow: 
+                3px 3px 0 var(--pink-dark),
+                6px 6px 0 rgba(205, 180, 219, 0.5),
+                0 0 30px rgba(255, 255, 255, 0.8);
+            animation: titleFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes titleFloat {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(1deg); }
+        }
+
+        .timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .story-card {
+            background: rgba(255, 255, 255, 0.95);
+            border: 4px solid white;
+            border-radius: 25px;
+            padding: 35px;
+            box-shadow: 
+                0 8px 0 rgba(255, 200, 221, 0.5),
+                0 15px 35px rgba(205, 180, 219, 0.3);
+            transform-style: preserve-3d;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .story-card:nth-child(even) {
+            transform: rotate(-1deg);
+        }
+
+        .story-card:nth-child(odd) {
+            transform: rotate(1deg);
+        }
+
         .story-card:hover {
-            transform: translateY(-10px) rotateX(5deg) rotateY(5deg) scale(1.02);
-            box-shadow: 0 20px 40px rgba(205, 180, 219, 0.4);
+            transform: rotate(0deg) translateY(-15px) translateZ(30px) scale(1.03);
+            box-shadow: 
+                0 20px 0 rgba(255, 200, 221, 0.3),
+                0 40px 60px rgba(205, 180, 219, 0.4);
         }
 
         .story-icon {
-            font-size: 3rem;
+            font-size: 4rem;
             margin-bottom: 15px;
             display: block;
+            animation: iconWiggle 2s ease-in-out infinite;
+            filter: drop-shadow(0 3px 0 rgba(0,0,0,0.1));
+        }
+
+        @keyframes iconWiggle {
+            0%, 100% { transform: rotate(-5deg) scale(1); }
+            50% { transform: rotate(5deg) scale(1.1); }
         }
 
         .story-title {
             font-family: 'Pacifico', cursive;
-            font-size: 1.5rem;
-            color: white;
-            margin-bottom: 10px;
+            font-size: 1.8rem;
+            color: var(--pink-dark);
+            margin-bottom: 15px;
         }
 
         .story-text {
-            color: rgba(255, 255, 255, 0.9);
-            line-height: 1.6;
+            color: #666;
+            line-height: 1.7;
             font-size: 1.1rem;
         }
 
-        /* === ЭКРАН 3: ГАЛЕРЕЯ === */
+        /* === ЭКРАН 4: ГАЛЕРЕЯ С 3D ЭФФЕКТАМИ === */
         .gallery-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 40px;
             width: 100%;
-            max-width: 1000px;
-            perspective: 1000px;
+            max-width: 1200px;
+            perspective: 1500px;
         }
 
         .photo-card {
             background: white;
-            padding: 15px 15px 60px 15px;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            transform: rotate(-3deg);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            padding: 20px 20px 80px 20px;
+            border-radius: 15px;
+            box-shadow: 
+                0 10px 0 #ddd,
+                0 20px 40px rgba(0,0,0,0.2);
+            transform-style: preserve-3d;
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
             cursor: pointer;
             position: relative;
-            transform-style: preserve-3d;
         }
 
-        .photo-card:nth-child(even) {
-            transform: rotate(3deg);
-        }
+        .photo-card:nth-child(3n+1) { transform: rotate(-3deg) translateZ(0); }
+        .photo-card:nth-child(3n+2) { transform: rotate(2deg) translateZ(20px); }
+        .photo-card:nth-child(3n) { transform: rotate(-2deg) translateZ(10px); }
 
         .photo-card:hover {
-            transform: rotate(0deg) scale(1.1) translateZ(50px);
+            transform: rotate(0deg) translateZ(80px) scale(1.1) !important;
             z-index: 100;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            box-shadow: 
+                0 30px 0 #ccc,
+                0 50px 70px rgba(0,0,0,0.3);
         }
 
         .photo-placeholder {
             width: 100%;
             aspect-ratio: 1;
             background: linear-gradient(135deg, var(--pink-light), var(--lavender));
-            border-radius: 5px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 4rem;
+            font-size: 5rem;
             overflow: hidden;
             position: relative;
+            border: 3px solid white;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
         }
 
         .photo-placeholder::after {
             content: '📸';
-            opacity: 0.5;
+            opacity: 0.3;
+            animation: cameraPulse 2s infinite;
+        }
+
+        @keyframes cameraPulse {
+            0%, 100% { transform: scale(1); opacity: 0.3; }
+            50% { transform: scale(1.2); opacity: 0.6; }
         }
 
         .photo-caption {
             position: absolute;
-            bottom: 15px;
-            left: 15px;
-            right: 15px;
+            bottom: 25px;
+            left: 20px;
+            right: 20px;
             text-align: center;
             font-family: 'Pacifico', cursive;
-            color: #666;
-            font-size: 1.1rem;
+            color: var(--pink-dark);
+            font-size: 1.3rem;
+            transform: rotate(-1deg);
         }
 
-        /* === ЭКРАН 4: ПОСЛАНИЕ === */
+        /* === ЭКРАН 5: ПОСЛАНИЕ === */
         .letter-container {
-            max-width: 700px;
+            max-width: 800px;
             width: 100%;
+            perspective: 1000px;
         }
 
         .letter-card {
-            background: rgba(255, 255, 255, 0.9);
-            padding: 50px;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(205, 180, 219, 0.3);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 60px;
+            border-radius: 30px;
+            box-shadow: 
+                0 15px 0 rgba(255, 200, 221, 0.5),
+                0 30px 60px rgba(205, 180, 219, 0.3);
             position: relative;
             transform-style: preserve-3d;
+            border: 4px solid white;
         }
 
         .letter-card::before {
             content: '💌';
             position: absolute;
-            top: -30px;
+            top: -40px;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 4rem;
-            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.2));
+            font-size: 5rem;
+            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.2));
+            animation: mailFloat 2s ease-in-out infinite;
+        }
+
+        @keyframes mailFloat {
+            0%, 100% { transform: translateX(-50%) translateY(0) rotate(0deg); }
+            50% { transform: translateX(-50%) translateY(-10px) rotate(5deg); }
         }
 
         .letter-text {
             font-size: 1.2rem;
-            line-height: 1.8;
+            line-height: 1.9;
             color: #555;
-            margin-top: 30px;
+            margin-top: 40px;
         }
 
         .letter-line {
             opacity: 0;
-            transform: translateY(20px);
+            transform: translateY(30px);
+            margin-bottom: 15px;
         }
 
         .signature {
             font-family: 'Pacifico', cursive;
-            font-size: 1.5rem;
-            color: var(--pink-medium);
+            font-size: 2rem;
+            color: var(--pink-dark);
             text-align: right;
-            margin-top: 30px;
+            margin-top: 40px;
             opacity: 0;
+            transform: rotate(-2deg);
         }
 
-        /* === ЭКРАН 5: ФИНАЛ === */
+        /* === ЭКРАН 6: ОХОТА ЗА ПОДАРКОМ === */
+        .treasure-hunt {
+            width: 100%;
+            max-width: 900px;
+            text-align: center;
+        }
+
+        .hunt-card {
+            background: linear-gradient(135deg, #fff5f7 0%, #f0e6ff 100%);
+            border: 4px solid var(--pink-medium);
+            border-radius: 30px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 
+                0 10px 0 var(--pink-dark),
+                0 20px 40px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hunt-card::after {
+            content: '🎁';
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            font-size: 6rem;
+            opacity: 0.2;
+            transform: rotate(15deg);
+        }
+
+        .clue-box {
+            background: white;
+            border: 3px dashed var(--lavender);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px 0;
+            position: relative;
+            animation: cluePulse 2s infinite;
+        }
+
+        @keyframes cluePulse {
+            0%, 100% { border-color: var(--lavender); }
+            50% { border-color: var(--pink-medium); }
+        }
+
+        .clue-number {
+            position: absolute;
+            top: -15px;
+            left: 20px;
+            background: var(--pink-dark);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+        }
+
+        .directions {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 30px 0;
+            font-size: 3rem;
+        }
+
+        .direction-arrow {
+            animation: arrowPoint 1.5s infinite;
+            filter: drop-shadow(0 3px 0 rgba(0,0,0,0.1));
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .direction-arrow:hover {
+            transform: scale(1.3) translateY(-10px);
+        }
+
+        @keyframes arrowPoint {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(10px); }
+        }
+
+        .reveal-btn {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            border: none;
+            padding: 20px 40px;
+            border-radius: 50px;
+            font-family: 'Nunito', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: white;
+            cursor: pointer;
+            box-shadow: 
+                0 8px 0 #CC8400,
+                0 15px 30px rgba(255, 215, 0, 0.4);
+            transition: all 0.1s;
+            margin-top: 20px;
+        }
+
+        .reveal-btn:active {
+            transform: translateY(8px);
+            box-shadow: 
+                0 0 0 #CC8400,
+                0 5px 15px rgba(255, 215, 0, 0.4);
+        }
+
+        .treasure-reveal {
+            display: none;
+            margin-top: 30px;
+            padding: 30px;
+            background: linear-gradient(135deg, #fff 0%, #fff5f7 100%);
+            border-radius: 20px;
+            border: 4px solid var(--pink-medium);
+            animation: treasurePop 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .treasure-reveal.show {
+            display: block;
+        }
+
+        @keyframes treasurePop {
+            0% { transform: scale(0) rotate(-10deg); }
+            50% { transform: scale(1.1) rotate(5deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        /* === ЭКРАН 7: ФИНАЛ === */
         .final-screen {
             position: relative;
         }
 
         .question-box {
             text-align: center;
-            max-width: 600px;
+            max-width: 700px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 60px;
+            border-radius: 40px;
+            border: 5px solid white;
+            box-shadow: 
+                0 15px 0 rgba(255, 200, 221, 0.5),
+                0 30px 60px rgba(205, 180, 219, 0.4);
+            position: relative;
         }
 
         .final-title {
             font-family: 'Pacifico', cursive;
             font-size: clamp(2rem, 6vw, 3.5rem);
-            color: white;
+            color: var(--pink-dark);
             margin-bottom: 50px;
-            text-shadow: 0 0 30px rgba(255, 200, 221, 1);
-            animation: glow 2s ease-in-out infinite;
+            text-shadow: 2px 2px 0 rgba(0,0,0,0.1);
+            animation: questionPulse 2s ease-in-out infinite;
         }
 
-        @keyframes glow {
-            0%, 100% { text-shadow: 0 0 30px rgba(255, 200, 221, 0.8); }
-            50% { text-shadow: 0 0 50px rgba(255, 200, 221, 1), 0 0 70px rgba(205, 180, 219, 0.8); }
+        @keyframes questionPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
 
         .buttons-container {
@@ -407,46 +807,77 @@
             min-height: 200px;
         }
 
-        .btn-3d {
-            padding: 20px 50px;
+        .btn-yes-final {
+            padding: 25px 60px;
+            background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%);
+            color: white;
             border: none;
+            border-radius: 60px;
+            font-family: 'Nunito', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 
+                0 10px 0 #8B3A3A,
+                0 20px 40px rgba(255, 107, 157, 0.5),
+                0 0 50px rgba(255, 107, 157, 0.3);
+            transition: all 0.1s;
+            animation: yesPulse 2s infinite;
+            position: relative;
+            overflow: hidden;
+        }
+
+        @keyframes yesPulse {
+            0%, 100% { 
+                box-shadow: 
+                    0 10px 0 #8B3A3A,
+                    0 20px 40px rgba(255, 107, 157, 0.5),
+                    0 0 50px rgba(255, 107, 157, 0.3);
+            }
+            50% { 
+                box-shadow: 
+                    0 15px 0 #8B3A3A,
+                    0 30px 60px rgba(255, 107, 157, 0.7),
+                    0 0 80px rgba(255, 107, 157, 0.5);
+                transform: scale(1.05);
+            }
+        }
+
+        .btn-yes-final::before {
+            content: '💖';
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 2rem;
+            animation: heartBeat 1s infinite;
+        }
+
+        @keyframes heartBeat {
+            0%, 100% { transform: translateY(-50%) scale(1); }
+            50% { transform: translateY(-50%) scale(1.3); }
+        }
+
+        .btn-yes-final:active {
+            transform: translateY(10px) scale(0.95);
+            box-shadow: 
+                0 0 0 #8B3A3A,
+                0 10px 20px rgba(255, 107, 157, 0.5);
+        }
+
+        .btn-no-final {
+            padding: 20px 40px;
+            background: rgba(255, 255, 255, 0.8);
+            color: #999;
+            border: 3px solid #ddd;
             border-radius: 50px;
             font-family: 'Nunito', sans-serif;
             font-size: 1.3rem;
-            font-weight: 800;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            position: relative;
-            transform-style: preserve-3d;
-        }
-
-        .btn-yes {
-            background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%);
-            color: white;
-            box-shadow: 
-                0 10px 30px rgba(255, 107, 157, 0.4),
-                0 0 0 0 rgba(255, 107, 157, 0.7);
-            animation: pulse-ring 2s infinite;
-            font-size: 1.5rem;
-        }
-
-        @keyframes pulse-ring {
-            0% { box-shadow: 0 10px 30px rgba(255, 107, 157, 0.4), 0 0 0 0 rgba(255, 107, 157, 0.7); }
-            70% { box-shadow: 0 10px 30px rgba(255, 107, 157, 0.4), 0 0 0 20px rgba(255, 107, 157, 0); }
-            100% { box-shadow: 0 10px 30px rgba(255, 107, 157, 0.4), 0 0 0 0 rgba(255, 107, 157, 0); }
-        }
-
-        .btn-yes:hover {
-            transform: scale(1.15) translateY(-5px);
-            box-shadow: 0 15px 40px rgba(255, 107, 157, 0.6);
-        }
-
-        .btn-no {
-            background: rgba(255, 255, 255, 0.3);
-            color: white;
-            border: 2px solid rgba(255, 255, 255, 0.5);
+            font-weight: 700;
+            cursor: not-allowed;
             position: absolute;
             transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 5px 0 #ccc;
         }
 
         /* Экран успеха */
@@ -456,7 +887,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(255, 200, 221, 0.98);
+            background: linear-gradient(135deg, rgba(255,200,221,0.98) 0%, rgba(205,180,219,0.98) 100%);
             display: none;
             justify-content: center;
             align-items: center;
@@ -483,31 +914,34 @@
         }
 
         .big-heart {
-            font-size: 150px;
-            animation: heartbeat 1.2s ease-in-out infinite;
-            filter: drop-shadow(0 0 30px rgba(255, 107, 157, 0.8));
+            font-size: 180px;
+            animation: superHeartbeat 1s ease-in-out infinite;
+            filter: drop-shadow(0 10px 30px rgba(255, 107, 157, 0.8));
             margin-bottom: 20px;
         }
 
-        @keyframes heartbeat {
+        @keyframes superHeartbeat {
             0%, 100% { transform: scale(1); }
-            25% { transform: scale(1.15); }
+            25% { transform: scale(1.25) rotate(-5deg); }
             50% { transform: scale(1); }
-            75% { transform: scale(1.08); }
+            75% { transform: scale(1.15) rotate(5deg); }
         }
 
         .success-text {
             font-family: 'Pacifico', cursive;
-            font-size: clamp(2rem, 5vw, 3rem);
+            font-size: clamp(2.5rem, 6vw, 4rem);
             color: white;
-            text-shadow: 0 0 20px rgba(205, 180, 219, 1);
+            text-shadow: 
+                3px 3px 0 var(--pink-dark),
+                0 0 40px rgba(255, 255, 255, 0.8);
             margin-bottom: 20px;
         }
 
         .success-subtext {
-            font-size: 1.3rem;
+            font-size: 1.5rem;
             color: white;
-            opacity: 0.9;
+            font-weight: 700;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
 
         /* Клик-эффекты */
@@ -515,43 +949,68 @@
             position: fixed;
             pointer-events: none;
             z-index: 9999;
-            font-size: 24px;
-            animation: clickFloat 1s ease-out forwards;
+            font-size: 30px;
+            animation: clickFloat 1.2s ease-out forwards;
+            filter: drop-shadow(0 3px 0 rgba(0,0,0,0.1));
         }
 
         @keyframes clickFloat {
-            0% { transform: translateY(0) scale(0); opacity: 1; }
-            50% { transform: translateY(-50px) scale(1.2); opacity: 0.8; }
-            100% { transform: translateY(-100px) scale(0); opacity: 0; }
+            0% { 
+                transform: translateY(0) scale(0) rotate(0deg); 
+                opacity: 1; 
+            }
+            50% { 
+                transform: translateY(-60px) scale(1.3) rotate(180deg); 
+                opacity: 0.9; 
+            }
+            100% { 
+                transform: translateY(-120px) scale(0) rotate(360deg); 
+                opacity: 0; 
+            }
         }
 
-        /* Музыкальная нотка */
-        .music-hint {
+        /* Прогресс-бар */
+        .scroll-progress {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            color: white;
-            z-index: 100;
-            opacity: 0.8;
+            top: 0;
+            left: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--pink-dark), var(--lavender), var(--pink-dark));
+            background-size: 200% 100%;
+            animation: progressShine 2s linear infinite;
+            z-index: 1000;
+            width: 0%;
+            transition: width 0.1s;
+            box-shadow: 0 0 10px rgba(255, 107, 157, 0.5);
+        }
+
+        @keyframes progressShine {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* Мультяшные украшения */
+        .decoration {
+            position: absolute;
+            font-size: 4rem;
+            animation: decoFloat 6s ease-in-out infinite;
+            filter: drop-shadow(0 5px 0 rgba(0,0,0,0.1));
+            z-index: 5;
+        }
+
+        @keyframes decoFloat {
+            0%, 100% { transform: translateY(0) rotate(-5deg); }
+            50% { transform: translateY(-30px) rotate(5deg); }
         }
 
         /* Адаптивность */
         @media (max-width: 768px) {
-            .glass-card {
+            .cartoon-card, .quiz-card, .story-card, .hunt-card {
                 padding: 25px;
             }
             
-            .story-card:hover {
-                transform: translateY(-5px) scale(1.02);
-            }
-            
             .photo-card:hover {
-                transform: scale(1.05);
+                transform: scale(1.05) !important;
             }
             
             .buttons-container {
@@ -559,54 +1018,111 @@
                 gap: 20px;
             }
             
-            .btn-no {
+            .btn-no-final {
                 position: relative !important;
                 transform: none !important;
             }
+            
+            .directions {
+                flex-direction: column;
+                gap: 15px;
+            }
         }
 
-        /* Прогресс-бар прокрутки */
-        .scroll-progress {
+        /* Парящие частицы */
+        .particle {
             position: fixed;
-            top: 0;
-            left: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--pink-medium), var(--lavender));
-            z-index: 1000;
-            width: 0%;
-            transition: width 0.1s;
+            pointer-events: none;
+            opacity: 0.6;
+            z-index: 2;
         }
     </style>
 </head>
 <body>
 
-    <!-- Индикатор прокрутки -->
     <div class="scroll-progress" id="scrollProgress"></div>
 
-    <!-- Фоновые плавающие элементы -->
+    <!-- Фоновые элементы -->
     <div class="floating-bg" id="floatingBg"></div>
 
     <!-- === ЭКРАН 1: ИНТРО === -->
     <section class="section intro-screen" id="intro">
-        <div class="hearts-around" id="orbitHearts"></div>
-        
         <div class="intro-content">
             <h1 class="main-title">Снежана,<br>это сайт только для тебя 💕</h1>
             <p class="subtitle">Алишер снова сделал что-то странное…<br>но от души 😌</p>
             
-            <a href="#story" class="scroll-btn">
-                Листай вниз 
-                <span style="font-size: 1.3rem;">↓</span>
+            <a href="#quiz" class="cartoon-btn">
+                Начать приключение! 
+                <span style="font-size: 1.5rem;">🚀</span>
             </a>
+        </div>
+        
+        <!-- Летающие сердечки -->
+        <div class="flying-heart" style="--fly-x: 100px; --fly-y: -200px; top: 80%; left: 10%;">💖</div>
+        <div class="flying-heart" style="--fly-x: -150px; --fly-y: -300px; top: 70%; left: 80%; animation-delay: 2s;">💕</div>
+        <div class="flying-heart" style="--fly-x: 200px; --fly-y: -150px; top: 60%; left: 50%; animation-delay: 4s;">💗</div>
+    </section>
+
+    <!-- === ЭКРАН 2: ИНТЕРАКТИВНЫЕ ВОПРОСЫ === -->
+    <section class="section" id="quiz">
+        <div class="quiz-container">
+            <h2 class="section-title">Ответь на вопросы! 🎯</h2>
+            
+            <!-- Вопрос 1 -->
+            <div class="quiz-card">
+                <h3 class="quiz-question">Ты готова вкусно покушать? 🍕</h3>
+                <div class="quiz-options">
+                    <button class="quiz-btn" onclick="showHint(1, 'yes')">Конечно! 🤤</button>
+                    <button class="quiz-btn" onclick="showHint(1, 'no')">Не хочу 😤</button>
+                </div>
+                <div class="hint-box" id="hint1">
+                    <div class="hint-emoji">🎁</div>
+                    <p class="hint-text" id="hintText1"></p>
+                </div>
+            </div>
+
+            <!-- Вопрос 2 -->
+            <div class="quiz-card">
+                <h3 class="quiz-question">Готова к сюрпризам? ✨</h3>
+                <div class="quiz-options">
+                    <button class="quiz-btn" onclick="showHint(2, 'yes')">Всегда готова! 🎉</button>
+                    <button class="quiz-btn" onclick="showHint(2, 'no')">Боюсь 😰</button>
+                </div>
+                <div class="hint-box" id="hint2">
+                    <div class="hint-emoji">👀</div>
+                    <p class="hint-text" id="hintText2"></p>
+                </div>
+            </div>
+
+            <!-- Вопрос 3 -->
+            <div class="quiz-card">
+                <h3 class="quiz-question">Любишь меня? ( Trick question 😏 )</h3>
+                <div class="quiz-options">
+                    <button class="quiz-btn" onclick="showHint(3, 'yes')">Бесконечно! 💖</button>
+                    <button class="quiz-btn" onclick="showHint(3, 'maybe')">Зависит от настроения 🤔</button>
+                </div>
+                <div class="hint-box" id="hint3">
+                    <div class="hint-emoji">🔐</div>
+                    <p class="hint-text" id="hintText3"></p>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 40px;">
+                <a href="#story" class="cartoon-btn">Дальше! ➡️</a>
+            </div>
         </div>
     </section>
 
-    <!-- === ЭКРАН 2: ИСТОРИЯ === -->
+    <!-- === ЭКРАН 3: ИСТОРИЯ === -->
     <section class="section" id="story">
+        <div class="decoration" style="top: 10%; left: 5%;">🌸</div>
+        <div class="decoration" style="top: 20%; right: 5%; animation-delay: 1s;">⭐</div>
+        <div class="decoration" style="bottom: 20%; left: 8%; animation-delay: 2s;">🦋</div>
+        
         <div class="timeline">
             <h2 class="section-title">Наша история 💫</h2>
             
-            <div class="story-card" data-tilt>
+            <div class="story-card">
                 <span class="story-icon">🎯</span>
                 <h3 class="story-title">Как мы познакомились</h3>
                 <p class="story-text">
@@ -616,7 +1132,7 @@
                 </p>
             </div>
 
-            <div class="story-card" data-tilt>
+            <div class="story-card">
                 <span class="story-icon">☕</span>
                 <h3 class="story-title">Первые свидания</h3>
                 <p class="story-text">
@@ -626,7 +1142,7 @@
                 </p>
             </div>
 
-            <div class="story-card" data-tilt>
+            <div class="story-card">
                 <span class="story-icon">🎉</span>
                 <h3 class="story-title">Почти 4 года вместе</h3>
                 <p class="story-text">
@@ -636,9 +1152,13 @@
                 </p>
             </div>
         </div>
+        
+        <div style="text-align: center; margin-top: 50px;">
+            <a href="#gallery" class="cartoon-btn">Смотри, что дальше! 📸</a>
+        </div>
     </section>
 
-    <!-- === ЭКРАН 3: ГАЛЕРЕЯ === -->
+    <!-- === ЭКРАН 4: ГАЛЕРЕЯ === -->
     <section class="section" id="gallery">
         <h2 class="section-title">Наши моменты 📸</h2>
         
@@ -674,12 +1194,16 @@
             </div>
         </div>
         
-        <p style="color: white; margin-top: 30px; opacity: 0.8; font-style: italic;">
-            * Здесь должны быть ваши настоящие фото — просто замени placeholder'ы!
+        <p style="color: white; margin-top: 30px; font-size: 1.1rem; text-align: center; text-shadow: 0 2px 10px rgba(0,0,0,0.2);">
+            💡 Кликни на фото — будет магия!
         </p>
+        
+        <div style="text-align: center; margin-top: 40px;">
+            <a href="#letter" class="cartoon-btn">Читать послание 💌</a>
+        </div>
     </section>
 
-    <!-- === ЭКРАН 4: ПОСЛАНИЕ === -->
+    <!-- === ЭКРАН 5: ПОСЛАНИЕ === -->
     <section class="section" id="letter">
         <div class="letter-container">
             <h2 class="section-title">Моё послание 💌</h2>
@@ -687,38 +1211,104 @@
             <div class="letter-card">
                 <div class="letter-text" id="letterText">
                     <p class="letter-line">Привет, моя Снежана.</p>
-                    <br>
                     <p class="letter-line">Знаешь, я не поэт и не писатель. Мой код обычно лучше, чем мои тексты.</p>
-                    <br>
                     <p class="letter-line">Но для тебя я готов на всё — даже на попытку передать в словах то, что чувствую.</p>
-                    <br>
                     <p class="letter-line">Ты — мой самый любимый человек. Мой лучший друг. Мой союзник в борьбе против скуки.</p>
-                    <br>
                     <p class="letter-line">С тобой даже обычные дни становятся приключениями. С тобой я могу быть собой — со всеми моими странностями, мемами и странными идеями (типа этого сайта).</p>
-                    <br>
                     <p class="letter-line">Спасибо, что терпишь меня. Спасибо, что смеёшься со мной. Спасибо, что ты есть.</p>
-                    <br>
                     <p class="letter-line">Я люблю тебя. Не потому что должен, а потому что не могу по-другому.</p>
                 </div>
                 <div class="signature" id="signature">Твой Алишер ❤️</div>
             </div>
         </div>
+        
+        <div style="text-align: center; margin-top: 50px;">
+            <a href="#treasure" class="cartoon-btn">А теперь... 🎁</a>
+        </div>
     </section>
 
-    <!-- === ЭКРАН 5: ФИНАЛ === -->
+    <!-- === ЭКРАН 6: ОХОТА ЗА ПОДАРКОМ === -->
+    <section class="section" id="treasure">
+        <div class="treasure-hunt">
+            <h2 class="section-title">Охота за сокровищами! 🗺️</h2>
+            
+            <div class="hunt-card">
+                <h3 style="font-family: 'Pacifico', cursive; font-size: 1.8rem; color: var(--pink-dark); margin-bottom: 20px;">
+                    Где же подарок? 🤔
+                </h3>
+                
+                <div class="clue-box">
+                    <div class="clue-number">1</div>
+                    <p style="font-size: 1.2rem; color: #555; margin-top: 10px;">
+                        Посмотри туда, где ты обычно прячешь сладости от меня... 
+                    </p>
+                </div>
+
+                <div class="directions">
+                    <span class="direction-arrow">👆</span>
+                    <span class="direction-arrow">👉</span>
+                    <span class="direction-arrow">👇</span>
+                    <span class="direction-arrow">👈</span>
+                </div>
+
+                <div class="clue-box">
+                    <div class="clue-number">2</div>
+                    <p style="font-size: 1.2rem; color: #555; margin-top: 10px;">
+                        Или туда, где мы храним наши воспоминания...
+                    </p>
+                </div>
+
+                <div class="clue-box">
+                    <div class="clue-number">3</div>
+                    <p style="font-size: 1.2rem; color: #555; margin-top: 10px;">
+                        Ладно, ладно... Ещё одна подсказка: это место, где ты чувствуешь себя как дома 🏠
+                    </p>
+                </div>
+
+                <button class="reveal-btn" onclick="revealTreasure()">
+                    Я нашла! Покажи подсказку! 🔍
+                </button>
+
+                <div class="treasure-reveal" id="treasureReveal">
+                    <div style="font-size: 4rem; margin-bottom: 15px;">🎉</div>
+                    <h4 style="font-family: 'Pacifico', cursive; font-size: 1.8rem; color: var(--pink-dark); margin-bottom: 10px;">
+                        Правильный ответ:
+                    </h4>
+                    <p style="font-size: 1.3rem; color: #555; line-height: 1.6;">
+                        Подарок спрятан там, где твои глаза светятся от радости! <br>
+                        (Или просто проверь под подушкой / в шкафу / за шторой... <br>
+                        Алишер точно что-то припрятал! 😏)
+                    </p>
+                    <div style="margin-top: 20px; font-size: 2rem;">
+                        🎁💝✨
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 40px;">
+            <a href="#final" class="cartoon-btn">Финальный вопрос! 💕</a>
+        </div>
+    </section>
+
+    <!-- === ЭКРАН 7: ФИНАЛ === -->
     <section class="section final-screen" id="final">
         <div class="question-box">
             <h2 class="final-title">Ты будешь моей валентинкой? 💝</h2>
             
             <div class="buttons-container" id="buttonsContainer">
-                <button class="btn-3d btn-yes" onclick="sayYes()">
-                    Да! 💖
+                <button class="btn-yes-final" onclick="sayYes()">
+                    Да! Конечно! 💖
                 </button>
                 
-                <button class="btn-3d btn-no" id="noBtn" onmouseenter="moveNoButton()" onclick="moveNoButton()">
-                    Нет
+                <button class="btn-no-final" id="noBtn" onmouseenter="moveNoButton()" onclick="moveNoButton()">
+                    Нет 😤
                 </button>
             </div>
+            
+            <p style="margin-top: 30px; color: #999; font-size: 0.9rem; font-style: italic;">
+                P.S. Кнопка "Нет" сломана... как и моё сердце без тебя 😅
+            </p>
         </div>
     </section>
 
@@ -728,12 +1318,14 @@
             <div class="big-heart">💖</div>
             <h2 class="success-text">Я так и знал! 😌❤️</h2>
             <p class="success-subtext">Ты сделала мой день (и жизнь) особенной!</p>
-            <p style="color: white; margin-top: 20px; font-size: 3rem;">🎉💕🌟</p>
+            <p style="color: white; margin-top: 30px; font-size: 4rem; animation: bounce 1s infinite;">
+                🎉💕🌟🎊💖
+            </p>
+            <p style="color: white; margin-top: 20px; font-size: 1.2rem; opacity: 0.9;">
+                Теперь иди искать подарок! 🎁
+            </p>
         </div>
     </div>
-
-    <!-- Подсказка -->
-    <div class="music-hint">💡 Кликай по экрану — будут сердечки!</div>
 
     <script>
         // === ИНИЦИАЛИЗАЦИЯ GSAP ===
@@ -741,52 +1333,64 @@
 
         // === СОЗДАНИЕ ФОНОВЫХ ЭЛЕМЕНТОВ ===
         const floatingBg = document.getElementById('floatingBg');
-        const floatingItems = ['💕', '💖', '💗', '💓', '💝', '🤍', '✨', '⭐', '🌟'];
+        const floatingItems = ['💕', '💖', '💗', '💓', '💝', '🤍', '✨', '⭐', '🌟', '🦋', '🌸', '🎈'];
         
-        for (let i = 0; i < 20; i++) {
+        for (let i = 0; i < 25; i++) {
             const item = document.createElement('div');
             item.className = 'floating-item';
             item.innerHTML = floatingItems[Math.floor(Math.random() * floatingItems.length)];
             item.style.left = Math.random() * 100 + '%';
             item.style.top = Math.random() * 100 + '%';
-            item.style.fontSize = (Math.random() * 20 + 20) + 'px';
+            item.style.fontSize = (Math.random() * 25 + 25) + 'px';
             item.style.animationDelay = Math.random() * 5 + 's';
-            item.style.animationDuration = (Math.random() * 10 + 10) + 's';
+            item.style.animationDuration = (Math.random() * 8 + 10) + 's';
             floatingBg.appendChild(item);
         }
 
-        // === ОРБИТАЛЬНЫЕ СЕРДЕЧКИ (Интро) ===
-        const orbitContainer = document.getElementById('orbitHearts');
-        for (let i = 0; i < 6; i++) {
-            const heart = document.createElement('div');
-            heart.className = 'heart-3d';
-            heart.innerHTML = '💖';
-            heart.style.left = '50%';
-            heart.style.top = '50%';
-            heart.style.animationDelay = (i * 1.3) + 's';
-            heart.style.animationDuration = '8s';
-            // Разные радиусы орбиты
-            const radius = 120 + (i * 30);
-            heart.style.setProperty('--orbit-radius', radius + 'px');
-            // Модифицируем анимацию для каждого
-            heart.style.transform = `rotate(${i * 60}deg) translateX(${radius}px) rotate(-${i * 60}deg)`;
+        // === ИНТЕРАКТИВНЫЕ ВОПРОСЫ ===
+        const hints = {
+            1: {
+                yes: "Отлично! Тогда посмотри в холодильник... там может быть что-то вкусненькое! 🍰✨ (Или просто закажи доставку, я не судья)",
+                no: "Ну ничего, я всё равно накормлю тебя! А пока посмотри под столом... может там что-то есть? 👀"
+            },
+            2: {
+                yes: "Супер! Тогда загляни за штору... или под подушку... или просто оглянись! 👀🎁",
+                no: "Не бойся! Сюрпризы от Алишера всегда безопасны*!<br><small>*почти всегда</small> 😏"
+            },
+            3: {
+                yes: "Я знал! 💖 И как награда — проверь то место, где ты хранишь свои самые ценные вещи!",
+                maybe: "Что значит 'зависит'?! 😤 Ладно, ладно... тогда подарок в том месте, где ты точно не забудешь посмотреть!"
+            }
+        };
+
+        function showHint(questionNum, answer) {
+            const hintBox = document.getElementById(`hint${questionNum}`);
+            const hintText = document.getElementById(`hintText${questionNum}`);
             
-            // Динамическая анимация через CSS-in-JS
-            const style = document.createElement('style');
-            style.innerHTML = `
-                @keyframes orbit-${i} {
-                    0% { transform: rotate(${i * 60}deg) translateX(${radius}px) rotate(-${i * 60}deg); }
-                    100% { transform: rotate(${i * 60 + 360}deg) translateX(${radius}px) rotate(-${i * 60 - 360}deg); }
-                }
-            `;
-            document.head.appendChild(style);
-            heart.style.animation = `orbit-${i} ${8 + i}s linear infinite`;
+            hintText.innerHTML = hints[questionNum][answer];
+            hintBox.classList.add('show');
             
-            orbitContainer.appendChild(heart);
+            // Анимация появления
+            gsap.from(hintBox, {
+                scale: 0,
+                rotation: -10,
+                duration: 0.5,
+                ease: "back.out(1.7)"
+            });
+            
+            // Конфетти при правильном ответе
+            if (answer === 'yes' || (questionNum === 3 && answer === 'maybe')) {
+                confetti({
+                    particleCount: 30,
+                    spread: 50,
+                    origin: { y: 0.7 },
+                    colors: ['#FFC8DD', '#CDB4DB', '#FF6B9D']
+                });
+            }
         }
 
-        // === 3D TILT ЭФФЕКТ ДЛЯ КАРТОЧЕК ===
-        document.querySelectorAll('.story-card, .photo-card, .letter-card').forEach(card => {
+        // === 3D TILT ДЛЯ КАРТОЧЕК ===
+        document.querySelectorAll('.story-card, .photo-card, .quiz-card, .hunt-card').forEach(card => {
             card.addEventListener('mousemove', (e) => {
                 const rect = card.getBoundingClientRect();
                 const x = e.clientX - rect.left;
@@ -795,18 +1399,24 @@
                 const centerX = rect.width / 2;
                 const centerY = rect.height / 2;
                 
-                const rotateX = (y - centerY) / 10;
-                const rotateY = (centerX - x) / 10;
+                const rotateX = (y - centerY) / 15;
+                const rotateY = (centerX - x) / 15;
                 
-                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+                card.style.transform = `
+                    perspective(1000px) 
+                    rotateX(${rotateX}deg) 
+                    rotateY(${rotateY}deg) 
+                    translateZ(30px) 
+                    scale(1.03)
+                `;
             });
             
             card.addEventListener('mouseleave', () => {
-                card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)';
+                card.style.transform = '';
             });
         });
 
-        // === АНИМАЦИЯ ПИСЬМА ПРИ СКРОЛЛЕ ===
+        // === АНИМАЦИЯ ПИСЬМА ===
         const letterLines = document.querySelectorAll('.letter-line');
         const signature = document.getElementById('signature');
 
@@ -814,27 +1424,39 @@
             scrollTrigger: {
                 trigger: '#letter',
                 start: 'top 70%',
-                toggleActions: 'play none none reverse'
             },
             opacity: 1,
             y: 0,
             duration: 0.8,
-            stagger: 0.3,
-            ease: 'power2.out'
+            stagger: 0.4,
+            ease: 'back.out(1.7)'
         });
 
         gsap.to(signature, {
             scrollTrigger: {
                 trigger: '#letter',
                 start: 'top 30%',
-                toggleActions: 'play none none reverse'
             },
             opacity: 1,
             duration: 1,
-            delay: 2
+            delay: 3,
+            ease: 'elastic.out(1, 0.5)'
         });
 
-        // === АНИМАЦИЯ КАРТОЧЕК ИСТОРИИ ===
+        // === АНИМАЦИИ ПРИ СКРОЛЛЕ ===
+        gsap.from('.quiz-card', {
+            scrollTrigger: {
+                trigger: '#quiz',
+                start: 'top 80%',
+            },
+            x: -100,
+            opacity: 0,
+            rotation: -5,
+            duration: 0.8,
+            stagger: 0.2,
+            ease: 'back.out(1.7)'
+        });
+
         gsap.from('.story-card', {
             scrollTrigger: {
                 trigger: '#story',
@@ -842,12 +1464,12 @@
             },
             y: 100,
             opacity: 0,
+            rotation: 5,
             duration: 1,
             stagger: 0.2,
             ease: 'back.out(1.7)'
         });
 
-        // === АНИМАЦИЯ ФОТО ===
         gsap.from('.photo-card', {
             scrollTrigger: {
                 trigger: '#gallery',
@@ -858,46 +1480,63 @@
             opacity: 0,
             duration: 0.8,
             stagger: 0.1,
-            ease: 'back.out(1.7)'
+            ease: 'elastic.out(1, 0.5)'
         });
+
+        // === РАСКРЫТИЕ ПОДАРКА ===
+        function revealTreasure() {
+            const reveal = document.getElementById('treasureReveal');
+            reveal.classList.add('show');
+            
+            // Большой взрыв конфетти
+            const duration = 2000;
+            const end = Date.now() + duration;
+
+            const frame = () => {
+                confetti({
+                    particleCount: 10,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 },
+                    colors: ['#FFD700', '#FFA500', '#FF6B9D', '#FFC8DD']
+                });
+                confetti({
+                    particleCount: 10,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 },
+                    colors: ['#FFD700', '#FFA500', '#FF6B9D', '#FFC8DD']
+                });
+
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame);
+                }
+            };
+            frame();
+        }
 
         // === ХИТРАЯ КНОПКА "НЕТ" ===
         const noBtn = document.getElementById('noBtn');
-        const buttonsContainer = document.getElementById('buttonsContainer');
-        let isMoving = false;
+        const noTexts = ['Нет', 'Точно?', 'Подумай!', 'А если...?', 'Ну please', '🥺', 'Не-а!', 'Отказаться?'];
 
         function moveNoButton() {
-            if (window.innerWidth < 768) {
-                // На мобильных просто перемещаем в случайное место контейнера
-                const containerRect = buttonsContainer.getBoundingClientRect();
-                const maxX = containerRect.width - 100;
-                const maxY = 150;
-                
-                const newX = (Math.random() - 0.5) * maxX;
-                const newY = (Math.random() - 0.5) * maxY;
-                
-                noBtn.style.transform = `translate(${newX}px, ${newY}px)`;
-            } else {
-                // На десктопе убегаем от курсора
-                const rect = noBtn.getBoundingClientRect();
-                const containerRect = buttonsContainer.getBoundingClientRect();
-                
-                // Вычисляем направление от курсора
-                const btnCenterX = rect.left + rect.width / 2;
-                const btnCenterY = rect.top + rect.height / 2;
-                
-                // Случайная позиция в пределах контейнера
-                const maxMove = 150;
-                const newX = (Math.random() - 0.5) * maxMove * 2;
-                const newY = (Math.random() - 0.5) * maxMove * 2;
-                
-                noBtn.style.transform = `translate(${newX}px, ${newY}px)`;
-                
-                // Меняем текст иногда
-                const texts = ['Нет', 'Точно?', 'Подумай!', 'А если...?', 'Ну please', '🥺'];
-                if (Math.random() > 0.7) {
-                    noBtn.innerHTML = texts[Math.floor(Math.random() * texts.length)];
-                }
+            const container = document.getElementById('buttonsContainer');
+            const containerRect = container.getBoundingClientRect();
+            
+            // Случайная позиция в пределах контейнера
+            const maxX = 150;
+            const maxY = 100;
+            
+            const newX = (Math.random() - 0.5) * maxX * 2;
+            const newY = (Math.random() - 0.5) * maxY * 2;
+            
+            noBtn.style.transform = `translate(${newX}px, ${newY}px)`;
+            noBtn.innerHTML = noTexts[Math.floor(Math.random() * noTexts.length)];
+            
+            // Меняем цвет иногда
+            if (Math.random() > 0.5) {
+                noBtn.style.borderColor = '#ff6b9d';
+                noBtn.style.color = '#ff6b9d';
             }
         }
 
@@ -913,7 +1552,7 @@
                     Math.pow(e.clientY - btnCenterY, 2)
                 );
                 
-                if (distance < 100) {
+                if (distance < 120) {
                     moveNoButton();
                 }
             });
@@ -921,24 +1560,28 @@
 
         // === ОБРАБОТКА "ДА" ===
         function sayYes() {
-            // Конфетти-взрыв
-            const duration = 3000;
+            // Массивный взрыв конфетти
+            const duration = 4000;
             const end = Date.now() + duration;
+
+            const colors = ['#FFC8DD', '#CDB4DB', '#FF6B9D', '#FFD700', '#FF1493', '#FFFFFF'];
 
             const frame = () => {
                 confetti({
-                    particleCount: 5,
+                    particleCount: 8,
                     angle: 60,
                     spread: 55,
                     origin: { x: 0 },
-                    colors: ['#FFC8DD', '#CDB4DB', '#FF6B9D', '#FFFFFF', '#FFD700']
+                    colors: colors,
+                    shapes: ['circle', 'square', 'heart']
                 });
                 confetti({
-                    particleCount: 5,
+                    particleCount: 8,
                     angle: 120,
                     spread: 55,
                     origin: { x: 1 },
-                    colors: ['#FFC8DD', '#CDB4DB', '#FF6B9D', '#FFFFFF', '#FFD700']
+                    colors: colors,
+                    shapes: ['circle', 'square', 'heart']
                 });
 
                 if (Date.now() < end) {
@@ -947,37 +1590,35 @@
             };
             frame();
 
-            // Показываем экран успеха
             setTimeout(() => {
                 document.getElementById('successScreen').classList.add('active');
                 
-                // Большой взрыв по центру
+                // Финальный залп
                 confetti({
-                    particleCount: 200,
-                    spread: 120,
+                    particleCount: 300,
+                    spread: 150,
                     origin: { y: 0.6 },
-                    colors: ['#FFC8DD', '#CDB4DB', '#FF6B9D', '#FFFFFF', '#FFD700', '#FF1493'],
+                    colors: colors,
                     shapes: ['circle', 'square', 'heart'],
-                    scalar: 1.5
+                    scalar: 2
                 });
-            }, 500);
+            }, 600);
         }
 
-        // === ЭФФЕКТ КЛИКА (СЕРДЕЧКИ) ===
+        // === ЭФФЕКТЫ КЛИКА ===
         document.addEventListener('click', (e) => {
-            // Игнорируем клики по кнопкам и карточкам
-            if (e.target.closest('.btn-3d') || e.target.closest('.photo-card')) return;
+            if (e.target.closest('.btn-yes-final') || e.target.closest('.quiz-btn') || e.target.closest('.photo-card')) return;
             
-            const heart = document.createElement('div');
-            heart.className = 'click-effect';
-            heart.innerHTML = ['💕', '💖', '💗', '✨', '⭐'][Math.floor(Math.random() * 5)];
-            heart.style.left = e.clientX + 'px';
-            heart.style.top = e.clientY + 'px';
-            heart.style.fontSize = (Math.random() * 20 + 20) + 'px';
+            const effects = ['💕', '💖', '💗', '✨', '⭐', '🌟', '🎈', '🦋'];
+            const effect = document.createElement('div');
+            effect.className = 'click-effect';
+            effect.innerHTML = effects[Math.floor(Math.random() * effects.length)];
+            effect.style.left = e.clientX + 'px';
+            effect.style.top = e.clientY + 'px';
+            effect.style.fontSize = (Math.random() * 20 + 30) + 'px';
             
-            document.body.appendChild(heart);
-            
-            setTimeout(() => heart.remove(), 1000);
+            document.body.appendChild(effect);
+            setTimeout(() => effect.remove(), 1200);
         });
 
         // === SPARKLES ДЛЯ ФОТО ===
@@ -986,21 +1627,23 @@
             const centerX = rect.left + rect.width / 2;
             const centerY = rect.top + rect.height / 2;
             
-            for (let i = 0; i < 8; i++) {
+            for (let i = 0; i < 12; i++) {
                 setTimeout(() => {
                     const sparkle = document.createElement('div');
                     sparkle.className = 'click-effect';
-                    sparkle.innerHTML = '✨';
-                    sparkle.style.left = (centerX + (Math.random() - 0.5) * 100) + 'px';
-                    sparkle.style.top = (centerY + (Math.random() - 0.5) * 100) + 'px';
-                    sparkle.style.fontSize = '30px';
+                    sparkle.innerHTML = ['✨', '⭐', '💖'][Math.floor(Math.random() * 3)];
+                    const angle = (i / 12) * Math.PI * 2;
+                    const distance = 80;
+                    sparkle.style.left = (centerX + Math.cos(angle) * distance) + 'px';
+                    sparkle.style.top = (centerY + Math.sin(angle) * distance) + 'px';
+                    sparkle.style.fontSize = '35px';
                     document.body.appendChild(sparkle);
                     setTimeout(() => sparkle.remove(), 1000);
-                }, i * 50);
+                }, i * 40);
             }
         }
 
-        // === ПРОГРЕСС-БАР СКРОЛЛА ===
+        // === ПРОГРЕСС-БАР ===
         window.addEventListener('scroll', () => {
             const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
             const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
@@ -1008,26 +1651,34 @@
             document.getElementById('scrollProgress').style.width = scrolled + '%';
         });
 
-        // === ПАРАЛЛАКС ЭФФЕКТ ===
+        // === ПАРАЛЛАКС ===
         document.addEventListener('mousemove', (e) => {
             const mouseX = e.clientX / window.innerWidth - 0.5;
             const mouseY = e.clientY / window.innerHeight - 0.5;
             
             gsap.to('.floating-item', {
+                x: mouseX * 50,
+                y: mouseY * 50,
+                duration: 1,
+                ease: 'power2.out'
+            });
+            
+            gsap.to('.decoration', {
                 x: mouseX * 30,
                 y: mouseY * 30,
+                rotation: mouseX * 10,
                 duration: 1,
                 ease: 'power2.out'
             });
         });
 
-        // === ИНИЦИАЛИЗАЦИЯ АНИМАЦИИ ИНТРО ===
+        // === ИНТРО АНИМАЦИЯ ===
         gsap.from('.main-title', {
             scale: 0,
-            rotation: -5,
+            rotation: -10,
             duration: 1.5,
             ease: 'elastic.out(1, 0.5)',
-            delay: 0.2
+            delay: 0.3
         });
 
         gsap.from('.subtitle', {
@@ -1035,15 +1686,15 @@
             opacity: 0,
             duration: 1,
             delay: 0.8,
-            ease: 'power2.out'
+            ease: 'back.out(1.7)'
         });
 
-        gsap.from('.scroll-btn', {
-            y: 30,
+        gsap.from('.cartoon-btn', {
+            y: 100,
             opacity: 0,
             duration: 1,
             delay: 1.2,
-            ease: 'back.out(1.7)'
+            ease: 'bounce.out'
         });
     </script>
 </body>
