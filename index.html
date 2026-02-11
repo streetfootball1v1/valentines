@@ -3,28 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alisher & Snezhana</title>
+    <title>Bridge of Love - A Cinematic 3D Experience</title>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <!-- GSAP -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            overflow: hidden;
-            background: #1a1a2e;
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <!-- Three.js & Post Processing -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
         }
-        
+    </script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400&display=swap');
+
+        body {
+            margin: 0;
+            overflow-x: hidden;
+            background-color: #1a1a2e;
+            font-family: 'Lato', sans-serif;
+        }
+
         #canvas-container {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            height: 100%;
+            height: 100vh;
             z-index: 1;
         }
 
+        /* Scroll Track */
+        #scroll-track {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 600vh; /* Long scroll distance for narrative */
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* UI Layer */
         #ui-layer {
             position: fixed;
             top: 0;
@@ -39,464 +67,728 @@
             align-items: center;
         }
 
-        .story-text {
+        .narrative-text {
+            font-family: 'Playfair Display', serif;
             color: white;
-            font-size: 2rem;
             text-align: center;
-            padding: 20px;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
             opacity: 0;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            position: absolute;
+            max-width: 800px;
+            padding: 0 20px;
             transform: translateY(20px);
-            max-width: 80%;
-            pointer-events: none;
         }
 
-        .heart-btn {
-            width: 100px;
-            height: 100px;
-            background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
+        .narrative-text h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            font-style: italic;
+        }
+
+        .narrative-text p {
+            font-size: 1.5rem;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        /* The Final Button */
+        #final-step-btn {
             pointer-events: auto;
-            box-shadow: 0 0 40px rgba(255, 107, 107, 0.6);
-            transition: transform 0.3s;
-            animation: pulse 2s infinite;
-            font-size: 50px;
-        }
-
-        .heart-btn:hover {
-            transform: scale(1.1);
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); box-shadow: 0 0 40px rgba(255, 107, 107, 0.6); }
-            50% { transform: scale(1.05); box-shadow: 0 0 60px rgba(255, 107, 107, 0.8); }
-        }
-
-        .final-btn {
-            background: linear-gradient(45deg, #ff00cc, #333399);
-            color: white;
+            background: linear-gradient(135deg, #ffd700, #ffaa00);
+            border: none;
             padding: 20px 50px;
             font-size: 1.5rem;
+            font-family: 'Playfair Display', serif;
+            color: #4a3b00;
             border-radius: 50px;
-            border: none;
             cursor: pointer;
-            pointer-events: auto;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
             opacity: 0;
             transform: scale(0.8);
-            transition: all 0.3s;
-            box-shadow: 0 0 30px rgba(255, 0, 204, 0.5);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: none; /* Hidden initially */
+        }
+
+        #final-step-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 50px rgba(255, 215, 0, 0.9);
+        }
+
+        #final-question {
+            font-family: 'Playfair Display', serif;
+            font-size: 4rem;
+            color: #fff;
+            text-shadow: 0 0 30px #ff69b4;
+            opacity: 0;
+            position: absolute;
+            text-align: center;
             display: none;
         }
 
-        .final-btn.show {
-            display: block;
-            opacity: 1;
-            transform: scale(1);
-        }
-
-        .final-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 50px rgba(255, 0, 204, 0.8);
-        }
-
-        #loading {
+        /* Loader */
+        #loader {
             position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #1a1a2e;
+            z-index: 50;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             color: white;
-            font-size: 1.2rem;
-            z-index: 100;
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            transition: opacity 1s ease;
         }
-
-        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-    <div id="loading">Загрузка 3D...</div>
+    <!-- Loader -->
+    <div id="loader">Generating World...</div>
+
+    <!-- 3D Canvas -->
     <div id="canvas-container"></div>
-    
+
+    <!-- Scroll Track (Invisible but functional) -->
+    <div id="scroll-track"></div>
+
+    <!-- UI Overlay -->
     <div id="ui-layer">
-        <div id="text-display" class="story-text">Once we were just two people...</div>
-        <div id="heart-btn" class="heart-btn">❤</div>
-        <button id="final-btn" class="final-btn">Take the final step</button>
+        
+        <!-- Scene 1 Text -->
+        <div class="narrative-text" id="text-1">
+            <h1>When there was distance between us...</h1>
+        </div>
+
+        <!-- Scene 2 Text -->
+        <div class="narrative-text" id="text-2">
+            <p>Step by step...</p>
+        </div>
+
+        <!-- Scene 4 Text -->
+        <div class="narrative-text" id="text-3">
+            <h1>Almost 4 years...</h1>
+        </div>
+        
+        <div class="narrative-text" id="text-4">
+            <h1>And every day...</h1>
+        </div>
+
+        <div class="narrative-text" id="text-5">
+            <h1>I choose you.</h1>
+        </div>
+
+        <!-- Final Button -->
+        <button id="final-step-btn">Take the final step</button>
+
+        <!-- Final Question -->
+        <div id="final-question">
+            Will you be my Valentine? 💝
+        </div>
     </div>
 
-    <script>
-        // --- STATE ---
-        const state = {
-            scene: 1,
-            distance: 12,
-            lightIntensity: 0.5,
-            isHoldingHands: false
+    <!-- Application Script -->
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+        import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+        import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+
+        // --- Configuration ---
+        const CONFIG = {
+            colors: {
+                bg: 0x1a1a2e,
+                fogStart: 0x2a2a40,
+                fogEnd: 0xffd1dc, // Pinkish white
+                island1: 0x9fa8da, // Lavender
+                island2: 0xf48fb1, // Pink
+                bridge: 0xffd700,  // Gold
+                alisher: 0x64b5f6, // Blue tones
+                snezhana: 0xf06292 // Pink tones
+            },
+            bridgeLength: 40,
+            walkDistance: 18 // How far they walk towards center
         };
 
-        // --- THREE.JS SETUP ---
-        const container = document.getElementById('canvas-container');
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x1a1a2e);
-        scene.fog = new THREE.Fog(0x1a1a2e, 10, 50);
+        // --- Global Variables ---
+        let scene, camera, renderer, composer, controls;
+        let alisher, snezhana, bridge;
+        let particles, particleGeo;
+        let cursorLight;
+        let mouse = new THREE.Vector2();
+        let targetMouse = new THREE.Vector2();
+        let scrollProgress = 0;
+        let isClimax = false;
+        let timeScale = 1.0;
+        let clock = new THREE.Clock();
+        
+        // Animation Mixers/States
+        const state = {
+            bridgeBuilt: 0, // 0 to 1
+            walkProgress: 0, // 0 to 1
+            cameraZoom: 60
+        };
 
-        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(0, 3, 15);
+        // --- Initialization ---
+        function init() {
+            // Scene Setup
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(CONFIG.colors.bg);
+            scene.fog = new THREE.FogExp2(CONFIG.colors.fogStart, 0.02);
 
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        renderer.shadowMap.enabled = true;
-        container.appendChild(renderer.domElement);
+            // Camera
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 15, 60);
+            camera.lookAt(0, 0, 0);
 
-        document.getElementById('loading').classList.add('hidden');
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.SoftShadowMap;
+            document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-        // --- LIGHTS ---
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
-        scene.add(ambientLight);
+            // Post Processing (Bloom)
+            const renderScene = new RenderPass(scene, camera);
+            const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
+            bloomPass.threshold = 0.2;
+            bloomPass.strength = 0.4; // Initial subtle bloom
+            bloomPass.radius = 0.5;
 
-        const dirLight = new THREE.DirectionalLight(0xffd1dc, 0.5);
-        dirLight.position.set(5, 10, 5);
-        dirLight.castShadow = true;
-        scene.add(dirLight);
+            composer = new EffectComposer(renderer);
+            composer.addPass(renderScene);
+            composer.addPass(bloomPass);
 
-        const loveLight = new THREE.PointLight(0xff69b4, 0, 30);
-        loveLight.position.set(0, 2, 0);
-        scene.add(loveLight);
+            // Lighting
+            setupLighting();
 
-        // --- ENVIRONMENT ---
-        // Ground
-        const groundGeo = new THREE.PlaneGeometry(100, 100);
-        const groundMat = new THREE.MeshStandardMaterial({ 
-            color: 0x2a2a40,
-            roughness: 0.8 
-        });
-        const ground = new THREE.Mesh(groundGeo, groundMat);
-        ground.rotation.x = -Math.PI / 2;
-        ground.position.y = -2;
-        ground.receiveShadow = true;
-        scene.add(ground);
+            // World Building
+            createEnvironment();
+            createCharacters();
+            createParticles();
+            createBridge();
 
-        // Stars
-        const starsGeo = new THREE.BufferGeometry();
-        const starCount = 200;
-        const starPos = new Float32Array(starCount * 3);
-        for(let i = 0; i < starCount * 3; i++) {
-            starPos[i] = (Math.random() - 0.5) * 50;
+            // Event Listeners
+            window.addEventListener('resize', onWindowResize);
+            window.addEventListener('mousemove', onMouseMove);
+            document.getElementById('final-step-btn').addEventListener('click', triggerClimax);
+
+            // GSAP ScrollTrigger Setup
+            setupScrollAnimations();
+
+            // Start Loop
+            document.getElementById('loader').style.opacity = 0;
+            setTimeout(() => document.getElementById('loader').remove(), 1000);
+            animate();
         }
-        starsGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
-        const starsMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.1 });
-        const stars = new THREE.Points(starsGeo, starsMat);
-        scene.add(stars);
 
-        // --- CHARACTERS (Fixed for r128) ---
-        function createChibi(color, isMale) {
+        function setupLighting() {
+            // Ambient
+            const ambientLight = new THREE.AmbientLight(0x404040, 1.5); // Soft white light
+            scene.add(ambientLight);
+
+            // Directional (Moon/Sun)
+            const dirLight = new THREE.DirectionalLight(0xffd1dc, 1);
+            dirLight.position.set(10, 20, 10);
+            dirLight.castShadow = true;
+            dirLight.shadow.mapSize.width = 2048;
+            dirLight.shadow.mapSize.height = 2048;
+            scene.add(dirLight);
+
+            // Cursor Interactive Light
+            cursorLight = new THREE.PointLight(0xffaa00, 0, 20);
+            scene.add(cursorLight);
+        }
+
+        // --- Procedural Generation Helpers ---
+        
+        function createIsland(xPos, color) {
             const group = new THREE.Group();
-
-            // Materials
-            const skinMat = new THREE.MeshStandardMaterial({ color: 0xffdbac });
-            const clothesMat = new THREE.MeshStandardMaterial({ color: color });
-            const hairMat = new THREE.MeshStandardMaterial({ color: isMale ? 0x4a3728 : 0xf4d03f });
-
-            // Body (Cylinder + Sphere top instead of Capsule)
-            const bodyGroup = new THREE.Group();
             
-            const bodyCyl = new THREE.Mesh(
-                new THREE.CylinderGeometry(0.7, 0.7, 1.5, 16),
-                clothesMat
-            );
-            bodyCyl.position.y = 0;
-            bodyCyl.castShadow = true;
-            bodyGroup.add(bodyCyl);
-            
-            // Rounded top for body
-            const bodyTop = new THREE.Mesh(
-                new THREE.SphereGeometry(0.7, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2),
-                clothesMat
-            );
-            bodyTop.position.y = 0.75;
-            bodyGroup.add(bodyTop);
-            
-            // Rounded bottom for body
-            const bodyBot = new THREE.Mesh(
-                new THREE.SphereGeometry(0.7, 16, 16, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2),
-                clothesMat
-            );
-            bodyBot.position.y = -0.75;
-            bodyGroup.add(bodyBot);
-            
-            group.add(bodyGroup);
+            // Main rock
+            const geo = new THREE.CylinderGeometry(6, 4, 8, 7);
+            const mat = new THREE.MeshStandardMaterial({ 
+                color: color, 
+                roughness: 0.8,
+                flatShading: true
+            });
+            const mesh = new THREE.Mesh(geo, mat);
+            mesh.position.y = -4;
+            mesh.receiveShadow = true;
+            mesh.castShadow = true;
+            group.add(mesh);
 
-            // Head (Big for chibi style)
-            const head = new THREE.Mesh(
-                new THREE.SphereGeometry(1.2, 32, 32),
-                skinMat
-            );
-            head.position.y = 1.8;
-            head.castShadow = true;
-            group.add(head);
+            // Grass top
+            const grassGeo = new THREE.CylinderGeometry(6.2, 6, 1, 7);
+            const grassMat = new THREE.MeshStandardMaterial({ color: 0x81c784 });
+            const grass = new THREE.Mesh(grassGeo, grassMat);
+            grass.position.y = 0.5;
+            grass.receiveShadow = true;
+            group.add(grass);
 
-            // Hair
-            const hair = new THREE.Mesh(
-                new THREE.SphereGeometry(1.25, 32, 32, 0, Math.PI * 2, 0, Math.PI / 2),
-                hairMat
-            );
-            hair.position.y = 1.8;
-            group.add(hair);
-
-            // Eyes
-            const eyeGeo = new THREE.SphereGeometry(0.15, 16, 16);
-            const eyeMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
+            // Floating animation offset
+            group.userData = { 
+                initialY: 0, 
+                floatSpeed: 0.002 + Math.random() * 0.001,
+                floatOffset: Math.random() * Math.PI 
+            };
             
-            const leftEye = new THREE.Mesh(eyeGeo, eyeMat);
-            leftEye.position.set(-0.4, 1.9, 1);
-            group.add(leftEye);
-            
-            const rightEye = new THREE.Mesh(eyeGeo, eyeMat);
-            rightEye.position.set(0.4, 1.9, 1);
-            group.add(rightEye);
-
-            // Blush
-            const blushGeo = new THREE.CircleGeometry(0.15, 16);
-            const blushMat = new THREE.MeshBasicMaterial({ color: 0xff9999, transparent: true, opacity: 0.6 });
-            
-            const leftBlush = new THREE.Mesh(blushGeo, blushMat);
-            leftBlush.position.set(-0.6, 1.7, 0.9);
-            leftBlush.rotation.y = -0.3;
-            group.add(leftBlush);
-
+            group.position.set(xPos, 0, 0);
+            scene.add(group);
             return group;
         }
 
-        const alisher = createChibi(0x6495ED, true);  // Blue
-        const snezhana = createChibi(0xFFB6C1, false); // Pink
-        
-        scene.add(alisher);
-        scene.add(snezhana);
+        function createChibiCharacter(name, colors) {
+            const group = new THREE.Group();
+            const skinMat = new THREE.MeshStandardMaterial({ color: 0xffe0bd, roughness: 0.4 });
+            const clothesMat = new THREE.MeshStandardMaterial({ color: colors.clothes, roughness: 0.6 });
+            const hairMat = new THREE.MeshStandardMaterial({ color: colors.hair, roughness: 0.7 });
 
-        // --- ANIMATION LOOP ---
-        let time = 0;
-        
+            // Body (Chubby capsule-like)
+            const bodyGeo = new THREE.CapsuleGeometry(0.8, 1.2, 4, 8);
+            const body = new THREE.Mesh(bodyGeo, clothesMat);
+            body.position.y = 1.6;
+            body.castShadow = true;
+            group.add(body);
+
+            // Head
+            const headGeo = new THREE.SphereGeometry(1.1, 16, 16);
+            const head = new THREE.Mesh(headGeo, skinMat);
+            head.position.y = 3.2;
+            head.castShadow = true;
+            group.add(head);
+
+            // Hair (Simple hemisphere)
+            const hairGeo = new THREE.SphereGeometry(1.15, 16, 16, 0, Math.PI * 2, 0, Math.PI/2.5);
+            const hair = new THREE.Mesh(hairGeo, hairMat);
+            hair.position.y = 3.3;
+            hair.castShadow = true;
+            group.add(hair);
+
+            // Eyes (Big and expressive)
+            const eyeGeo = new THREE.SphereGeometry(0.25, 16, 16);
+            const eyeMat = new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.1 });
+            
+            const eyeL = new THREE.Mesh(eyeGeo, eyeMat);
+            eyeL.position.set(-0.35, 3.3, 0.9);
+            group.add(eyeL);
+
+            const eyeR = new THREE.Mesh(eyeGeo, eyeMat);
+            eyeR.position.set(0.35, 3.3, 0.9);
+            group.add(eyeR);
+
+            // Blush
+            const blushGeo = new THREE.CircleGeometry(0.15, 16);
+            const blushMat = new THREE.MeshBasicMaterial({ color: 0xffa0a0, transparent: true, opacity: 0.5 });
+            const blushL = new THREE.Mesh(blushGeo, blushMat);
+            blushL.position.set(-0.6, 3.0, 0.95);
+            blushL.rotation.y = -0.5;
+            group.add(blushL);
+            
+            const blushR = new THREE.Mesh(blushGeo, blushMat);
+            blushR.position.set(0.6, 3.0, 0.95);
+            blushR.rotation.y = 0.5;
+            group.add(blushR);
+
+            // Glow Mesh (for interaction)
+            const glowGeo = new THREE.SphereGeometry(2.5, 16, 16);
+            const glowMat = new THREE.MeshBasicMaterial({ color: 0xffd700, transparent: true, opacity: 0 });
+            const glow = new THREE.Mesh(glowGeo, glowMat);
+            glow.position.y = 2.5;
+            glow.name = "glow";
+            group.add(glow);
+
+            scene.add(group);
+            return group;
+        }
+
+        // --- Scene Construction ---
+
+        function createEnvironment() {
+            // Left Island (Alisher)
+            createIsland(-CONFIG.bridgeLength / 2, CONFIG.colors.island1);
+            // Right Island (Snezhana)
+            createIsland(CONFIG.bridgeLength / 2, CONFIG.colors.island2);
+        }
+
+        function createCharacters() {
+            // Alisher (Left)
+            alisher = createChibiCharacter("Alisher", { 
+                clothes: 0x5c6bc0, // Indigo
+                hair: 0x3e2723    // Dark Brown
+            });
+            alisher.position.set(-CONFIG.bridgeLength / 2, 1, 0);
+            alisher.rotation.y = Math.PI / 2; // Face right
+
+            // Snezhana (Right)
+            snezhana = createChibiCharacter("Snezhana", { 
+                clothes: 0xf48fb1, // Pink
+                hair: 0xffecb3     // Blonde
+            });
+            snezhana.position.set(CONFIG.bridgeLength / 2, 1, 0);
+            snezhana.rotation.y = -Math.PI / 2; // Face left
+        }
+
+        function createBridge() {
+            // The bridge is made of segments that scale up
+            const segmentCount = 20;
+            const segmentWidth = CONFIG.bridgeLength / segmentCount;
+            
+            bridge = new THREE.Group();
+
+            for(let i = 0; i < segmentCount; i++) {
+                const geo = new THREE.BoxGeometry(segmentWidth - 0.2, 0.5, 2);
+                const mat = new THREE.MeshStandardMaterial({ 
+                    color: CONFIG.colors.bridge,
+                    emissive: CONFIG.colors.bridge,
+                    emissiveIntensity: 0.2,
+                    transparent: true,
+                    opacity: 0
+                });
+                const segment = new THREE.Mesh(geo, mat);
+                
+                // Position from left to right
+                const xPos = (-CONFIG.bridgeLength / 2) + (i * segmentWidth) + (segmentWidth/2);
+                segment.position.set(xPos, -0.5, 0);
+                
+                // Store initial scale for animation
+                segment.userData = { 
+                    finalY: -0.5, 
+                    index: i,
+                    total: segmentCount
+                };
+                
+                // Start invisible and below
+                segment.scale.set(1, 0, 1);
+                segment.position.y = -5;
+
+                bridge.add(segment);
+            }
+            scene.add(bridge);
+        }
+
+        function createParticles() {
+            const count = 1000;
+            const geometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(count * 3);
+            const speeds = new Float32Array(count);
+
+            for(let i = 0; i < count; i++) {
+                positions[i * 3] = (Math.random() - 0.5) * 100; // x
+                positions[i * 3 + 1] = (Math.random() - 0.5) * 50 + 10; // y
+                positions[i * 3 + 2] = (Math.random() - 0.5) * 50; // z
+                speeds[i] = Math.random() * 0.02 + 0.005;
+            }
+
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            geometry.setAttribute('speed', new THREE.BufferAttribute(speeds, 1));
+
+            const material = new THREE.PointsMaterial({
+                color: 0xffd700,
+                size: 0.3,
+                transparent: true,
+                opacity: 0.6,
+                blending: THREE.AdditiveBlending
+            });
+
+            particles = new THREE.Points(geometry, material);
+            scene.add(particles);
+        }
+
+        // --- Logic & Animation ---
+
+        function setupScrollAnimations() {
+            gsap.registerPlugin(ScrollTrigger);
+
+            // Master Timeline tied to scroll
+            const tl = gsap.timeline({
+                scrollTrigger: {
+                    trigger: "#scroll-track",
+                    start: "top top",
+                    end: "bottom bottom",
+                    scrub: 1,
+                    onUpdate: (self) => {
+                        scrollProgress = self.progress;
+                    }
+                }
+            });
+
+            // SCENE 1: Distance (0% - 20%)
+            // Just camera movement and text fade in/out handled by CSS/JS in animate loop
+            tl.to("#text-1", { opacity: 1, duration: 0.1 }, 0);
+            tl.to("#text-1", { opacity: 0, duration: 0.1 }, 0.2);
+
+            // SCENE 2: Bridge Forms (20% - 40%)
+            tl.to("#text-2", { opacity: 1, duration: 0.1 }, 0.25);
+            tl.to(state, { bridgeBuilt: 1, duration: 0.2, ease: "power2.inOut" }, 0.2);
+            tl.to("#text-2", { opacity: 0, duration: 0.1 }, 0.4);
+
+            // SCENE 3: Walking (40% - 70%)
+            tl.to(state, { walkProgress: 1, duration: 0.3 }, 0.4);
+            // Fog and color change handled in animate loop based on walkProgress
+
+            // SCENE 4: Near (70% - 85%) - Pause effect
+            tl.to("#text-3", { opacity: 1, duration: 0.05 }, 0.7);
+            tl.to("#text-3", { opacity: 0, duration: 0.05 }, 0.75);
+            
+            tl.to("#text-4", { opacity: 1, duration: 0.05 }, 0.77);
+            tl.to("#text-4", { opacity: 0, duration: 0.05 }, 0.82);
+
+            tl.to("#text-5", { opacity: 1, duration: 0.05 }, 0.84);
+            tl.to("#text-5", { opacity: 0, duration: 0.05 }, 0.9);
+
+            // SCENE 5: Reveal Button (85%+)
+            tl.call(() => {
+                if(!isClimax) {
+                    const btn = document.getElementById('final-step-btn');
+                    btn.style.display = 'block';
+                    gsap.to(btn, { opacity: 1, scale: 1, duration: 1, ease: "back.out(1.7)" });
+                }
+            }, null, 0.9);
+        }
+
+        function onMouseMove(event) {
+            // Normalize mouse coordinates -1 to 1
+            targetMouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            targetMouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        }
+
+        function triggerClimax() {
+            if(isClimax) return;
+            isClimax = true;
+
+            const btn = document.getElementById('final-step-btn');
+            gsap.to(btn, { opacity: 0, scale: 0, duration: 0.5 });
+            
+            // 1. Slow Motion Effect
+            gsap.to(window, { 
+                timeScale: 0.2, 
+                duration: 1,
+                onUpdate: () => { timeScale = gsap.globalTimeline.timeScale(); }
+            });
+
+            // 2. Move Characters to Center
+            gsap.to(alisher.position, { x: -1.5, duration: 3, ease: "power2.inOut" });
+            gsap.to(snezhana.position, { x: 1.5, duration: 3, ease: "power2.inOut" });
+
+            // Rotate to face forward/camera slightly
+            gsap.to(alisher.rotation, { y: Math.PI / 4, duration: 3 });
+            gsap.to(snezhana.rotation, { y: -Math.PI / 4, duration: 3 });
+
+            // 3. Light Burst & Bloom
+            gsap.to(cursorLight, { intensity: 5, distance: 50, duration: 2 });
+            gsap.to(composer.passes[1], { strength: 3, radius: 1, duration: 2 }); // Bloom
+
+            // 4. Particle Explosion
+            explodeParticles();
+
+            // 5. Camera Orbit
+            gsap.to(camera.position, {
+                x: 0,
+                y: 5,
+                z: 10,
+                duration: 5,
+                ease: "power2.out"
+            });
+
+            // 6. Final Text
+            setTimeout(() => {
+                const finalQ = document.getElementById('final-question');
+                finalQ.style.display = 'block';
+                gsap.to(finalQ, { opacity: 1, duration: 2 });
+                
+                // Reset time scale slightly for breathing effect
+                gsap.to(window, { timeScale: 1, duration: 2, delay: 1 });
+            }, 2000);
+        }
+
+        function explodeParticles() {
+            const positions = particles.geometry.attributes.position.array;
+            const count = positions.length / 3;
+            
+            // We create a temporary object to tween values that we apply to particles
+            const explosionData = { value: 0 };
+            
+            gsap.to(explosionData, {
+                value: 1,
+                duration: 2,
+                onUpdate: () => {
+                    // Radial explosion logic
+                    for(let i = 0; i < count; i++) {
+                        // Simple noise based on index
+                        const ix = i * 3;
+                        const iy = i * 3 + 1;
+                        const iz = i * 3 + 2;
+                        
+                        // Push particles outward from center
+                        positions[ix] += (Math.random() - 0.5) * 0.5;
+                        positions[iy] += Math.random() * 0.5; // Upward
+                        positions[iz] += (Math.random() - 0.5) * 0.5;
+                    }
+                    particles.geometry.attributes.position.needsUpdate = true;
+                }
+            });
+        }
+
+        function updateBridge() {
+            if(!bridge) return;
+            
+            bridge.children.forEach((segment, i) => {
+                // Determine if this segment should be visible based on bridgeBuilt (0 to 1)
+                // Map bridgeBuilt (0-1) to segment index (0-total)
+                const threshold = state.bridgeBuilt * bridge.children.length;
+                
+                if(i < threshold) {
+                    // Animate in
+                    segment.material.opacity = 1;
+                    segment.position.y = THREE.MathUtils.lerp(segment.position.y, segment.userData.finalY, 0.1);
+                    segment.scale.y = THREE.MathUtils.lerp(segment.scale.y, 1, 0.1);
+                } else {
+                    // Animate out
+                    segment.material.opacity = 0;
+                    segment.position.y = THREE.MathUtils.lerp(segment.position.y, -5, 0.1);
+                    segment.scale.y = THREE.MathUtils.lerp(segment.scale.y, 0, 0.1);
+                }
+            });
+        }
+
+        function updateCharacters() {
+            if(!alisher || !snezhana) return;
+
+            // Calculate target positions based on walkProgress
+            // Start at +/- 20, end at +/- 2 (leaving gap for final step)
+            const startX = CONFIG.bridgeLength / 2;
+            const endX = 2.5; 
+            const currentTravel = (startX - endX) * state.walkProgress;
+
+            if(!isClimax) {
+                // Normal walking animation
+                alisher.position.x = -startX + currentTravel;
+                snezhana.position.x = startX - currentTravel;
+
+                // Bobbing walk animation
+                const walkCycle = Date.now() * 0.005 * (state.walkProgress > 0 ? 2 : 0.5);
+                alisher.position.y = 1 + Math.abs(Math.sin(walkCycle)) * 0.2;
+                snezhana.position.y = 1 + Math.abs(Math.sin(walkCycle + Math.PI)) * 0.2;
+
+                // Rotate towards each other as they get closer
+                const lookAngle = (1 - state.walkProgress) * (Math.PI / 2);
+                alisher.rotation.y = lookAngle;
+                snezhana.rotation.y = -lookAngle;
+            }
+        }
+
+        function updateEnvironment() {
+            // Fog color shift based on walk progress
+            // Start: Dark Blue/Grey -> End: Warm Gold/Pink
+            const c1 = new THREE.Color(CONFIG.colors.fogStart);
+            const c2 = new THREE.Color(CONFIG.colors.fogEnd);
+            const finalColor = c1.lerp(c2, state.walkProgress);
+            
+            scene.fog.color.copy(finalColor);
+            scene.background.lerp(finalColor, 0.05);
+
+            // Particle color shift
+            if(particles) {
+                particles.material.color.lerp(new THREE.Color(0xff69b4), 0.01);
+            }
+        }
+
+        function updateCursorLight() {
+            // Smooth mouse follow
+            mouse.lerp(targetMouse, 0.05);
+
+            // Project mouse into 3D space roughly
+            const vector = new THREE.Vector3(mouse.x, mouse.y, 0.5);
+            vector.unproject(camera);
+            const dir = vector.sub(camera.position).normalize();
+            const distance = -camera.position.z / dir.z * 0.8; // Project to roughly Z=0 plane
+            const pos = camera.position.clone().add(dir.multiplyScalar(distance));
+            
+            // Limit range so it doesn't go too far
+            pos.x = THREE.MathUtils.clamp(pos.x, -30, 30);
+            pos.y = THREE.MathUtils.clamp(pos.y, 0, 20);
+            pos.z = THREE.MathUtils.clamp(pos.z, -10, 10);
+
+            cursorLight.position.copy(pos);
+
+            // Interactive Glow on Characters
+            [alisher, snezhana].forEach(char => {
+                if(!char) return;
+                const dist = cursorLight.position.distanceTo(char.position);
+                const glowMesh = char.getObjectByName("glow");
+                
+                if(dist < 8) {
+                    // Intensity increases as they get closer to each other (state.walkProgress)
+                    // and as mouse gets close
+                    const proximityFactor = 1 - (dist / 8);
+                    const loveFactor = state.walkProgress;
+                    
+                    glowMesh.material.opacity = proximityFactor * 0.5 * (1 + loveFactor);
+                    
+                    // If very close to climax, bloom the characters
+                    if(state.walkProgress > 0.8) {
+                        glowMesh.material.color.setHex(0xffd700);
+                    }
+                } else {
+                    glowMesh.material.opacity = THREE.MathUtils.lerp(glowMesh.material.opacity, 0, 0.1);
+                }
+            });
+        }
+
         function animate() {
             requestAnimationFrame(animate);
-            time += 0.016;
 
-            // Move characters
-            const halfDist = state.distance / 2;
-            alisher.position.x += (-halfDist - alisher.position.x) * 0.05;
-            snezhana.position.x += (halfDist - snezhana.position.x) * 0.05;
+            const delta = clock.getDelta() * timeScale;
 
-            // Face each other
-            alisher.lookAt(snezhana.position.x, 0, 0);
-            snezhana.lookAt(alisher.position.x, 0, 0);
+            // Update Logic
+            updateBridge();
+            updateCharacters();
+            updateEnvironment();
+            updateCursorLight();
 
-            // Idle animation
-            if (!state.isHoldingHands) {
-                const bounce = Math.sin(time * 3) * 0.1;
-                alisher.position.y = bounce;
-                snezhana.position.y = bounce;
+            // Particle ambient movement
+            if(particles) {
+                const positions = particles.geometry.attributes.position.array;
+                for(let i = 0; i < positions.length / 3; i++) {
+                    positions[i*3 + 1] += Math.sin(Date.now() * 0.001 + i) * 0.02; // Y wiggle
+                    // Reset if too high/low
+                    if(positions[i*3+1] > 30) positions[i*3+1] = -10;
+                }
+                particles.geometry.attributes.position.needsUpdate = true;
+                particles.rotation.y += 0.001;
+            }
+
+            // Camera subtle movement based on mouse
+            if(!isClimax) {
+                camera.position.x += (mouse.x * 2 - camera.position.x) * 0.02;
+                camera.position.y += (15 + mouse.y * 2 - camera.position.y) * 0.02;
+                camera.lookAt(0, 2, 0);
             } else {
-                // Happy jump
-                const jump = Math.abs(Math.sin(time * 10)) * 0.3;
-                alisher.position.y = jump;
-                snezhana.position.y = jump;
-                alisher.rotation.y = 0;
-                snezhana.rotation.y = 0;
+                // Slow orbit during climax
+                const time = Date.now() * 0.0005;
+                camera.position.x = Math.sin(time) * 8;
+                camera.position.z = Math.cos(time) * 8 + 5;
+                camera.lookAt(0, 2, 0);
             }
 
-            // Rotate stars
-            stars.rotation.y = time * 0.02;
-
-            // Update light
-            loveLight.intensity += (state.lightIntensity - loveLight.intensity) * 0.05;
-
-            // Color shift
-            const hue = 220 + (state.scene * 20);
-            scene.background.setHSL(hue / 360, 0.5, 0.1);
-            scene.fog.color.setHSL(hue / 360, 0.5, 0.1);
-
-            renderer.render(scene, camera);
+            composer.render();
         }
 
-        animate();
-
-        // --- UI & STORY LOGIC ---
-        const textDisplay = document.getElementById('text-display');
-        const heartBtn = document.getElementById('heart-btn');
-        const finalBtn = document.getElementById('final-btn');
-
-        function showText(text, delay = 0) {
-            setTimeout(() => {
-                gsap.to(textDisplay, {
-                    opacity: 0,
-                    y: -20,
-                    duration: 0.5,
-                    onComplete: () => {
-                        textDisplay.textContent = text;
-                        gsap.to(textDisplay, { opacity: 1, y: 0, duration: 0.8 });
-                    }
-                });
-            }, delay);
-        }
-
-        // Scene 1: Start
-        gsap.to(textDisplay, { opacity: 1, y: 0, duration: 1, delay: 0.5 });
-
-        // Scene 2: Heart click
-        heartBtn.addEventListener('click', () => {
-            if (state.scene !== 1) return;
-            state.scene = 2;
-
-            // Hide heart
-            gsap.to(heartBtn, { scale: 0, opacity: 0, duration: 0.5 });
-            
-            // Move closer
-            state.distance = 6;
-            state.lightIntensity = 2;
-            
-            showText("And everything started with a single step…");
-
-            // Scene 3
-            setTimeout(() => {
-                state.scene = 3;
-                state.distance = 3;
-                state.lightIntensity = 4;
-                showText("Laughter, support, and 'we' instead of 'me'…");
-                
-                // Add floating hearts
-                addFloatingHearts();
-            }, 4000);
-
-            // Scene 4
-            setTimeout(() => {
-                state.scene = 4;
-                state.distance = 1.5;
-                showText("Almost 4 years…");
-            }, 8000);
-
-            setTimeout(() => {
-                showText("And I choose you every day.");
-            }, 11000);
-
-            // Scene 5
-            setTimeout(() => {
-                state.scene = 5;
-                gsap.to(textDisplay, { opacity: 0, duration: 0.5 });
-                finalBtn.classList.add('show');
-            }, 14000);
-        });
-
-        // Final button
-        finalBtn.addEventListener('click', () => {
-            state.isHoldingHands = true;
-            state.distance = 0.5;
-            state.lightIntensity = 8;
-            
-            gsap.to(finalBtn, { scale: 0, opacity: 0, duration: 0.5 });
-            
-            // Confetti effect
-            createConfetti();
-            
-            setTimeout(() => {
-                textDisplay.innerHTML = "Will you be my Valentine? 💝";
-                textDisplay.style.fontSize = "3rem";
-                gsap.to(textDisplay, { opacity: 1, scale: 1.1, duration: 1 });
-            }, 1000);
-        });
-
-        // Floating hearts in 3D
-        function addFloatingHearts() {
-            const heartShape = new THREE.Shape();
-            heartShape.moveTo(0.25, 0.25);
-            heartShape.bezierCurveTo(0.25, 0.25, 0.20, 0, 0, 0);
-            heartShape.bezierCurveTo(-0.30, 0, -0.30, 0.35, -0.30, 0.35);
-            heartShape.bezierCurveTo(-0.30, 0.55, -0.10, 0.77, 0.25, 0.95);
-            heartShape.bezierCurveTo(0.60, 0.77, 0.80, 0.55, 0.80, 0.35);
-            heartShape.bezierCurveTo(0.80, 0.35, 0.80, 0, 0.50, 0);
-            heartShape.bezierCurveTo(0.35, 0, 0.25, 0.25, 0.25, 0.25);
-
-            const geometry = new THREE.ShapeGeometry(heartShape);
-            const material = new THREE.MeshBasicMaterial({ color: 0xff69b4, side: THREE.DoubleSide });
-
-            for (let i = 0; i < 15; i++) {
-                const heart = new THREE.Mesh(geometry, material);
-                heart.scale.set(0.3, 0.3, 0.3);
-                heart.position.set(
-                    (Math.random() - 0.5) * 15,
-                    Math.random() * 8,
-                    (Math.random() - 0.5) * 10
-                );
-                heart.rotation.z = Math.PI;
-                scene.add(heart);
-
-                // Animate
-                gsap.to(heart.position, {
-                    y: heart.position.y + 5,
-                    duration: 3 + Math.random() * 2,
-                    repeat: -1,
-                    yoyo: true,
-                    ease: "sine.inOut"
-                });
-            }
-        }
-
-        // Simple confetti
-        function createConfetti() {
-            const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff];
-            const geometry = new THREE.PlaneGeometry(0.2, 0.2);
-            
-            for (let i = 0; i < 100; i++) {
-                const material = new THREE.MeshBasicMaterial({ 
-                    color: colors[Math.floor(Math.random() * colors.length)],
-                    side: THREE.DoubleSide
-                });
-                const confetti = new THREE.Mesh(geometry, material);
-                
-                confetti.position.set(0, 5, 0);
-                confetti.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, 0);
-                
-                scene.add(confetti);
-
-                // Explode outward
-                const angle = Math.random() * Math.PI * 2;
-                const velocity = 5 + Math.random() * 10;
-                
-                gsap.to(confetti.position, {
-                    x: Math.cos(angle) * velocity,
-                    y: Math.random() * 10,
-                    z: Math.sin(angle) * velocity,
-                    duration: 2,
-                    ease: "power2.out"
-                });
-                
-                gsap.to(confetti.rotation, {
-                    x: Math.random() * 10,
-                    y: Math.random() * 10,
-                    duration: 2
-                });
-            }
-        }
-
-        // Resize handler
-        window.addEventListener('resize', () => {
+        function onWindowResize() {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
-        });
+            composer.setSize(window.innerWidth, window.innerHeight);
+        }
 
-        // Mouse parallax
-        document.addEventListener('mousemove', (e) => {
-            const x = (e.clientX / window.innerWidth - 0.5) * 2;
-            const y = (e.clientY / window.innerHeight - 0.5) * 2;
-            
-            gsap.to(camera.position, {
-                x: x * 2,
-                y: 3 + y * 0.5,
-                duration: 1
-            });
-        });
+        // Start
+        init();
 
     </script>
 </body>
