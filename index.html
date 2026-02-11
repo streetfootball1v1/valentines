@@ -465,12 +465,13 @@
             });
         }
 
-        // Attempt to load models from Yandex (will fail without proper CORS/setup, placeholders remain)
-        // Replace these URLs with your actual hosted model URLs
-        // loadCharacter('path/to/tom.gltf', tomPlaceholder, new THREE.Vector3(-4, 0, 0), Math.PI / 6);
-        // loadCharacter('path/to/jerry.gltf', jerryPlaceholder, new THREE.Vector3(4, 0, 0), -Math.PI / 6);
+              loadCharacter(
+               'https://drive.google.com/uc?export=download&id=1VEiOFpXlNYcYx6ZcD-7A57BVgB7k-MAv',
+                tomPlaceholder,
+                new THREE.Vector3(-4, 0, 0),
+                Math.PI / 6
+          );
 
-        // Hide loading screen
         setTimeout(() => {
             document.getElementById('loading').classList.add('hidden');
         }, 1500);
