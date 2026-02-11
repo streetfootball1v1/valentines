@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bridge of Love - A Cinematic 3D Experience</title>
+    <title>Cinematic Love Story | Three.js</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -12,7 +12,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     
-    <!-- Three.js & Post Processing -->
+    <!-- Import Map for Three.js -->
     <script type="importmap">
         {
             "imports": {
@@ -23,13 +23,13 @@
     </script>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400&display=swap');
 
         body {
             margin: 0;
             overflow-x: hidden;
-            background-color: #1a1a2e;
-            font-family: 'Lato', sans-serif;
+            background-color: #0f0c29; /* Fallback */
+            font-family: 'Inter', sans-serif;
         }
 
         #canvas-container {
@@ -39,20 +39,20 @@
             width: 100%;
             height: 100vh;
             z-index: 1;
+            /* Soft vignette via CSS for cinematic feel */
+            box-shadow: inset 0 0 150px rgba(0,0,0,0.5);
         }
 
-        /* Scroll Track */
         #scroll-track {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
-            height: 600vh; /* Long scroll distance for narrative */
+            height: 500vh; /* Scroll length */
             z-index: 0;
             pointer-events: none;
         }
 
-        /* UI Layer */
         #ui-layer {
             position: fixed;
             top: 0;
@@ -65,64 +65,72 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            background: radial-gradient(circle at center, transparent 50%, rgba(0,0,0,0.4) 100%);
         }
 
-        .narrative-text {
-            font-family: 'Playfair Display', serif;
-            color: white;
+        .cinematic-text {
+            font-family: 'Cinzel', serif;
+            color: #fff;
             text-align: center;
             opacity: 0;
-            text-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            text-shadow: 0 10px 30px rgba(0,0,0,0.8);
             position: absolute;
-            max-width: 800px;
-            padding: 0 20px;
-            transform: translateY(20px);
+            max-width: 900px;
+            padding: 0 40px;
+            transform: translateY(30px);
+            letter-spacing: 0.05em;
         }
 
-        .narrative-text h1 {
-            font-size: 3rem;
+        .cinematic-text h1 {
+            font-size: 3.5rem;
             margin-bottom: 1rem;
-            font-style: italic;
+            font-weight: 400;
+            line-height: 1.2;
         }
 
-        .narrative-text p {
-            font-size: 1.5rem;
+        .cinematic-text p {
+            font-size: 1.25rem;
             font-weight: 300;
-            letter-spacing: 1px;
+            opacity: 0.9;
         }
 
-        /* The Final Button */
-        #final-step-btn {
+        #final-btn {
             pointer-events: auto;
-            background: linear-gradient(135deg, #ffd700, #ffaa00);
-            border: none;
-            padding: 20px 50px;
-            font-size: 1.5rem;
-            font-family: 'Playfair Display', serif;
-            color: #4a3b00;
-            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            padding: 24px 60px;
+            font-size: 1.25rem;
+            font-family: 'Cinzel', serif;
+            color: #fff;
+            border-radius: 4px;
             cursor: pointer;
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
             opacity: 0;
-            transform: scale(0.8);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            display: none; /* Hidden initially */
+            transform: scale(0.9);
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: none;
         }
 
-        #final-step-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 50px rgba(255, 215, 0, 0.9);
+        #final-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: #fff;
+            transform: scale(1.05);
+            box-shadow: 0 0 40px rgba(255, 200, 200, 0.4);
         }
 
         #final-question {
-            font-family: 'Playfair Display', serif;
-            font-size: 4rem;
+            font-family: 'Cinzel', serif;
+            font-size: 3.5rem;
             color: #fff;
-            text-shadow: 0 0 30px #ff69b4;
+            text-shadow: 0 0 40px rgba(255, 100, 100, 0.6);
             opacity: 0;
             position: absolute;
             text-align: center;
             display: none;
+            padding: 20px;
         }
 
         /* Loader */
@@ -132,649 +140,616 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: #1a1a2e;
+            background: #000;
             z-index: 50;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            color: white;
-            font-family: 'Playfair Display', serif;
-            font-size: 2rem;
-            transition: opacity 1s ease;
+            color: #fff;
+            font-family: 'Cinzel', serif;
+            transition: opacity 1.5s ease-out;
+        }
+        
+        .loader-bar {
+            width: 200px;
+            height: 2px;
+            background: #333;
+            margin-top: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .loader-progress {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 0%;
+            background: #d4af37; /* Gold */
+            transition: width 0.5s;
+        }
+
+        .grain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 20;
+            opacity: 0.04;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
         }
     </style>
 </head>
 <body>
 
+    <!-- Film Grain Overlay -->
+    <div class="grain"></div>
+
     <!-- Loader -->
-    <div id="loader">Generating World...</div>
+    <div id="loader">
+        <div>PREPARING SCENE</div>
+        <div class="loader-bar"><div class="loader-progress" id="loader-progress"></div></div>
+    </div>
 
     <!-- 3D Canvas -->
     <div id="canvas-container"></div>
 
-    <!-- Scroll Track (Invisible but functional) -->
+    <!-- Scroll Track -->
     <div id="scroll-track"></div>
 
-    <!-- UI Overlay -->
+    <!-- UI Layer -->
     <div id="ui-layer">
-        
-        <!-- Scene 1 Text -->
-        <div class="narrative-text" id="text-1">
+        <div class="cinematic-text" id="text-1">
             <h1>When there was distance between us...</h1>
         </div>
 
-        <!-- Scene 2 Text -->
-        <div class="narrative-text" id="text-2">
+        <div class="cinematic-text" id="text-2">
             <p>Step by step...</p>
         </div>
 
-        <!-- Scene 4 Text -->
-        <div class="narrative-text" id="text-3">
+        <div class="cinematic-text" id="text-3">
             <h1>Almost 4 years...</h1>
         </div>
         
-        <div class="narrative-text" id="text-4">
+        <div class="cinematic-text" id="text-4">
             <h1>And every day...</h1>
         </div>
 
-        <div class="narrative-text" id="text-5">
+        <div class="cinematic-text" id="text-5">
             <h1>I choose you.</h1>
         </div>
 
-        <!-- Final Button -->
-        <button id="final-step-btn">Take the final step</button>
-
-        <!-- Final Question -->
+        <button id="final-btn">Take the final step</button>
+        
         <div id="final-question">
             Will you be my Valentine? 💝
         </div>
     </div>
 
-    <!-- Application Script -->
     <script type="module">
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+        import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
         import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
         import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
         import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+        import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
         // --- Configuration ---
         const CONFIG = {
             colors: {
-                bg: 0x1a1a2e,
-                fogStart: 0x2a2a40,
-                fogEnd: 0xffd1dc, // Pinkish white
-                island1: 0x9fa8da, // Lavender
-                island2: 0xf48fb1, // Pink
-                bridge: 0xffd700,  // Gold
-                alisher: 0x64b5f6, // Blue tones
-                snezhana: 0xf06292 // Pink tones
+                bg: new THREE.Color(0x201b31), // Deep purple/blue
+                fogStart: new THREE.Color(0x2a2342),
+                fogEnd: new THREE.Color(0xffd1dc), // Pinkish
+                lightWarm: 0xffaa77,
+                lightCool: 0xccccff,
+                lightRim: 0xffd1b3
             },
-            bridgeLength: 40,
-            walkDistance: 18 // How far they walk towards center
+            camera: {
+                fov: 35, // Cinematic narrow FOV
+                near: 0.1,
+                far: 100
+            }
         };
 
-        // --- Global Variables ---
+        // --- Globals ---
         let scene, camera, renderer, composer, controls;
-        let alisher, snezhana, bridge;
-        let particles, particleGeo;
-        let cursorLight;
-        let mouse = new THREE.Vector2();
-        let targetMouse = new THREE.Vector2();
+        let boy, girl;
+        let particles;
         let scrollProgress = 0;
         let isClimax = false;
         let timeScale = 1.0;
         let clock = new THREE.Clock();
         
-        // Animation Mixers/States
+        // Lights
+        let hemiLight, keyLight, fillLight, rimLight;
+
+        // State
         const state = {
-            bridgeBuilt: 0, // 0 to 1
-            walkProgress: 0, // 0 to 1
-            cameraZoom: 60
+            walkProgress: 0,
+            targetCameraZ: 18,
+            targetCameraY: 3.5
         };
 
         // --- Initialization ---
-        function init() {
-            // Scene Setup
+        async function init() {
+            // 1. Scene Setup
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(CONFIG.colors.bg);
-            scene.fog = new THREE.FogExp2(CONFIG.colors.fogStart, 0.02);
+            scene.background = CONFIG.colors.bg;
+            scene.fog = new THREE.FogExp2(CONFIG.colors.fogStart, 0.03);
 
-            // Camera
-            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.set(0, 15, 60);
-            camera.lookAt(0, 0, 0);
+            // 2. Camera (Cinematic)
+            camera = new THREE.PerspectiveCamera(CONFIG.camera.fov, window.innerWidth / window.innerHeight, CONFIG.camera.near, CONFIG.camera.far);
+            camera.position.set(0, 3.5, 18);
 
-            // Renderer
+            // 3. Renderer (High Quality)
             renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            
+            // Mandatory Settings
+            renderer.physicallyCorrectLights = true;
+            renderer.outputColorSpace = THREE.SRGBColorSpace;
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.3;
             renderer.shadowMap.enabled = true;
-            renderer.shadowMap.type = THREE.SoftShadowMap;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            
             document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-            // Post Processing (Bloom)
+            // 4. Post Processing (Bloom)
             const renderScene = new RenderPass(scene, camera);
             const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
-            bloomPass.threshold = 0.2;
-            bloomPass.strength = 0.4; // Initial subtle bloom
+            bloomPass.threshold = 0.8;
+            bloomPass.strength = 0.3;
             bloomPass.radius = 0.5;
+
+            const outputPass = new OutputPass();
 
             composer = new EffectComposer(renderer);
             composer.addPass(renderScene);
             composer.addPass(bloomPass);
+            composer.addPass(outputPass);
 
-            // Lighting
-            setupLighting();
+            // 5. Lighting (Cinematic 4-Point)
+            setupCinematicLighting();
 
-            // World Building
-            createEnvironment();
-            createCharacters();
+            // 6. Environment (HDR & Floor)
+            await setupEnvironment();
+
+            // 7. Characters
+            await setupCharacters();
+
+            // 8. Particles
             createParticles();
-            createBridge();
 
-            // Event Listeners
+            // 9. Scroll Logic
+            setupScroll();
+
+            // 10. Events
             window.addEventListener('resize', onWindowResize);
-            window.addEventListener('mousemove', onMouseMove);
-            document.getElementById('final-step-btn').addEventListener('click', triggerClimax);
+            document.getElementById('final-btn').addEventListener('click', triggerClimax);
 
-            // GSAP ScrollTrigger Setup
-            setupScrollAnimations();
+            // Hide Loader
+            document.getElementById('loader-progress').style.width = '100%';
+            setTimeout(() => {
+                document.getElementById('loader').style.opacity = 0;
+                setTimeout(() => document.getElementById('loader').remove(), 1500);
+            }, 500);
 
-            // Start Loop
-            document.getElementById('loader').style.opacity = 0;
-            setTimeout(() => document.getElementById('loader').remove(), 1000);
             animate();
         }
 
-        function setupLighting() {
-            // Ambient
-            const ambientLight = new THREE.AmbientLight(0x404040, 1.5); // Soft white light
-            scene.add(ambientLight);
+        // --- CINEMATIC LIGHTING SETUP ---
+        function setupCinematicLighting() {
+            // 1. Hemisphere (Sky/Ground Ambient)
+            hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.6);
+            hemiLight.position.set(0, 20, 0);
+            scene.add(hemiLight);
 
-            // Directional (Moon/Sun)
-            const dirLight = new THREE.DirectionalLight(0xffd1dc, 1);
-            dirLight.position.set(10, 20, 10);
-            dirLight.castShadow = true;
-            dirLight.shadow.mapSize.width = 2048;
-            dirLight.shadow.mapSize.height = 2048;
-            scene.add(dirLight);
+            // 2. Key Light (Warm, Main Direction)
+            keyLight = new THREE.DirectionalLight(CONFIG.colors.lightWarm, 2.0);
+            keyLight.position.set(5, 10, 7);
+            keyLight.castShadow = true;
+            keyLight.shadow.mapSize.width = 2048;
+            keyLight.shadow.mapSize.height = 2048;
+            keyLight.shadow.camera.near = 0.5;
+            keyLight.shadow.camera.far = 50;
+            keyLight.shadow.bias = -0.001;
+            keyLight.shadow.normalBias = 0.02; // Reduces shadow acne on curved surfaces
+            scene.add(keyLight);
 
-            // Cursor Interactive Light
-            cursorLight = new THREE.PointLight(0xffaa00, 0, 20);
-            scene.add(cursorLight);
+            // 3. Fill Light (Cool, Soft, Opposite Key)
+            fillLight = new THREE.DirectionalLight(CONFIG.colors.lightCool, 0.8);
+            fillLight.position.set(-5, 2, -5);
+            scene.add(fillLight);
+
+            // 4. Rim Light (Backlight for contour)
+            rimLight = new THREE.SpotLight(CONFIG.colors.lightRim, 3.0);
+            rimLight.position.set(0, 5, -8);
+            rimLight.lookAt(0, 0, 0);
+            scene.add(rimLight);
         }
 
-        // --- Procedural Generation Helpers ---
-        
-        function createIsland(xPos, color) {
-            const group = new THREE.Group();
-            
-            // Main rock
-            const geo = new THREE.CylinderGeometry(6, 4, 8, 7);
-            const mat = new THREE.MeshStandardMaterial({ 
-                color: color, 
+        // --- ENVIRONMENT ---
+        async function setupEnvironment() {
+            // Floor (Shadow Catcher)
+            const planeGeometry = new THREE.PlaneGeometry(100, 100);
+            const planeMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0x1a1a2e,
                 roughness: 0.8,
-                flatShading: true
+                metalness: 0.1
             });
-            const mesh = new THREE.Mesh(geo, mat);
-            mesh.position.y = -4;
-            mesh.receiveShadow = true;
-            mesh.castShadow = true;
-            group.add(mesh);
+            const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+            plane.rotation.x = -Math.PI / 2;
+            plane.receiveShadow = true;
+            scene.add(plane);
 
-            // Grass top
-            const grassGeo = new THREE.CylinderGeometry(6.2, 6, 1, 7);
-            const grassMat = new THREE.MeshStandardMaterial({ color: 0x81c784 });
-            const grass = new THREE.Mesh(grassGeo, grassMat);
-            grass.position.y = 0.5;
-            grass.receiveShadow = true;
-            group.add(grass);
-
-            // Floating animation offset
-            group.userData = { 
-                initialY: 0, 
-                floatSpeed: 0.002 + Math.random() * 0.001,
-                floatOffset: Math.random() * Math.PI 
-            };
-            
-            group.position.set(xPos, 0, 0);
-            scene.add(group);
-            return group;
+            // Load HDR (Using a reliable CDN for a pastel HDR)
+            // If this fails, the scene still looks good with our manual lights
+            try {
+                const pmremGenerator = new THREE.PMREMGenerator(renderer);
+                pmremGenerator.compileEquirectangularShader();
+                
+                const rgbeloader = new RGBELoader();
+                // A soft studio HDR
+                const hdrUrl = 'https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/studio_small_09_1k.hdr';
+                
+                const texture = await rgbeloader.loadAsync(hdrUrl);
+                const envMap = pmremGenerator.fromEquirectangular(texture).texture;
+                
+                scene.environment = envMap;
+                // scene.background = envMap; // Optional: show HDR as bg, but we use CSS gradient
+                
+                texture.dispose();
+                pmremGenerator.dispose();
+            } catch (e) {
+                console.warn("HDR Load failed, relying on manual lights", e);
+            }
         }
 
-        function createChibiCharacter(name, colors) {
-            const group = new THREE.Group();
-            const skinMat = new THREE.MeshStandardMaterial({ color: 0xffe0bd, roughness: 0.4 });
-            const clothesMat = new THREE.MeshStandardMaterial({ color: colors.clothes, roughness: 0.6 });
-            const hairMat = new THREE.MeshStandardMaterial({ color: colors.hair, roughness: 0.7 });
+        // --- CHARACTERS (GLTF) ---
+        async function setupCharacters() {
+            const loader = new GLTFLoader();
+            
+            // Helper to load model
+            const loadModel = (url, name) => {
+                return new Promise((resolve, reject) => {
+                    loader.load(url, (gltf) => {
+                        const model = gltf.scene;
+                        model.traverse((child) => {
+                            if (child.isMesh) {
+                                child.castShadow = true;
+                                child.receiveShadow = true;
+                                // Enhance materials for cinematic look
+                                if(child.material) {
+                                    child.material.envMapIntensity = 1.0;
+                                }
+                            }
+                        });
+                        resolve(model);
+                    }, undefined, (error) => {
+                        console.error(`Error loading ${name}:`, error);
+                        reject(error);
+                    });
+                });
+            };
 
-            // Body (Chubby capsule-like)
-            const bodyGeo = new THREE.CapsuleGeometry(0.8, 1.2, 4, 8);
+            try {
+                // Using high-quality stylized human models from official Three.js examples repo
+                // These are "Xbot" and "Ybot" (Stylized robots/humans) which are safe for demo use
+                // For a real romantic scene, you would replace these URLs with your specific GLTFs of Alisher/Snezhana
+                
+                // Note: If these external URLs fail, the catch block creates beautiful procedural characters
+                
+                // Girl (Left)
+                girl = await loadModel('https://threejs.org/examples/models/gltf/Xbot.glb', 'Girl');
+                girl.scale.set(0.5, 0.5, 0.5);
+                girl.position.set(-8, 0, 0);
+                girl.rotation.y = Math.PI / 2;
+                scene.add(girl);
+
+                // Boy (Right)
+                boy = await loadModel('https://threejs.org/examples/models/gltf/Ybot.glb', 'Boy');
+                boy.scale.set(0.5, 0.5, 0.5);
+                boy.position.set(8, 0, 0);
+                boy.rotation.y = -Math.PI / 2;
+                scene.add(boy);
+                
+                document.getElementById('loader-progress').style.width = '80%';
+
+            } catch (e) {
+                console.warn("GLTF Load failed, generating Procedural Cinematic Characters");
+                createProceduralCharacters();
+            }
+        }
+
+        // Fallback / Procedural Generation (High Quality)
+        function createProceduralCharacters() {
+            // Create beautifully designed abstract figures if GLTF fails
+            // Girl (Left)
+            girl = createStylizedFigure(0xffb7c5); // Pink tones
+            girl.position.set(-8, 0, 0);
+            girl.rotation.y = Math.PI / 2;
+            scene.add(girl);
+
+            // Boy (Right)
+            boy = createStylizedFigure(0x6495ed); // Blue tones
+            boy.position.set(8, 0, 0);
+            boy.rotation.y = -Math.PI / 2;
+            scene.add(boy);
+            
+            document.getElementById('loader-progress').style.width = '90%';
+        }
+
+        function createStylizedFigure(colorHex) {
+            const group = new THREE.Group();
+            
+            // Material - Porcelain/Glossy look
+            const skinMat = new THREE.MeshPhysicalMaterial({
+                color: 0xffe0bd,
+                roughness: 0.2,
+                metalness: 0.0,
+                clearcoat: 0.3,
+                clearcoatRoughness: 0.1
+            });
+            
+            const clothesMat = new THREE.MeshPhysicalMaterial({
+                color: colorHex,
+                roughness: 0.4,
+                metalness: 0.1,
+                sheen: 1.0,
+                sheenColor: 0xffffff
+            });
+
+            // Body
+            const bodyGeo = new THREE.CapsuleGeometry(0.5, 1.5, 4, 16);
             const body = new THREE.Mesh(bodyGeo, clothesMat);
-            body.position.y = 1.6;
+            body.position.y = 1.25;
             body.castShadow = true;
             group.add(body);
 
             // Head
-            const headGeo = new THREE.SphereGeometry(1.1, 16, 16);
+            const headGeo = new THREE.SphereGeometry(0.45, 32, 32);
             const head = new THREE.Mesh(headGeo, skinMat);
-            head.position.y = 3.2;
+            head.position.y = 2.4;
             head.castShadow = true;
             group.add(head);
 
-            // Hair (Simple hemisphere)
-            const hairGeo = new THREE.SphereGeometry(1.15, 16, 16, 0, Math.PI * 2, 0, Math.PI/2.5);
+            // Hair (Stylized Sphere)
+            const hairGeo = new THREE.SphereGeometry(0.48, 32, 32, 0, Math.PI * 2, 0, Math.PI/2.2);
+            const hairMat = new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.9 });
             const hair = new THREE.Mesh(hairGeo, hairMat);
-            hair.position.y = 3.3;
-            hair.castShadow = true;
+            hair.position.y = 2.45;
             group.add(hair);
 
-            // Eyes (Big and expressive)
-            const eyeGeo = new THREE.SphereGeometry(0.25, 16, 16);
-            const eyeMat = new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.1 });
-            
-            const eyeL = new THREE.Mesh(eyeGeo, eyeMat);
-            eyeL.position.set(-0.35, 3.3, 0.9);
-            group.add(eyeL);
-
-            const eyeR = new THREE.Mesh(eyeGeo, eyeMat);
-            eyeR.position.set(0.35, 3.3, 0.9);
-            group.add(eyeR);
-
-            // Blush
-            const blushGeo = new THREE.CircleGeometry(0.15, 16);
-            const blushMat = new THREE.MeshBasicMaterial({ color: 0xffa0a0, transparent: true, opacity: 0.5 });
-            const blushL = new THREE.Mesh(blushGeo, blushMat);
-            blushL.position.set(-0.6, 3.0, 0.95);
-            blushL.rotation.y = -0.5;
-            group.add(blushL);
-            
-            const blushR = new THREE.Mesh(blushGeo, blushMat);
-            blushR.position.set(0.6, 3.0, 0.95);
-            blushR.rotation.y = 0.5;
-            group.add(blushR);
-
-            // Glow Mesh (for interaction)
-            const glowGeo = new THREE.SphereGeometry(2.5, 16, 16);
-            const glowMat = new THREE.MeshBasicMaterial({ color: 0xffd700, transparent: true, opacity: 0 });
-            const glow = new THREE.Mesh(glowGeo, glowMat);
-            glow.position.y = 2.5;
-            glow.name = "glow";
-            group.add(glow);
-
-            scene.add(group);
             return group;
         }
 
-        // --- Scene Construction ---
-
-        function createEnvironment() {
-            // Left Island (Alisher)
-            createIsland(-CONFIG.bridgeLength / 2, CONFIG.colors.island1);
-            // Right Island (Snezhana)
-            createIsland(CONFIG.bridgeLength / 2, CONFIG.colors.island2);
-        }
-
-        function createCharacters() {
-            // Alisher (Left)
-            alisher = createChibiCharacter("Alisher", { 
-                clothes: 0x5c6bc0, // Indigo
-                hair: 0x3e2723    // Dark Brown
-            });
-            alisher.position.set(-CONFIG.bridgeLength / 2, 1, 0);
-            alisher.rotation.y = Math.PI / 2; // Face right
-
-            // Snezhana (Right)
-            snezhana = createChibiCharacter("Snezhana", { 
-                clothes: 0xf48fb1, // Pink
-                hair: 0xffecb3     // Blonde
-            });
-            snezhana.position.set(CONFIG.bridgeLength / 2, 1, 0);
-            snezhana.rotation.y = -Math.PI / 2; // Face left
-        }
-
-        function createBridge() {
-            // The bridge is made of segments that scale up
-            const segmentCount = 20;
-            const segmentWidth = CONFIG.bridgeLength / segmentCount;
-            
-            bridge = new THREE.Group();
-
-            for(let i = 0; i < segmentCount; i++) {
-                const geo = new THREE.BoxGeometry(segmentWidth - 0.2, 0.5, 2);
-                const mat = new THREE.MeshStandardMaterial({ 
-                    color: CONFIG.colors.bridge,
-                    emissive: CONFIG.colors.bridge,
-                    emissiveIntensity: 0.2,
-                    transparent: true,
-                    opacity: 0
-                });
-                const segment = new THREE.Mesh(geo, mat);
-                
-                // Position from left to right
-                const xPos = (-CONFIG.bridgeLength / 2) + (i * segmentWidth) + (segmentWidth/2);
-                segment.position.set(xPos, -0.5, 0);
-                
-                // Store initial scale for animation
-                segment.userData = { 
-                    finalY: -0.5, 
-                    index: i,
-                    total: segmentCount
-                };
-                
-                // Start invisible and below
-                segment.scale.set(1, 0, 1);
-                segment.position.y = -5;
-
-                bridge.add(segment);
-            }
-            scene.add(bridge);
-        }
-
+        // --- PARTICLES ---
         function createParticles() {
-            const count = 1000;
             const geometry = new THREE.BufferGeometry();
+            const count = 300;
             const positions = new Float32Array(count * 3);
-            const speeds = new Float32Array(count);
+            const sizes = new Float32Array(count);
 
-            for(let i = 0; i < count; i++) {
-                positions[i * 3] = (Math.random() - 0.5) * 100; // x
-                positions[i * 3 + 1] = (Math.random() - 0.5) * 50 + 10; // y
-                positions[i * 3 + 2] = (Math.random() - 0.5) * 50; // z
-                speeds[i] = Math.random() * 0.02 + 0.005;
+            for(let i=0; i<count; i++) {
+                positions[i*3] = (Math.random() - 0.5) * 30;
+                positions[i*3+1] = Math.random() * 10;
+                positions[i*3+2] = (Math.random() - 0.5) * 20;
+                sizes[i] = Math.random();
             }
 
             geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-            geometry.setAttribute('speed', new THREE.BufferAttribute(speeds, 1));
+            geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
 
-            const material = new THREE.PointsMaterial({
-                color: 0xffd700,
-                size: 0.3,
+            // Custom Shader Material for soft glowing particles
+            const material = new THREE.ShaderMaterial({
+                uniforms: {
+                    time: { value: 0 },
+                    color: { value: new THREE.Color(0xffd700) }
+                },
+                vertexShader: `
+                    attribute float size;
+                    varying float vOpacity;
+                    uniform float time;
+                    void main() {
+                        vec3 pos = position;
+                        pos.y += sin(time * 0.5 + position.x) * 0.5;
+                        vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
+                        gl_PointSize = size * (300.0 / -mvPosition.z);
+                        gl_Position = projectionMatrix * mvPosition;
+                        vOpacity = 0.6 + 0.4 * sin(time + position.x);
+                    }
+                `,
+                fragmentShader: `
+                    uniform vec3 color;
+                    varying float vOpacity;
+                    void main() {
+                        float r = distance(gl_PointCoord, vec2(0.5));
+                        if (r > 0.5) discard;
+                        float glow = 1.0 - (r * 2.0);
+                        glow = pow(glow, 1.5);
+                        gl_FragColor = vec4(color, vOpacity * glow);
+                    }
+                `,
                 transparent: true,
-                opacity: 0.6,
+                depthWrite: false,
                 blending: THREE.AdditiveBlending
             });
 
             particles = new THREE.Points(geometry, material);
+            particles.visible = false; // Hidden initially
             scene.add(particles);
         }
 
-        // --- Logic & Animation ---
-
-        function setupScrollAnimations() {
+        // --- SCROLL LOGIC ---
+        function setupScroll() {
             gsap.registerPlugin(ScrollTrigger);
 
-            // Master Timeline tied to scroll
             const tl = gsap.timeline({
                 scrollTrigger: {
                     trigger: "#scroll-track",
                     start: "top top",
                     end: "bottom bottom",
-                    scrub: 1,
+                    scrub: 1.5, // Smooth scrub
                     onUpdate: (self) => {
                         scrollProgress = self.progress;
                     }
                 }
             });
 
-            // SCENE 1: Distance (0% - 20%)
-            // Just camera movement and text fade in/out handled by CSS/JS in animate loop
-            tl.to("#text-1", { opacity: 1, duration: 0.1 }, 0);
+            // Scene 1: Distance (0-20%)
+            tl.to("#text-1", { opacity: 1, duration: 0.15 }, 0);
             tl.to("#text-1", { opacity: 0, duration: 0.1 }, 0.2);
 
-            // SCENE 2: Bridge Forms (20% - 40%)
-            tl.to("#text-2", { opacity: 1, duration: 0.1 }, 0.25);
-            tl.to(state, { bridgeBuilt: 1, duration: 0.2, ease: "power2.inOut" }, 0.2);
-            tl.to("#text-2", { opacity: 0, duration: 0.1 }, 0.4);
-
-            // SCENE 3: Walking (40% - 70%)
-            tl.to(state, { walkProgress: 1, duration: 0.3 }, 0.4);
-            // Fog and color change handled in animate loop based on walkProgress
-
-            // SCENE 4: Near (70% - 85%) - Pause effect
-            tl.to("#text-3", { opacity: 1, duration: 0.05 }, 0.7);
-            tl.to("#text-3", { opacity: 0, duration: 0.05 }, 0.75);
+            // Scene 2: Approach (20-60%)
+            tl.to(state, { walkProgress: 1, duration: 0.4, ease: "none" }, 0.2);
+            tl.to("#text-2", { opacity: 1, duration: 0.1 }, 0.3);
+            tl.to("#text-2", { opacity: 0, duration: 0.1 }, 0.5);
             
-            tl.to("#text-4", { opacity: 1, duration: 0.05 }, 0.77);
-            tl.to("#text-4", { opacity: 0, duration: 0.05 }, 0.82);
+            // Camera Zoom In
+            tl.to(state, { targetCameraZ: 8, targetCameraY: 2.5, duration: 0.4 }, 0.2);
 
-            tl.to("#text-5", { opacity: 1, duration: 0.05 }, 0.84);
-            tl.to("#text-5", { opacity: 0, duration: 0.05 }, 0.9);
+            // Scene 3: Near (60-85%) - Slow down scroll visually by pausing text
+            tl.to("#text-3", { opacity: 1, duration: 0.05 }, 0.6);
+            tl.to("#text-3", { opacity: 0, duration: 0.05 }, 0.68);
+            
+            tl.to("#text-4", { opacity: 1, duration: 0.05 }, 0.72);
+            tl.to("#text-4", { opacity: 0, duration: 0.05 }, 0.78);
+            
+            tl.to("#text-5", { opacity: 1, duration: 0.05 }, 0.82);
+            tl.to("#text-5", { opacity: 0, duration: 0.05 }, 0.88);
 
-            // SCENE 5: Reveal Button (85%+)
+            // Scene 4: Button Reveal (85%+)
             tl.call(() => {
                 if(!isClimax) {
-                    const btn = document.getElementById('final-step-btn');
+                    const btn = document.getElementById('final-btn');
                     btn.style.display = 'block';
-                    gsap.to(btn, { opacity: 1, scale: 1, duration: 1, ease: "back.out(1.7)" });
+                    gsap.to(btn, { opacity: 1, scale: 1, duration: 1.5, ease: "power2.out" });
                 }
             }, null, 0.9);
         }
 
-        function onMouseMove(event) {
-            // Normalize mouse coordinates -1 to 1
-            targetMouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-            targetMouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-        }
-
+        // --- CLIMAX ---
         function triggerClimax() {
             if(isClimax) return;
             isClimax = true;
 
-            const btn = document.getElementById('final-step-btn');
-            gsap.to(btn, { opacity: 0, scale: 0, duration: 0.5 });
+            // Hide Button
+            gsap.to("#final-btn", { opacity: 0, y: -20, duration: 0.5 });
+
+            // 1. Time Dilation (Slow Motion)
+            gsap.to(window, { timeScale: 0.3, duration: 1 });
+
+            // 2. Move Characters to Center (Holding hands distance)
+            gsap.to(girl.position, { x: -0.8, duration: 4, ease: "power2.inOut" });
+            gsap.to(boy.position, { x: 0.8, duration: 4, ease: "power2.inOut" });
+
+            // Rotate to face each other slightly more intimately
+            gsap.to(girl.rotation, { y: Math.PI / 3, duration: 4 });
+            gsap.to(boy.rotation, { y: -Math.PI / 3, duration: 4 });
+
+            // 3. Lighting Shift to Peak Warmth
+            gsap.to(keyLight.color, { r: 1, g: 0.8, b: 0.6, duration: 3 }); // Orange/Warm
+            gsap.to(keyLight, { intensity: 4, duration: 3 });
+            gsap.to(rimLight, { intensity: 5, duration: 3 });
+            gsap.to(scene.fog.color, { r: 1, g: 0.9, b: 0.8, duration: 3 }); // Pinkish fog
+
+            // 4. Bloom Explosion
+            const bloomPass = composer.passes[1];
+            gsap.to(bloomPass, { strength: 2.0, radius: 1.0, duration: 3 });
+
+            // 5. Particle Explosion
+            particles.visible = true;
+            const positions = particles.geometry.attributes.position.array;
+            for(let i=0; i<positions.length/3; i++) {
+                // Reset to center
+                positions[i*3] = (Math.random() - 0.5) * 2;
+                positions[i*3+1] = (Math.random() - 0.5) * 2 + 2;
+                positions[i*3+2] = (Math.random() - 0.5) * 2;
+            }
+            particles.geometry.attributes.position.needsUpdate = true;
             
-            // 1. Slow Motion Effect
-            gsap.to(window, { 
-                timeScale: 0.2, 
-                duration: 1,
-                onUpdate: () => { timeScale = gsap.globalTimeline.timeScale(); }
-            });
+            // Explode outward
+            gsap.to(particles.material.uniforms.time, { value: 20, duration: 5, ease: "power2.out" });
 
-            // 2. Move Characters to Center
-            gsap.to(alisher.position, { x: -1.5, duration: 3, ease: "power2.inOut" });
-            gsap.to(snezhana.position, { x: 1.5, duration: 3, ease: "power2.inOut" });
+            // 6. Camera Orbit & Zoom
+            gsap.to(camera.position, { x: 2, y: 2.2, z: 4, duration: 5, ease: "power2.inOut" });
 
-            // Rotate to face forward/camera slightly
-            gsap.to(alisher.rotation, { y: Math.PI / 4, duration: 3 });
-            gsap.to(snezhana.rotation, { y: -Math.PI / 4, duration: 3 });
-
-            // 3. Light Burst & Bloom
-            gsap.to(cursorLight, { intensity: 5, distance: 50, duration: 2 });
-            gsap.to(composer.passes[1], { strength: 3, radius: 1, duration: 2 }); // Bloom
-
-            // 4. Particle Explosion
-            explodeParticles();
-
-            // 5. Camera Orbit
-            gsap.to(camera.position, {
-                x: 0,
-                y: 5,
-                z: 10,
-                duration: 5,
-                ease: "power2.out"
-            });
-
-            // 6. Final Text
+            // 7. Final Text
             setTimeout(() => {
                 const finalQ = document.getElementById('final-question');
                 finalQ.style.display = 'block';
-                gsap.to(finalQ, { opacity: 1, duration: 2 });
+                gsap.to(finalQ, { opacity: 1, duration: 2, delay: 0.5 });
                 
-                // Reset time scale slightly for breathing effect
-                gsap.to(window, { timeScale: 1, duration: 2, delay: 1 });
-            }, 2000);
+                // Restore time
+                gsap.to(window, { timeScale: 1, duration: 2 });
+            }, 2500);
         }
 
-        function explodeParticles() {
-            const positions = particles.geometry.attributes.position.array;
-            const count = positions.length / 3;
-            
-            // We create a temporary object to tween values that we apply to particles
-            const explosionData = { value: 0 };
-            
-            gsap.to(explosionData, {
-                value: 1,
-                duration: 2,
-                onUpdate: () => {
-                    // Radial explosion logic
-                    for(let i = 0; i < count; i++) {
-                        // Simple noise based on index
-                        const ix = i * 3;
-                        const iy = i * 3 + 1;
-                        const iz = i * 3 + 2;
-                        
-                        // Push particles outward from center
-                        positions[ix] += (Math.random() - 0.5) * 0.5;
-                        positions[iy] += Math.random() * 0.5; // Upward
-                        positions[iz] += (Math.random() - 0.5) * 0.5;
-                    }
-                    particles.geometry.attributes.position.needsUpdate = true;
-                }
-            });
-        }
-
-        function updateBridge() {
-            if(!bridge) return;
-            
-            bridge.children.forEach((segment, i) => {
-                // Determine if this segment should be visible based on bridgeBuilt (0 to 1)
-                // Map bridgeBuilt (0-1) to segment index (0-total)
-                const threshold = state.bridgeBuilt * bridge.children.length;
-                
-                if(i < threshold) {
-                    // Animate in
-                    segment.material.opacity = 1;
-                    segment.position.y = THREE.MathUtils.lerp(segment.position.y, segment.userData.finalY, 0.1);
-                    segment.scale.y = THREE.MathUtils.lerp(segment.scale.y, 1, 0.1);
-                } else {
-                    // Animate out
-                    segment.material.opacity = 0;
-                    segment.position.y = THREE.MathUtils.lerp(segment.position.y, -5, 0.1);
-                    segment.scale.y = THREE.MathUtils.lerp(segment.scale.y, 0, 0.1);
-                }
-            });
-        }
-
-        function updateCharacters() {
-            if(!alisher || !snezhana) return;
-
-            // Calculate target positions based on walkProgress
-            // Start at +/- 20, end at +/- 2 (leaving gap for final step)
-            const startX = CONFIG.bridgeLength / 2;
-            const endX = 2.5; 
-            const currentTravel = (startX - endX) * state.walkProgress;
-
-            if(!isClimax) {
-                // Normal walking animation
-                alisher.position.x = -startX + currentTravel;
-                snezhana.position.x = startX - currentTravel;
-
-                // Bobbing walk animation
-                const walkCycle = Date.now() * 0.005 * (state.walkProgress > 0 ? 2 : 0.5);
-                alisher.position.y = 1 + Math.abs(Math.sin(walkCycle)) * 0.2;
-                snezhana.position.y = 1 + Math.abs(Math.sin(walkCycle + Math.PI)) * 0.2;
-
-                // Rotate towards each other as they get closer
-                const lookAngle = (1 - state.walkProgress) * (Math.PI / 2);
-                alisher.rotation.y = lookAngle;
-                snezhana.rotation.y = -lookAngle;
-            }
-        }
-
-        function updateEnvironment() {
-            // Fog color shift based on walk progress
-            // Start: Dark Blue/Grey -> End: Warm Gold/Pink
-            const c1 = new THREE.Color(CONFIG.colors.fogStart);
-            const c2 = new THREE.Color(CONFIG.colors.fogEnd);
-            const finalColor = c1.lerp(c2, state.walkProgress);
-            
-            scene.fog.color.copy(finalColor);
-            scene.background.lerp(finalColor, 0.05);
-
-            // Particle color shift
-            if(particles) {
-                particles.material.color.lerp(new THREE.Color(0xff69b4), 0.01);
-            }
-        }
-
-        function updateCursorLight() {
-            // Smooth mouse follow
-            mouse.lerp(targetMouse, 0.05);
-
-            // Project mouse into 3D space roughly
-            const vector = new THREE.Vector3(mouse.x, mouse.y, 0.5);
-            vector.unproject(camera);
-            const dir = vector.sub(camera.position).normalize();
-            const distance = -camera.position.z / dir.z * 0.8; // Project to roughly Z=0 plane
-            const pos = camera.position.clone().add(dir.multiplyScalar(distance));
-            
-            // Limit range so it doesn't go too far
-            pos.x = THREE.MathUtils.clamp(pos.x, -30, 30);
-            pos.y = THREE.MathUtils.clamp(pos.y, 0, 20);
-            pos.z = THREE.MathUtils.clamp(pos.z, -10, 10);
-
-            cursorLight.position.copy(pos);
-
-            // Interactive Glow on Characters
-            [alisher, snezhana].forEach(char => {
-                if(!char) return;
-                const dist = cursorLight.position.distanceTo(char.position);
-                const glowMesh = char.getObjectByName("glow");
-                
-                if(dist < 8) {
-                    // Intensity increases as they get closer to each other (state.walkProgress)
-                    // and as mouse gets close
-                    const proximityFactor = 1 - (dist / 8);
-                    const loveFactor = state.walkProgress;
-                    
-                    glowMesh.material.opacity = proximityFactor * 0.5 * (1 + loveFactor);
-                    
-                    // If very close to climax, bloom the characters
-                    if(state.walkProgress > 0.8) {
-                        glowMesh.material.color.setHex(0xffd700);
-                    }
-                } else {
-                    glowMesh.material.opacity = THREE.MathUtils.lerp(glowMesh.material.opacity, 0, 0.1);
-                }
-            });
-        }
-
+        // --- ANIMATION LOOP ---
         function animate() {
             requestAnimationFrame(animate);
 
             const delta = clock.getDelta() * timeScale;
+            const elapsed = clock.getElapsedTime();
 
-            // Update Logic
-            updateBridge();
-            updateCharacters();
-            updateEnvironment();
-            updateCursorLight();
+            // 1. Character Movement (Lerp based on scroll)
+            if(!isClimax) {
+                const startDist = 8;
+                const endDist = 2.5;
+                const currentDist = startDist - (state.walkProgress * (startDist - endDist));
+                
+                girl.position.x = -currentDist;
+                boy.position.x = currentDist;
 
-            // Particle ambient movement
-            if(particles) {
-                const positions = particles.geometry.attributes.position.array;
-                for(let i = 0; i < positions.length / 3; i++) {
-                    positions[i*3 + 1] += Math.sin(Date.now() * 0.001 + i) * 0.02; // Y wiggle
-                    // Reset if too high/low
-                    if(positions[i*3+1] > 30) positions[i*3+1] = -10;
-                }
-                particles.geometry.attributes.position.needsUpdate = true;
-                particles.rotation.y += 0.001;
+                // Idle Animation (Breathing)
+                const breath = Math.sin(elapsed * 2) * 0.02;
+                girl.scale.set(0.5 + breath, 0.5 - breath, 0.5 + breath);
+                boy.scale.set(0.5 + breath, 0.5 - breath, 0.5 + breath);
+                
+                // Camera Smooth Follow
+                camera.position.z += (state.targetCameraZ - camera.position.z) * 0.05;
+                camera.position.y += (state.targetCameraY - camera.position.y) * 0.05;
+                
+                // Subtle camera sway based on mouse (simulated here with sin)
+                camera.position.x += (Math.sin(elapsed * 0.5) * 0.5 - camera.position.x) * 0.01;
+                camera.lookAt(0, 1.5, 0);
+            } else {
+                // Climax Orbit
+                const orbitSpeed = elapsed * 0.2;
+                camera.position.x = Math.sin(orbitSpeed) * 4;
+                camera.position.z = 4 + Math.cos(orbitSpeed) * 2;
+                camera.lookAt(0, 1.8, 0);
             }
 
-            // Camera subtle movement based on mouse
+            // 2. Lighting Updates based on Proximity
             if(!isClimax) {
-                camera.position.x += (mouse.x * 2 - camera.position.x) * 0.02;
-                camera.position.y += (15 + mouse.y * 2 - camera.position.y) * 0.02;
-                camera.lookAt(0, 2, 0);
-            } else {
-                // Slow orbit during climax
-                const time = Date.now() * 0.0005;
-                camera.position.x = Math.sin(time) * 8;
-                camera.position.z = Math.cos(time) * 8 + 5;
-                camera.lookAt(0, 2, 0);
+                // As they get closer, light gets warmer
+                const warmth = state.walkProgress; // 0 to 1
+                keyLight.color.lerpColors(new THREE.Color(CONFIG.colors.lightWarm), new THREE.Color(0xff8844), warmth);
+                keyLight.intensity = 2.0 + (warmth * 1.0); // Gets brighter
+                rimLight.intensity = 3.0 + (warmth * 2.0);
+                
+                // Fog clears
+                scene.fog.density = 0.03 - (warmth * 0.02);
+                
+                // Particles fade in
+                if(state.walkProgress > 0.3) {
+                    particles.visible = true;
+                    particles.material.opacity = (state.walkProgress - 0.3) * 2;
+                }
+            }
+
+            // 3. Particle Animation
+            if(particles && particles.visible) {
+                particles.material.uniforms.time.value = elapsed;
+                particles.rotation.y += 0.001;
             }
 
             composer.render();
@@ -789,7 +764,6 @@
 
         // Start
         init();
-
     </script>
 </body>
 </html>
