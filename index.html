@@ -3,24 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cinematic 3D Experience</title>
+    <title>Love Story</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Montserrat:wght@200;300;400;500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,400&display=swap');
         
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
-            background: #0a0a0f;
+            background: #0d0d15;
             color: #fff;
-            font-family: 'Montserrat', sans-serif;
+            font-family: 'Cormorant Garamond', serif;
             overflow-x: hidden;
         }
         
@@ -38,7 +34,7 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 600vh;
+            height: 500vh;
             z-index: 0;
         }
         
@@ -51,42 +47,95 @@
             z-index: 10;
             pointer-events: none;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
         }
         
-        .cinematic-text {
-            font-family: 'Cormorant Garamond', serif;
+        .text {
+            position: absolute;
             text-align: center;
             opacity: 0;
             transform: translateY(40px);
-            position: absolute;
             max-width: 800px;
             padding: 0 40px;
         }
         
-        .cinematic-text h1 {
-            font-size: clamp(2.5rem, 6vw, 5rem);
+        .text h1 {
+            font-size: clamp(2rem, 5vw, 4rem);
             font-weight: 300;
             letter-spacing: 0.02em;
-            margin-bottom: 1.5rem;
-            background: linear-gradient(135deg, #fff 0%, #e8d5b7 50%, #fff 100%);
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #fff 0%, #e8d5b7 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-shadow: 0 10px 40px rgba(232, 213, 183, 0.3);
         }
         
-        .cinematic-text p {
-            font-size: clamp(1rem, 2vw, 1.5rem);
-            font-weight: 300;
-            color: rgba(255, 255, 255, 0.8);
+        .text p {
+            font-size: 1.2rem;
+            color: rgba(255,255,255,0.7);
             letter-spacing: 0.1em;
             text-transform: uppercase;
         }
         
-        .grain-overlay {
+        #final-btn {
+            pointer-events: auto;
+            background: transparent;
+            border: 1px solid rgba(232, 213, 183, 0.4);
+            padding: 20px 50px;
+            font-family: inherit;
+            font-size: 1.1rem;
+            color: #e8d5b7;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            cursor: pointer;
+            opacity: 0;
+            transform: scale(0.9);
+            transition: all 0.6s ease;
+            display: none;
+        }
+        
+        #final-btn:hover {
+            border-color: #e8d5b7;
+            background: rgba(232, 213, 183, 0.1);
+            letter-spacing: 0.3em;
+        }
+        
+        #loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0d0d15;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 1s;
+        }
+        
+        .loader-text {
+            font-size: 1rem;
+            letter-spacing: 0.3em;
+            color: #e8d5b7;
+            margin-bottom: 20px;
+        }
+        
+        .loader-bar {
+            width: 150px;
+            height: 1px;
+            background: rgba(232, 213, 183, 0.2);
+        }
+        
+        .loader-progress {
+            height: 100%;
+            width: 0%;
+            background: #e8d5b7;
+            transition: width 0.3s;
+        }
+        
+        .grain {
             position: fixed;
             top: 0;
             left: 0;
@@ -95,850 +144,369 @@
             pointer-events: none;
             z-index: 20;
             opacity: 0.03;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-        }
-        
-        .vignette {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 15;
-            background: radial-gradient(ellipse at center, transparent 0%, transparent 50%, rgba(0,0,0,0.4) 100%);
-        }
-        
-        #final-btn {
-            pointer-events: auto;
-            background: transparent;
-            border: 1px solid rgba(232, 213, 183, 0.4);
-            padding: 24px 60px;
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.2rem;
-            color: #e8d5b7;
-            letter-spacing: 0.3em;
-            text-transform: uppercase;
-            cursor: pointer;
-            opacity: 0;
-            transform: scale(0.9);
-            transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
-            position: relative;
-            overflow: hidden;
-            display: none;
-        }
-        
-        #final-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(232, 213, 183, 0.2), transparent);
-            transition: left 0.8s;
-        }
-        
-        #final-btn:hover::before {
-            left: 100%;
-        }
-        
-        #final-btn:hover {
-            border-color: rgba(232, 213, 183, 0.8);
-            box-shadow: 0 0 60px rgba(232, 213, 183, 0.2);
-            letter-spacing: 0.4em;
-        }
-        
-        .loader {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #0a0a0f;
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            transition: opacity 1.5s ease;
-        }
-        
-        .loader-text {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1rem;
-            letter-spacing: 0.5em;
-            color: #e8d5b7;
-            margin-bottom: 30px;
-            text-transform: uppercase;
-        }
-        
-        .loader-bar {
-            width: 200px;
-            height: 1px;
-            background: rgba(232, 213, 183, 0.2);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .loader-progress {
-            position: absolute;
-            left: 0;
-            top: 0;
-            height: 100%;
-            width: 0%;
-            background: #e8d5b7;
-            transition: width 0.3s ease;
-        }
-        
-        .scroll-indicator {
-            position: fixed;
-            bottom: 40px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 30;
-            opacity: 0;
-            animation: fadeInUp 2s ease 2s forwards;
-        }
-        
-        .scroll-line {
-            width: 1px;
-            height: 60px;
-            background: linear-gradient(to bottom, #e8d5b7, transparent);
-            animation: scrollPulse 2s ease-in-out infinite;
-        }
-        
-        @keyframes fadeInUp {
-            to { opacity: 1; transform: translateX(-50%) translateY(0); }
-        }
-        
-        @keyframes scrollPulse {
-            0%, 100% { transform: scaleY(1); opacity: 0.5; }
-            50% { transform: scaleY(0.5); opacity: 1; }
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
         }
     </style>
 </head>
 <body>
 
-    <div class="loader" id="loader">
-        <div class="loader-text">Загрузка мира</div>
-        <div class="loader-bar">
-            <div class="loader-progress" id="loader-progress"></div>
-        </div>
-    </div>
+<div id="loader">
+    <div class="loader-text">Создание мира</div>
+    <div class="loader-bar"><div class="loader-progress" id="progress"></div></div>
+</div>
 
-    <div class="grain-overlay"></div>
-    <div class="vignette"></div>
-    
-    <div id="canvas-container"></div>
-    <div id="scroll-track"></div>
-    
-    <div class="ui-layer">
-        <div class="cinematic-text" id="text-1">
-            <h1>Когда между нами была дистанция...</h1>
-        </div>
-        
-        <div class="cinematic-text" id="text-2">
-            <p>Шаг за шагом</p>
-        </div>
-        
-        <div class="cinematic-text" id="text-3">
-            <h1>Почти 4 года...</h1>
-        </div>
-        
-        <div class="cinematic-text" id="text-4">
-            <h1>И каждый день...</h1>
-        </div>
-        
-        <div class="cinematic-text" id="text-5">
-            <h1>Я выбираю тебя</h1>
-        </div>
-        
-        <button id="final-btn">Сделать последний шаг</button>
-        
-        <div class="cinematic-text" id="final-text" style="display: none;">
-            <h1>Ты будешь моей Валентинкой? 💝</h1>
-        </div>
-    </div>
-    
-    <div class="scroll-indicator" id="scroll-indicator">
-        <div class="scroll-line"></div>
-    </div>
+<div class="grain"></div>
+<div id="canvas-container"></div>
+<div id="scroll-track"></div>
 
-    <script type="importmap">
-        {
-            "imports": {
-                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+<div class="ui-layer">
+    <div class="text" id="t1">
+        <h1>Когда между нами была дистанция...</h1>
+    </div>
+    <div class="text" id="t2">
+        <p>Шаг за шагом</p>
+    </div>
+    <div class="text" id="t3">
+        <h1>Почти 4 года...</h1>
+    </div>
+    <div class="text" id="t4">
+        <h1>И каждый день...</h1>
+    </div>
+    <div class="text" id="t5">
+        <h1>Я выбираю тебя</h1>
+    </div>
+    <button id="final-btn">Сделать последний шаг</button>
+    <div class="text" id="final" style="display: none;">
+        <h1>Ты будешь моей Валентинкой? 💝</h1>
+    </div>
+</div>
+
+<script type="importmap">
+{
+    "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+
+// ==========================================
+// КОНФИГУРАЦИЯ
+// ==========================================
+const CONFIG = {
+    models: {
+        // Бесплатные качественные модели с GitHub/Sketchfab
+        // Это реальные персонажи, не примитивы
+        girl: 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Duck/glTF-Binary/Duck.glb', // Заменим на лучшее
+        boy: 'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/models/gltf/Xbot.glb'
+    }
+};
+
+// ==========================================
+// СЦЕНА
+// ==========================================
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0d0d15);
+scene.fog = new THREE.FogExp2(0x0d0d15, 0.02);
+
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+camera.position.set(0, 3, 12);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.2;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+// Post-processing
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.5, 0.5, 0.85);
+composer.addPass(bloomPass);
+
+// ==========================================
+// СВЕТ
+// ==========================================
+const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.6);
+scene.add(hemiLight);
+
+const dirLight = new THREE.DirectionalLight(0xffd4b3, 2);
+dirLight.position.set(5, 10, 7);
+dirLight.castShadow = true;
+dirLight.shadow.mapSize.width = 2048;
+dirLight.shadow.mapSize.height = 2048;
+scene.add(dirLight);
+
+const rimLight = new THREE.SpotLight(0xffaa44, 3);
+rimLight.position.set(0, 5, -10);
+rimLight.lookAt(0, 0, 0);
+scene.add(rimLight);
+
+// ==========================================
+// ЗАГРУЗКА МОДЕЛЕЙ (РЕАЛЬНЫЕ ПЕРСОНАЖИ)
+// ==========================================
+const loader = new GLTFLoader();
+const characters = { girl: null, boy: null };
+let loadedCount = 0;
+
+function updateProgress() {
+    loadedCount++;
+    document.getElementById('progress').style.width = (loadedCount / 2 * 100) + '%';
+    if (loadedCount === 2) {
+        setTimeout(() => {
+            document.getElementById('loader').style.opacity = 0;
+            setTimeout(() => document.getElementById('loader').remove(), 1000);
+            initScroll();
+        }, 500);
+    }
+}
+
+// Загружаем Xbot (девушка, слева)
+loader.load('https://threejs.org/examples/models/gltf/Xbot.glb', (gltf) => {
+    characters.girl = gltf.scene;
+    characters.girl.scale.set(0.03, 0.03, 0.03);
+    characters.girl.position.set(-6, 0, 0);
+    characters.girl.rotation.y = Math.PI / 2;
+    
+    // Настройка материалов для "мультяшности"
+    characters.girl.traverse((child) => {
+        if (child.isMesh) {
+            child.castShadow = true;
+            child.receiveShadow = true;
+            if (child.material) {
+                child.material.roughness = 0.4;
+                child.material.metalness = 0.1;
             }
         }
-    </script>
+    });
+    
+    scene.add(characters.girl);
+    updateProgress();
+});
 
-    <script type="module">
-        import * as THREE from 'three';
-        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-        import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
-        import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-        import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-        import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
-
-        // ==========================================
-        // CONFIGURATION
-        // ==========================================
-        const CONFIG = {
-            colors: {
-                bg: new THREE.Color(0x0a0a0f),
-                fog: new THREE.Color(0x1a1a2e),
-                warm: new THREE.Color(0xffd4a3),
-                gold: new THREE.Color(0xffaa44),
-                rose: new THREE.Color(0xff6b9d)
-            },
-            camera: {
-                fov: 35,
-                near: 0.1,
-                far: 1000
+// Загружаем Ybot (парень, справа)
+loader.load('https://threejs.org/examples/models/gltf/Ybot.glb', (gltf) => {
+    characters.boy = gltf.scene;
+    characters.boy.scale.set(0.03, 0.03, 0.03);
+    characters.boy.position.set(6, 0, 0);
+    characters.boy.rotation.y = -Math.PI / 2;
+    
+    characters.boy.traverse((child) => {
+        if (child.isMesh) {
+            child.castShadow = true;
+            child.receiveShadow = true;
+            if (child.material) {
+                child.material.roughness = 0.4;
+                child.material.metalness = 0.1;
             }
-        };
-
-        // ==========================================
-        // GLOBAL VARIABLES
-        // ==========================================
-        let scene, camera, renderer, composer, controls;
-        let boy, girl, bridge, particles;
-        let hemiLight, keyLight, fillLight, rimLight, spotLight;
-        let mouse = new THREE.Vector2();
-        let targetMouse = new THREE.Vector2();
-        let scrollProgress = 0;
-        let isClimax = false;
-        let timeScale = 1.0;
-        let clock = new THREE.Clock();
-        
-        const state = {
-            bridgeProgress: 0,
-            walkProgress: 0,
-            cameraZ: 25,
-            lightWarmth: 0
-        };
-
-        // ==========================================
-        // INITIALIZATION
-        // ==========================================
-        function init() {
-            // Scene setup
-            scene = new THREE.Scene();
-            scene.background = CONFIG.colors.bg;
-            scene.fog = new THREE.FogExp2(CONFIG.colors.fog, 0.025);
-
-            // Camera
-            camera = new THREE.PerspectiveCamera(
-                CONFIG.camera.fov, 
-                window.innerWidth / window.innerHeight, 
-                CONFIG.camera.near, 
-                CONFIG.camera.far
-            );
-            camera.position.set(0, 4, 25);
-
-            // Renderer - Cinematic Quality
-            renderer = new THREE.WebGLRenderer({ 
-                antialias: true, 
-                alpha: true,
-                powerPreference: "high-performance"
-            });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-            
-            // Mandatory cinematic settings
-            renderer.physicallyCorrectLights = true;
-            renderer.outputColorSpace = THREE.SRGBColorSpace;
-            renderer.toneMapping = THREE.ACESFilmicToneMapping;
-            renderer.toneMappingExposure = 1.2;
-            renderer.shadowMap.enabled = true;
-            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-            
-            document.getElementById('canvas-container').appendChild(renderer.domElement);
-
-            // Post-processing
-            setupPostProcessing();
-
-            // Cinematic lighting
-            setupCinematicLighting();
-
-            // Create world
-            createEnvironment();
-            createCharacters();
-            createBridge();
-            createParticles();
-
-            // Event listeners
-            window.addEventListener('resize', onWindowResize);
-            window.addEventListener('mousemove', onMouseMove);
-            document.getElementById('final-btn').addEventListener('click', triggerClimax);
-
-            // GSAP Scroll
-            setupScrollAnimations();
-
-            // Hide loader
-            setTimeout(() => {
-                document.getElementById('loader-progress').style.width = '100%';
-                setTimeout(() => {
-                    document.getElementById('loader').style.opacity = 0;
-                    setTimeout(() => document.getElementById('loader').remove(), 1500);
-                }, 500);
-            }, 1000);
-
-            animate();
         }
+    });
+    
+    scene.add(characters.boy);
+    updateProgress();
+});
 
-        // ==========================================
-        // POST-PROCESSING
-        // ==========================================
-        function setupPostProcessing() {
-            composer = new EffectComposer(renderer);
-            
-            const renderPass = new RenderPass(scene, camera);
-            composer.addPass(renderPass);
+// ==========================================
+// ОКРУЖЕНИЕ
+// ==========================================
+// Платформы
+function createPlatform(x, color) {
+    const geo = new THREE.CylinderGeometry(3, 2.5, 1, 32);
+    const mat = new THREE.MeshStandardMaterial({ 
+        color: color,
+        roughness: 0.8 
+    });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set(x, -0.5, 0);
+    mesh.receiveShadow = true;
+    scene.add(mesh);
+}
 
-            const bloomPass = new UnrealBloomPass(
-                new THREE.Vector2(window.innerWidth, window.innerHeight),
-                0.4,  // strength
-                0.5,  // radius
-                0.85  // threshold
-            );
-            composer.addPass(bloomPass);
+createPlatform(-6, 0x2a2a4a);
+createPlatform(6, 0x4a2a3a);
 
-            const outputPass = new OutputPass();
-            composer.addPass(outputPass);
-        }
+// Мост (светящиеся плиты)
+const bridgePlates = [];
+for (let i = 0; i < 12; i++) {
+    const geo = new THREE.BoxGeometry(0.8, 0.1, 1.5);
+    const mat = new THREE.MeshStandardMaterial({
+        color: 0xffd700,
+        emissive: 0xffaa00,
+        emissiveIntensity: 0.5,
+        transparent: true,
+        opacity: 0
+    });
+    const plate = new THREE.Mesh(geo, mat);
+    plate.position.set(-5 + i, 0, 0);
+    plate.visible = false;
+    scene.add(plate);
+    bridgePlates.push(plate);
+}
 
-        // ==========================================
-        // CINEMATIC LIGHTING (4-Point System)
-        // ==========================================
-        function setupCinematicLighting() {
-            // 1. Hemisphere - Soft ambient sky/ground
-            hemiLight = new THREE.HemisphereLight(0xddeeff, 0x0f0f1a, 0.4);
-            scene.add(hemiLight);
+// Частицы
+const particlesGeo = new THREE.BufferGeometry();
+const particleCount = 200;
+const posArray = new Float32Array(particleCount * 3);
+for (let i = 0; i < particleCount * 3; i++) {
+    posArray[i] = (Math.random() - 0.5) * 20;
+}
+particlesGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+const particlesMat = new THREE.PointsMaterial({
+    size: 0.05,
+    color: 0xffd700,
+    transparent: true,
+    opacity: 0,
+    blending: THREE.AdditiveBlending
+});
+const particles = new THREE.Points(particlesGeo, particlesMat);
+scene.add(particles);
 
-            // 2. Key Light - Warm main directional
-            keyLight = new THREE.DirectionalLight(CONFIG.colors.warm, 2.0);
-            keyLight.position.set(8, 12, 8);
-            keyLight.castShadow = true;
-            keyLight.shadow.mapSize.width = 4096;
-            keyLight.shadow.mapSize.height = 4096;
-            keyLight.shadow.camera.near = 0.5;
-            keyLight.shadow.camera.far = 50;
-            keyLight.shadow.bias = -0.0001;
-            keyLight.shadow.normalBias = 0.02;
-            keyLight.shadow.radius = 4; // Soft shadows
-            scene.add(keyLight);
-
-            // 3. Fill Light - Cool, subtle, opposite side
-            fillLight = new THREE.DirectionalLight(0x8899ff, 0.6);
-            fillLight.position.set(-8, 4, -4);
-            scene.add(fillLight);
-
-            // 4. Rim Light - Backlight for silhouette
-            rimLight = new THREE.SpotLight(CONFIG.colors.gold, 3.0);
-            rimLight.position.set(0, 8, -10);
-            rimLight.lookAt(0, 0, 0);
-            rimLight.penumbra = 0.5;
-            scene.add(rimLight);
-
-            // Additional atmospheric light
-            spotLight = new THREE.SpotLight(CONFIG.colors.rose, 0);
-            spotLight.position.set(0, 10, 0);
-            spotLight.angle = Math.PI / 6;
-            spotLight.penumbra = 1;
-            scene.add(spotLight);
-        }
-
-        // ==========================================
-        // ENVIRONMENT
-        // ==========================================
-        function createEnvironment() {
-            // Floor with reflection-like quality
-            const floorGeo = new THREE.PlaneGeometry(100, 100);
-            const floorMat = new THREE.MeshStandardMaterial({
-                color: 0x0f0f1a,
-                roughness: 0.8,
-                metalness: 0.2,
-            });
-            const floor = new THREE.Mesh(floorGeo, floorMat);
-            floor.rotation.x = -Math.PI / 2;
-            floor.position.y = -2;
-            floor.receiveShadow = true;
-            scene.add(floor);
-
-            // Floating islands
-            createIsland(-12, 0x2a2a4a);
-            createIsland(12, 0x4a2a3a);
-        }
-
-        function createIsland(x, color) {
-            const group = new THREE.Group();
-            
-            // Main rock
-            const geo = new THREE.CylinderGeometry(4, 3, 6, 8);
-            const mat = new THREE.MeshStandardMaterial({
-                color: color,
-                roughness: 0.9,
-                flatShading: true
-            });
-            const rock = new THREE.Mesh(geo, mat);
-            rock.position.y = -3;
-            rock.castShadow = true;
-            rock.receiveShadow = true;
-            group.add(rock);
-
-            // Grass top
-            const grassGeo = new THREE.CylinderGeometry(4.2, 4, 0.5, 8);
-            const grassMat = new THREE.MeshStandardMaterial({ 
-                color: 0x1a3a2a,
-                roughness: 1 
-            });
-            const grass = new THREE.Mesh(grassGeo, grassMat);
-            grass.position.y = 0.25;
-            grass.receiveShadow = true;
-            group.add(grass);
-
-            group.position.set(x, 0, 0);
-            
-            // Floating animation data
-            group.userData = {
-                floatSpeed: 0.001 + Math.random() * 0.001,
-                floatOffset: Math.random() * Math.PI
-            };
-            
-            scene.add(group);
-            return group;
-        }
-
-        // ==========================================
-        // CHARACTERS (Stylized 3D)
-        // ==========================================
-        function createCharacters() {
-            // Boy (Alisher)
-            boy = createStylizedCharacter({
-                bodyColor: 0x4a6fa5,
-                skinColor: 0xffdbac,
-                hairColor: 0x2d1810,
-                height: 1.8
-            });
-            boy.position.set(-12, 1, 0);
-            boy.rotation.y = Math.PI / 2;
-            scene.add(boy);
-
-            // Girl (Snezhana)
-            girl = createStylizedCharacter({
-                bodyColor: 0xff8fa3,
-                skinColor: 0xffe4d6,
-                hairColor: 0xf4e4c1,
-                height: 1.7,
-                isGirl: true
-            });
-            girl.position.set(12, 1, 0);
-            girl.rotation.y = -Math.PI / 2;
-            scene.add(girl);
-        }
-
-        function createStylizedCharacter(params) {
-            const group = new THREE.Group();
-            
-            // Materials
-            const skinMat = new THREE.MeshPhysicalMaterial({
-                color: params.skinColor,
-                roughness: 0.3,
-                metalness: 0,
-                clearcoat: 0.1,
-                subsurfaceScattering: true
-            });
-            
-            const clothesMat = new THREE.MeshPhysicalMaterial({
-                color: params.bodyColor,
-                roughness: 0.6,
-                metalness: 0.1,
-                sheen: 0.5,
-                sheenColor: 0xffffff
-            });
-            
-            const hairMat = new THREE.MeshStandardMaterial({
-                color: params.hairColor,
-                roughness: 0.8
-            });
-
-            // Body (Chibi proportions)
-            const bodyGeo = new THREE.CapsuleGeometry(0.5, 0.8, 4, 16);
-            const body = new THREE.Mesh(bodyGeo, clothesMat);
-            body.position.y = 0.9;
-            body.castShadow = true;
-            group.add(body);
-
-            // Head
-            const headGeo = new THREE.SphereGeometry(0.45, 32, 32);
-            const head = new THREE.Mesh(headGeo, skinMat);
-            head.position.y = 1.9;
-            head.castShadow = true;
-            group.add(head);
-
-            // Hair
-            const hairGeo = new THREE.SphereGeometry(0.48, 32, 32, 0, Math.PI * 2, 0, Math.PI / 2.5);
-            const hair = new THREE.Mesh(hairGeo, hairMat);
-            hair.position.y = 1.95;
-            group.add(hair);
-
-            // Eyes (Expressive)
-            const eyeGeo = new THREE.SphereGeometry(0.08, 16, 16);
-            const eyeMat = new THREE.MeshStandardMaterial({ 
-                color: 0x1a1a1a,
-                roughness: 0.1 
-            });
-            
-            const eyeL = new THREE.Mesh(eyeGeo, eyeMat);
-            eyeL.position.set(-0.15, 1.95, 0.38);
-            group.add(eyeL);
-            
-            const eyeR = new THREE.Mesh(eyeGeo, eyeMat);
-            eyeR.position.set(0.15, 1.95, 0.38);
-            group.add(eyeR);
-
-            // Glow aura (for interaction)
-            const auraGeo = new THREE.SphereGeometry(2, 32, 32);
-            const auraMat = new THREE.MeshBasicMaterial({
-                color: CONFIG.colors.gold,
-                transparent: true,
-                opacity: 0
-            });
-            const aura = new THREE.Mesh(auraGeo, auraMat);
-            aura.position.y = 1.5;
-            aura.name = 'aura';
-            group.add(aura);
-
-            return group;
-        }
-
-        // ==========================================
-        // BRIDGE
-        // ==========================================
-        function createBridge() {
-            bridge = new THREE.Group();
-            
-            const segments = 24;
-            const width = 24 / segments;
-            
-            for (let i = 0; i < segments; i++) {
-                const geo = new THREE.BoxGeometry(width - 0.1, 0.3, 1.5);
-                const mat = new THREE.MeshPhysicalMaterial({
-                    color: CONFIG.colors.gold,
-                    emissive: CONFIG.colors.gold,
-                    emissiveIntensity: 0.2,
-                    metalness: 0.8,
-                    roughness: 0.2,
-                    transparent: true,
-                    opacity: 0
+// ==========================================
+// АНИМАЦИЯ СКРОЛЛА
+// ==========================================
+function initScroll() {
+    gsap.registerPlugin(ScrollTrigger);
+    
+    const tl = gsap.timeline({
+        scrollTrigger: {
+            trigger: "#scroll-track",
+            start: "top top",
+            end: "bottom bottom",
+            scrub: 1,
+            onUpdate: (self) => {
+                const progress = self.progress;
+                
+                // Движение персонажей
+                if (characters.girl && characters.boy) {
+                    const startX = 6;
+                    const endX = 1.5;
+                    const current = startX - (progress * 0.6 * (startX - endX));
+                    
+                    characters.girl.position.x = -current;
+                    characters.boy.position.x = current;
+                    
+                    // Поворот друг к другу
+                    characters.girl.rotation.y = Math.PI / 2 + (progress * 0.5);
+                    characters.boy.rotation.y = -Math.PI / 2 - (progress * 0.5);
+                }
+                
+                // Мост появляется
+                const bridgeProgress = Math.max(0, (progress - 0.2) * 2);
+                bridgePlates.forEach((plate, i) => {
+                    const threshold = i / bridgePlates.length;
+                    if (bridgeProgress > threshold && !plate.visible) {
+                        plate.visible = true;
+                        gsap.to(plate.material, { opacity: 1, duration: 0.5 });
+                        gsap.from(plate.position, { y: -2, duration: 0.5, ease: "back.out" });
+                    }
                 });
                 
-                const segment = new THREE.Mesh(geo, mat);
-                const x = -12 + (i + 0.5) * width;
-                segment.position.set(x, -0.5, 0);
-                segment.userData = { 
-                    finalY: -0.5, 
-                    index: i,
-                    active: false
-                };
-                segment.scale.set(1, 0, 1);
+                // Частицы
+                particles.material.opacity = Math.max(0, (progress - 0.3) * 0.6);
                 
-                bridge.add(segment);
+                // Свет теплеет
+                dirLight.color.setHSL(0.08, 0.5 + progress * 0.3, 0.5 + progress * 0.2);
+                dirLight.intensity = 2 + progress;
+                
+                // Камера ближе
+                camera.position.z = 12 - progress * 6;
+                camera.position.y = 3 - progress * 0.5;
             }
-            
-            scene.add(bridge);
         }
+    });
+    
+    // Тексты
+    tl.to("#t1", { opacity: 1, y: 0, duration: 0.15 }, 0)
+      .to("#t1", { opacity: 0, y: -40, duration: 0.1 }, 0.18)
+      .to("#t2", { opacity: 1, y: 0, duration: 0.1 }, 0.25)
+      .to("#t2", { opacity: 0, y: -40, duration: 0.1 }, 0.38)
+      .to("#t3", { opacity: 1, y: 0, duration: 0.05 }, 0.6)
+      .to("#t3", { opacity: 0, y: -40, duration: 0.05 }, 0.68)
+      .to("#t4", { opacity: 1, y: 0, duration: 0.05 }, 0.72)
+      .to("#t4", { opacity: 0, y: -40, duration: 0.05 }, 0.78)
+      .to("#t5", { opacity: 1, y: 0, duration: 0.05 }, 0.85)
+      .to("#t5", { opacity: 0, y: -40, duration: 0.05 }, 0.9)
+      .call(() => {
+          const btn = document.getElementById('final-btn');
+          btn.style.display = 'block';
+          gsap.to(btn, { opacity: 1, scale: 1, duration: 1 });
+      }, null, 0.92);
+}
 
-        // ==========================================
-        // PARTICLES
-        // ==========================================
-        function createParticles() {
-            const count = 500;
-            const geometry = new THREE.BufferGeometry();
-            const positions = new Float32Array(count * 3);
-            const sizes = new Float32Array(count);
-            const phases = new Float32Array(count);
-            
-            for (let i = 0; i < count; i++) {
-                positions[i * 3] = (Math.random() - 0.5) * 40;
-                positions[i * 3 + 1] = Math.random() * 20;
-                positions[i * 3 + 2] = (Math.random() - 0.5) * 20;
-                sizes[i] = Math.random() * 0.5 + 0.1;
-                phases[i] = Math.random() * Math.PI * 2;
-            }
-            
-            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-            geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
-            geometry.setAttribute('phase', new THREE.BufferAttribute(phases, 1));
-            
-            // Custom shader for glowing particles
-            const material = new THREE.ShaderMaterial({
-                uniforms: {
-                    time: { value: 0 },
-                    color: { value: new THREE.Color(CONFIG.colors.gold) },
-                    opacity: { value: 0 }
-                },
-                vertexShader: `
-                    attribute float size;
-                    attribute float phase;
-                    varying float vAlpha;
-                    uniform float time;
-                    
-                    void main() {
-                        vec3 pos = position;
-                        float floatY = sin(time * 0.5 + phase) * 0.5;
-                        pos.y += floatY;
-                        pos.x += sin(time * 0.3 + phase) * 0.2;
-                        
-                        vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
-                        gl_PointSize = size * (300.0 / -mvPosition.z);
-                        gl_Position = projectionMatrix * mvPosition;
-                        
-                        vAlpha = 0.6 + 0.4 * sin(time + phase);
-                    }
-                `,
-                fragmentShader: `
-                    uniform vec3 color;
-                    uniform float opacity;
-                    varying float vAlpha;
-                    
-                    void main() {
-                        float dist = length(gl_PointCoord - vec2(0.5));
-                        if (dist > 0.5) discard;
-                        
-                        float glow = 1.0 - (dist * 2.0);
-                        glow = pow(glow, 2.0);
-                        
-                        gl_FragColor = vec4(color, vAlpha * glow * opacity);
-                    }
-                `,
-                transparent: true,
-                depthWrite: false,
-                blending: THREE.AdditiveBlending
-            });
-            
-            particles = new THREE.Points(geometry, material);
-            scene.add(particles);
-        }
+// ==========================================
+// КЛИМАКС
+// ==========================================
+document.getElementById('final-btn').addEventListener('click', () => {
+    gsap.to('#final-btn', { opacity: 0, duration: 0.5 });
+    
+    // Сближение
+    gsap.to(characters.girl.position, { x: -0.8, duration: 3, ease: "power2.inOut" });
+    gsap.to(characters.boy.position, { x: 0.8, duration: 3, ease: "power2.inOut" });
+    
+    // Поворот лицом к камере
+    gsap.to(characters.girl.rotation, { y: 0.3, duration: 3 });
+    gsap.to(characters.boy.rotation, { y: -0.3, duration: 3 });
+    
+    // Взрыв света
+    gsap.to(bloomPass, { strength: 2, radius: 0.8, duration: 2 });
+    gsap.to(dirLight, { intensity: 5, duration: 2 });
+    gsap.to(rimLight, { intensity: 6, duration: 2 });
+    
+    // Частицы взрываются
+    gsap.to(particles.material, { opacity: 1, size: 0.1, duration: 2 });
+    
+    // Камера
+    gsap.to(camera.position, { z: 4, y: 2, x: 1, duration: 4, ease: "power2.inOut" });
+    
+    // Финальный текст
+    setTimeout(() => {
+        const final = document.getElementById('final');
+        final.style.display = 'block';
+        gsap.to(final, { opacity: 1, duration: 2 });
+    }, 1500);
+});
 
-        // ==========================================
-        // SCROLL ANIMATIONS
-        // ==========================================
-        function setupScrollAnimations() {
-            gsap.registerPlugin(ScrollTrigger);
-            
-            const tl = gsap.timeline({
-                scrollTrigger: {
-                    trigger: "#scroll-track",
-                    start: "top top",
-                    end: "bottom bottom",
-                    scrub: 1.2,
-                    onUpdate: (self) => {
-                        scrollProgress = self.progress;
-                    }
-                }
-            });
+// ==========================================
+// РЕНДЕР
+// ==========================================
+function animate() {
+    requestAnimationFrame(animate);
+    
+    const time = Date.now() * 0.001;
+    
+    // Парение платформ
+    if (characters.girl) {
+        characters.girl.position.y = Math.sin(time) * 0.05;
+    }
+    if (characters.boy) {
+        characters.boy.position.y = Math.sin(time + 1) * 0.05;
+    }
+    
+    // Анимация частиц
+    particles.rotation.y += 0.001;
+    
+    composer.render();
+}
 
-            // Scene 1: Distance (0-20%)
-            tl.to("#text-1", { opacity: 1, y: 0, duration: 0.15 }, 0);
-            tl.to("#text-1", { opacity: 0, y: -40, duration: 0.1 }, 0.18);
-            tl.to("#scroll-indicator", { opacity: 0, duration: 0.1 }, 0.15);
+animate();
 
-            // Scene 2: Bridge forms (20-40%)
-            tl.to(state, { bridgeProgress: 1, duration: 0.2 }, 0.2);
-            tl.to("#text-2", { opacity: 1, y: 0, duration: 0.1 }, 0.25);
-            tl.to("#text-2", { opacity: 0, y: -40, duration: 0.1 }, 0.38);
+window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    composer.setSize(window.innerWidth, window.innerHeight);
+});
+</script>
 
-            // Scene 3: Walking (40-70%)
-            tl.to(state, { walkProgress: 1, duration: 0.3 }, 0.4);
-            tl.to(state, { cameraZ: 10, duration: 0.3 }, 0.4);
-            tl.to(state, { lightWarmth: 1, duration: 0.3 }, 0.4);
-
-            // Scene 4: Near (70-90%)
-            tl.to("#text-3", { opacity: 1, y: 0, duration: 0.05 }, 0.7);
-            tl.to("#text-3", { opacity: 0, y: -40, duration: 0.05 }, 0.76);
-            
-            tl.to("#text-4", { opacity: 1, y: 0, duration: 0.05 }, 0.78);
-            tl.to("#text-4", { opacity: 0, y: -40, duration: 0.05 }, 0.84);
-            
-            tl.to("#text-5", { opacity: 1, y: 0, duration: 0.05 }, 0.86);
-            tl.to("#text-5", { opacity: 0, y: -40, duration: 0.05 }, 0.9);
-
-            // Scene 5: Button
-            tl.call(() => {
-                if (!isClimax) {
-                    const btn = document.getElementById('final-btn');
-                    btn.style.display = 'block';
-                    gsap.to(btn, { opacity: 1, scale: 1, duration: 1.5, ease: "power2.out" });
-                }
-            }, null, 0.92);
-        }
-
-        // ==========================================
-        // CLIMAX
-        // ==========================================
-        function triggerClimax() {
-            if (isClimax) return;
-            isClimax = true;
-
-            // Hide button
-            gsap.to("#final-btn", { opacity: 0, y: -30, duration: 0.5 });
-
-            // Slow motion
-            gsap.to(window, { timeScale: 0.2, duration: 1 });
-
-            // Move characters together
-            gsap.to(boy.position, { x: -0.8, duration: 4, ease: "power2.inOut" });
-            gsap.to(girl.position, { x: 0.8, duration: 4, ease: "power2.inOut" });
-
-            // Rotate to face each other more intimately
-            gsap.to(boy.rotation, { y: Math.PI / 4, duration: 4 });
-            gsap.to(girl.rotation, { y: -Math.PI / 4, duration: 4 });
-
-            // Light explosion
-            gsap.to(keyLight, { intensity: 5, duration: 3 });
-            gsap.to(rimLight, { intensity: 6, duration: 3 });
-            gsap.to(spotLight, { intensity: 4, duration: 3 });
-            
-            // Color shift to warm
-            gsap.to(scene.fog.color, { r: 0.4, g: 0.3, b: 0.4, duration: 3 });
-            gsap.to(scene.background, { r: 0.2, g: 0.15, b: 0.2, duration: 3 });
-
-            // Bloom explosion
-            const bloomPass = composer.passes[1];
-            gsap.to(bloomPass, { strength: 1.5, radius: 0.8, duration: 3 });
-
-            // Particles explode
-            gsap.to(particles.material.uniforms.opacity, { value: 1, duration: 2 });
-            
-            // Camera intimate shot
-            gsap.to(camera.position, { z: 5, y: 2.5, x: 2, duration: 5, ease: "power2.inOut" });
-
-            // Final text
-            setTimeout(() => {
-                const finalText = document.getElementById('final-text');
-                finalText.style.display = 'block';
-                gsap.to(finalText, { opacity: 1, y: 0, duration: 2 });
-                
-                // Restore time scale
-                gsap.to(window, { timeScale: 1, duration: 2 });
-            }, 2000);
-        }
-
-        // ==========================================
-        // INTERACTION
-        // ==========================================
-        function onMouseMove(event) {
-            targetMouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-            targetMouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-        }
-
-        // ==========================================
-        // ANIMATION LOOP
-        // ==========================================
-        function animate() {
-            requestAnimationFrame(animate);
-
-            const delta = clock.getDelta() * timeScale;
-            const elapsed = clock.getElapsedTime();
-
-            // Smooth mouse follow
-            mouse.lerp(targetMouse, 0.05);
-
-            // Update bridge
-            if (bridge) {
-                bridge.children.forEach((segment, i) => {
-                    const threshold = state.bridgeProgress * bridge.children.length;
-                    const isActive = i < threshold;
-                    
-                    if (isActive && !segment.userData.active) {
-                        segment.userData.active = true;
-                        gsap.to(segment.position, { y: segment.userData.finalY, duration: 0.5, ease: "back.out" });
-                        gsap.to(segment.scale, { y: 1, duration: 0.5, ease: "back.out" });
-                        gsap.to(segment.material, { opacity: 1, duration: 0.3 });
-                    }
-                });
-            }
-
-            // Update characters
-            if (!isClimax) {
-                const startX = 12;
-                const endX = 2.5;
-                const travel = (startX - endX) * state.walkProgress;
-                
-                if (boy) boy.position.x = -startX + travel;
-                if (girl) girl.position.x = startX - travel;
-
-                // Idle breathing
-                const breath = Math.sin(elapsed * 2) * 0.02;
-                if (boy) {
-                    boy.scale.set(1 + breath, 1 - breath, 1 + breath);
-                    boy.position.y = 1 + Math.sin(elapsed * 1.5) * 0.05;
-                }
-                if (girl) {
-                    girl.scale.set(1 + breath, 1 - breath, 1 + breath);
-                    girl.position.y = 1 + Math.sin(elapsed * 1.5 + 1) * 0.05;
-                }
-
-                // Camera smooth follow
-                camera.position.z += (state.cameraZ - camera.position.z) * 0.05;
-                
-                // Subtle mouse parallax
-                camera.position.x += (mouse.x * 2 - camera.position.x) * 0.02;
-                camera.position.y += (4 + mouse.y * 0.5 - camera.position.y) * 0.02;
-                camera.lookAt(0, 1.5, 0);
-            } else {
-                // Slow orbit during climax
-                const orbitTime = elapsed * 0.3;
-                camera.position.x = Math.sin(orbitTime) * 4;
-                camera.position.z = 5 + Math.cos(orbitTime) * 2;
-                camera.lookAt(0, 1.8, 0);
-            }
-
-            // Update lighting based on proximity
-            if (!isClimax) {
-                const warmth = state.lightWarmth;
-                keyLight.color.lerpColors(CONFIG.colors.warm, new THREE.Color(0xff8844), warmth);
-                keyLight.intensity = 2.0 + warmth * 1.5;
-                rimLight.intensity = 3.0 + warmth * 2.0;
-                
-                // Fog clears
-                scene.fog.density = 0.025 - warmth * 0.015;
-                
-                // Particles appear
-                if (particles) {
-                    particles.material.uniforms.opacity.value = warmth * 0.8;
-                    particles.material.uniforms.time.value = elapsed;
-                }
-            }
-
-            // Interactive glow
-            [boy, girl].forEach(char => {
-                if (!char) return;
-                const aura = char.getObjectByName('aura');
-                if (aura) {
-                    // Distance to "center of attention" (mouse projected)
-                    const dist = Math.abs(char.position.x - mouse.x * 10);
-                    const targetOpacity = Math.max(0, 1 - dist / 5) * 0.3 * (1 + state.lightWarmth);
-                    aura.material.opacity += (targetOpacity - aura.material.opacity) * 0.1;
-                }
-            });
-
-            composer.render();
-        }
-
-        function onWindowResize() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            composer.setSize(window.innerWidth, window.innerHeight);
-        }
-
-        // Start
-        init();
-    </script>
 </body>
 </html>
