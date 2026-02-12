@@ -262,6 +262,22 @@
         let tomMixer = null;
         let jerryMixer = null;
 
+        // Bone references for manual animation
+        let tomBones = {
+            head: null,
+            spine: null,
+            leftHand: null,
+            rightHand: null,
+            root: null
+        };
+        let jerryBones = {
+            head: null,
+            spine: null,
+            leftHand: null,
+            rightHand: null,
+            root: null
+        };
+
         // Create placeholder character meshes (stylized cute forms)
         function createPlaceholderCharacter(color, isTom) {
             const group = new THREE.Group();
@@ -432,6 +448,24 @@
         const tomOffset = Math.random() * 100;
         const jerryOffset = Math.random() * 100;
 
+        // Function to find bones in loaded model
+        function findBones(model, boneNames) {
+            const bones = {};
+            model.traverse((child) => {
+                if (child.isBone || child.type === 'Bone') {
+                    const name = child.name.toLowerCase();
+                    if (name.includes('head') || name.includes('neck')) bones.head = child;
+                    if (name.includes('spine') || name.includes('chest') || name.includes('torso')) bones.spine = child;
+                    if (name.includes('hand') || name.includes('arm')) {
+                        if (name.includes('left')) bones.leftHand = child;
+                        if (name.includes('right')) bones.rightHand = child;
+                    }
+                    if (name.includes('root') || name.includes('hips') || name.includes('pelvis')) bones.root = child;
+                }
+            });
+            return bones;
+        }
+
         // Load glTF models
         const loader = new GLTFLoader();
         
@@ -469,23 +503,35 @@
                 // Add to group
                 targetGroup.add(model);
                 
+                // Find bones for animation
+                const bones = findBones(model);
+                console.log(`${isTom ? 'Tom' : 'Jerry'} bones found:`, bones);
+                
                 // Store reference
                 if (isTom) {
                     tomModel = model;
+                    tomBones = bones;
                     // Setup animation mixer if animations exist
                     if (gltf.animations && gltf.animations.length > 0) {
                         tomMixer = new THREE.AnimationMixer(model);
                         gltf.animations.forEach((clip) => {
                             tomMixer.clipAction(clip).play();
                         });
+                        console.log('Tom has built-in animations:', gltf.animations.length);
+                    } else {
+                        console.log('Tom has no built-in animations, using procedural');
                     }
                 } else {
                     jerryModel = model;
+                    jerryBones = bones;
                     if (gltf.animations && gltf.animations.length > 0) {
                         jerryMixer = new THREE.AnimationMixer(model);
                         gltf.animations.forEach((clip) => {
                             jerryMixer.clipAction(clip).play();
                         });
+                        console.log('Jerry has built-in animations:', gltf.animations.length);
+                    } else {
+                        console.log('Jerry has no built-in animations, using procedural');
                     }
                 }
                 
@@ -521,6 +567,45 @@
             document.getElementById('loading').classList.add('hidden');
         }, 3000);
 
+        // Procedural animation function
+        function animateCharacter(model, bones, time, offset, isTom, phase) {
+            if (!model) return;
+            
+            // Breathing animation (scale Y slightly)
+            const breath = Math.sin(time * 2 + offset) * 0.02;
+            model.scale.y = 2 / Math.max(
+                new THREE.Box3().setFromObject(model).getSize(new THREE.Vector3()).y, 
+                1
+            ) + breath * 0.1;
+            
+            // Gentle floating/bobbing
+            model.position.y = 1 + Math.sin(time * 1.5 + offset) * 0.03;
+            
+            // Swaying rotation
+            model.rotation.z = Math.sin(time * 0.8 + offset) * 0.02;
+            
+            // Head looking at each other when close
+            if (bones.head && phase > 0.5) {
+                const lookAmount = (phase - 0.5) * 2; // 0 to 1
+                const targetRotation = isTom ? 0.3 : -0.3;
+                bones.head.rotation.y = THREE.MathUtils.lerp(0, targetRotation, lookAmount);
+                bones.head.rotation.x = Math.sin(time * 2 + offset) * 0.05; // Subtle nod
+            }
+            
+            // Spine breathing
+            if (bones.spine) {
+                bones.spine.rotation.x = Math.sin(time * 2 + offset) * 0.02;
+            }
+            
+            // Hand gestures (subtle)
+            if (bones.leftHand) {
+                bones.leftHand.rotation.z = Math.sin(time * 1.2 + offset) * 0.1;
+            }
+            if (bones.rightHand) {
+                bones.rightHand.rotation.z = Math.cos(time * 1.3 + offset) * 0.1;
+            }
+        }
+
         // Main animation loop
         function animate() {
             requestAnimationFrame(animate);
@@ -528,7 +613,7 @@
             const delta = clock.getDelta();
             time += delta;
 
-            // Update animation mixers
+            // Update animation mixers (if models have built-in animations)
             if (tomMixer) tomMixer.update(delta);
             if (jerryMixer) jerryMixer.update(delta);
 
@@ -578,14 +663,20 @@
             // Fill becomes warmer
             fillLight.color.setHSL(0.6 - warmth * 0.1, 0.3, 0.95);
 
-            // Idle animations for placeholders (only if still using placeholders)
-            if (!tomMixer && tomModel === tomPlaceholder) {
+            // Procedural animations for loaded models
+            if (tomModel && tomModel !== tomPlaceholder) {
+                animateCharacter(tomModel, tomBones, time, tomOffset, true, phase);
+            } else if (!tomMixer && tomModel === tomPlaceholder) {
+                // Idle animations for placeholder
                 const tomBreath = Math.sin(time * 2 + tomOffset) * 0.02;
                 tomGroup.position.y = tomBreath;
                 tomGroup.rotation.z = Math.sin(time * 1.5 + tomOffset) * 0.02;
             }
             
-            if (!jerryMixer && jerryModel === jerryPlaceholder) {
+            if (jerryModel && jerryModel !== jerryPlaceholder) {
+                animateCharacter(jerryModel, jerryBones, time, jerryOffset, false, phase);
+            } else if (!jerryMixer && jerryModel === jerryPlaceholder) {
+                // Idle animations for placeholder
                 const jerryBreath = Math.sin(time * 2.3 + jerryOffset) * 0.02;
                 jerryGroup.position.y = jerryBreath;
                 jerryGroup.rotation.z = Math.sin(time * 1.7 + jerryOffset) * 0.02;
