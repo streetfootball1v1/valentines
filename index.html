@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Almost 4 Years — A Cinematic 3D Story</title>
+    <title>Almost 4 Years — Our Story</title>
     <style>
         * {
             margin: 0;
@@ -12,9 +12,9 @@
         }
         
         body {
-            font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
-            overflow-x: hidden;
-            background: #1a0f1a;
+            font-family: 'Cormorant Garamond', serif;
+            overflow: hidden;
+            background: #000;
         }
         
         #canvas-container {
@@ -26,9 +26,28 @@
             z-index: 1;
         }
         
+        /* Cinematic black bars */
+        .cinematic-bars {
+            position: fixed;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background: #000;
+            z-index: 100;
+            transition: transform 1s ease;
+        }
+        
+        .cinematic-bars.top { top: 0; }
+        .cinematic-bars.bottom { bottom: 0; }
+        
+        .cinematic-bars.hidden {
+            transform: scaleY(0);
+        }
+        
         .scroll-container {
             position: relative;
             z-index: 10;
+            height: 400vh;
         }
         
         .scene-section {
@@ -37,62 +56,113 @@
             align-items: center;
             justify-content: center;
             position: relative;
-            pointer-events: none;
         }
         
         .text-overlay {
             text-align: center;
-            color: #fff0f5;
-            text-shadow: 0 4px 30px rgba(255, 182, 193, 0.5);
+            color: #fff;
             opacity: 0;
-            transform: translateY(30px);
-            transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
-            pointer-events: auto;
+            transform: scale(0.9) translateY(50px);
+            transition: all 1.5s cubic-bezier(0.23, 1, 0.32, 1);
+            pointer-events: none;
+            max-width: 800px;
             padding: 2rem;
-            background: rgba(0, 0, 0, 0.2);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         .text-overlay.visible {
             opacity: 1;
-            transform: translateY(0);
+            transform: scale(1) translateY(0);
         }
         
         .text-overlay h1 {
-            font-size: clamp(2.5rem, 6vw, 5rem);
+            font-size: clamp(3rem, 8vw, 6rem);
             font-weight: 300;
-            letter-spacing: 0.2em;
+            letter-spacing: 0.3em;
             margin-bottom: 1rem;
-            line-height: 1.3;
-            background: linear-gradient(135deg, #fff 0%, #ffb6c1 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 40px rgba(255, 100, 150, 0.5);
+            overflow: hidden;
+        }
+        
+        .text-overlay h1 span {
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(100%);
+            animation: revealText 0.8s forwards;
+        }
+        
+        @keyframes revealText {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
         .text-overlay h2 {
-            font-size: clamp(1.8rem, 4vw, 3rem);
+            font-size: clamp(2rem, 5vw, 4rem);
             font-weight: 300;
-            letter-spacing: 0.15em;
-            opacity: 0.95;
-            color: #ffe4e1;
+            letter-spacing: 0.2em;
+            color: #ffb6c1;
+            text-shadow: 0 0 30px rgba(255, 182, 193, 0.6);
         }
         
         .text-overlay p {
-            font-size: clamp(1.3rem, 2.5vw, 2rem);
+            font-size: clamp(1.5rem, 3vw, 2.5rem);
             font-weight: 300;
-            letter-spacing: 0.1em;
-            margin-top: 1.5rem;
+            letter-spacing: 0.15em;
+            margin-top: 2rem;
             font-style: italic;
-            color: #ffc0cb;
+            color: #fff0f5;
         }
         
-        .fade-line {
-            height: 1px;
-            width: 150px;
-            background: linear-gradient(90deg, transparent, rgba(255, 182, 193, 0.6), transparent);
+        .heart-divider {
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #ff69b4, transparent);
             margin: 2rem auto;
+            transition: width 1.5s ease;
+        }
+        
+        .text-overlay.visible .heart-divider {
+            width: 200px;
+        }
+        
+        /* Progress bar */
+        .scroll-progress {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.2);
+            z-index: 50;
+            border-radius: 2px;
+        }
+        
+        .scroll-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #ff69b4, #ffb6c1);
+            width: 0%;
+            transition: width 0.1s;
+            box-shadow: 0 0 10px #ff69b4;
+        }
+        
+        /* Skip hint */
+        .skip-hint {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9rem;
+            letter-spacing: 0.3em;
+            z-index: 50;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-10px); }
         }
         
         #loading {
@@ -101,24 +171,48 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: radial-gradient(ellipse at center, #2d1b2d 0%, #0f050f 100%);
+            background: #000;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             z-index: 1000;
-            transition: opacity 1.5s ease;
+            transition: opacity 2s ease;
+        }
+        
+        .loading-heart {
+            width: 60px;
+            height: 60px;
+            background: #ff69b4;
+            position: relative;
+            transform: rotate(-45deg);
+            animation: heartbeat 1.5s ease infinite;
+            box-shadow: 0 0 60px #ff69b4;
+        }
+        
+        .loading-heart::before,
+        .loading-heart::after {
+            content: '';
+            width: 60px;
+            height: 60px;
+            position: absolute;
+            background: #ff69b4;
+            border-radius: 50%;
+        }
+        
+        .loading-heart::before { top: -30px; left: 0; }
+        .loading-heart::after { left: 30px; top: 0; }
+        
+        @keyframes heartbeat {
+            0%, 100% { transform: rotate(-45deg) scale(1); }
+            50% { transform: rotate(-45deg) scale(1.1); }
         }
         
         .loading-text {
-            font-size: 1.5rem;
+            margin-top: 60px;
             color: #ffb6c1;
+            font-size: 1.2rem;
             letter-spacing: 0.5em;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 0.4; }
-            50% { opacity: 1; }
         }
         
         .hidden {
@@ -130,45 +224,57 @@
 <body>
 
     <div id="loading">
-        <div class="loading-text">LOADING SCENE...</div>
+        <div class="loading-heart"></div>
+        <div class="loading-text">LOADING OUR STORY</div>
     </div>
 
+    <div class="cinematic-bars top"></div>
+    <div class="cinematic-bars bottom"></div>
+
     <div id="canvas-container"></div>
+
+    <div class="scroll-progress">
+        <div class="scroll-progress-bar" id="progressBar"></div>
+    </div>
+    
+    <div class="skip-hint">SCROLL TO BEGIN</div>
 
     <div class="scroll-container">
         <section class="scene-section" data-scene="0">
             <div class="text-overlay">
-                <h1>Почти 4 года…</h1>
-                <div class="fade-line"></div>
-                <p>Scroll to begin</p>
+                <h1 id="title1">Почти 4 года…</h1>
+                <div class="heart-divider"></div>
+                <p>Every moment led us here</p>
             </div>
         </section>
 
         <section class="scene-section" data-scene="1">
             <div class="text-overlay">
-                <h2>Every moment</h2>
-                <h2>led us here</h2>
+                <h2>Through distance</h2>
+                <h2>and time</h2>
+                <div class="heart-divider"></div>
+                <p>Our hearts found their way</p>
             </div>
         </section>
 
         <section class="scene-section" data-scene="2">
             <div class="text-overlay">
                 <h2>И я до сих пор…</h2>
-                <div class="fade-line"></div>
-                <p>Closer with every step</p>
+                <div class="heart-divider"></div>
+                <p>With every beat of my heart</p>
             </div>
         </section>
 
         <section class="scene-section" data-scene="3">
             <div class="text-overlay">
-                <h1>выбираю тебя.</h1>
-                <div class="fade-line"></div>
-                <p>Always. Forever.</p>
+                <h1 id="titleFinal">выбираю тебя.</h1>
+                <div class="heart-divider"></div>
+                <p>Today. Tomorrow. Always.</p>
             </div>
         </section>
     </div>
 
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Playfair+Display:wght@300;400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&display=swap" rel="stylesheet">
 
     <script type="importmap">
         {
@@ -186,17 +292,16 @@
         import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
         import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 
-        // Scene setup - cinematic dark atmosphere
+        // SCENE SETUP - Cinematic dark
         const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x1a0f1a, 0.08);
-        scene.background = new THREE.Color(0x1a0f1a);
+        scene.fog = new THREE.FogExp2(0x050205, 0.15);
+        scene.background = new THREE.Color(0x050205);
 
-        const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 100);
-        camera.position.set(0, 1.2, 6);
+        const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.set(0, 1.4, 8);
 
         const renderer = new THREE.WebGLRenderer({ 
-            antialias: true, 
-            alpha: true,
+            antialias: true,
             powerPreference: "high-performance"
         });
         
@@ -204,324 +309,331 @@
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-        renderer.physicallyCorrectLights = true;
-        renderer.outputColorSpace = THREE.SRGBColorSpace;
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.0;
+        renderer.toneMappingExposure = 0.9;
         
         document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-        // Post-processing
+        // POST PROCESSING
         const composer = new EffectComposer(renderer);
-        const renderPass = new RenderPass(scene, camera);
-        composer.addPass(renderPass);
-
+        composer.addPass(new RenderPass(scene, camera));
+        
         const bloomPass = new UnrealBloomPass(
             new THREE.Vector2(window.innerWidth, window.innerHeight),
-            0.4,
-            0.5,
-            0.7
+            0.6, 0.8, 0.4
         );
         composer.addPass(bloomPass);
 
-        // DRAMATIC CINEMATIC LIGHTING
-        // 1. Key Light - warm, soft, from side (main illumination)
-        const keyLight = new THREE.SpotLight(0xffd4a3, 100);
-        keyLight.position.set(-3, 3, 4);
-        keyLight.angle = Math.PI / 5;
-        keyLight.penumbra = 0.6;
-        keyLight.decay = 2;
-        keyLight.distance = 30;
-        keyLight.castShadow = true;
-        keyLight.shadow.mapSize.width = 4096;
-        keyLight.shadow.mapSize.height = 4096;
-        keyLight.shadow.bias = -0.0001;
-        keyLight.shadow.radius = 8;
-        scene.add(keyLight);
+        // CINEMATIC LIGHTING - Dramatic
+        const spotLight = new THREE.SpotLight(0xffd4e5, 200);
+        spotLight.position.set(0, 8, 5);
+        spotLight.angle = Math.PI / 6;
+        spotLight.penumbra = 0.8;
+        spotLight.castShadow = true;
+        spotLight.shadow.mapSize.set(4096, 4096);
+        spotLight.shadow.bias = -0.0001;
+        scene.add(spotLight);
 
-        // 2. Rim Light - strong backlight for silhouette
-        const rimLight = new THREE.SpotLight(0xff69b4, 80);
-        rimLight.position.set(0, 4, -4);
-        rimLight.angle = Math.PI / 4;
-        rimLight.penumbra = 0.7;
-        rimLight.decay = 2;
-        rimLight.distance = 30;
-        scene.add(rimLight);
+        const rimLight1 = new THREE.SpotLight(0xff69b4, 100);
+        rimLight1.position.set(-5, 3, -3);
+        scene.add(rimLight1);
 
-        // 3. Fill Light - cool, subtle
-        const fillLight = new THREE.DirectionalLight(0x6a5acd, 3);
-        fillLight.position.set(4, 2, 2);
-        scene.add(fillLight);
+        const rimLight2 = new THREE.SpotLight(0x00bfff, 80);
+        rimLight2.position.set(5, 3, -3);
+        scene.add(rimLight2);
 
-        // 4. Ground bounce light
-        const bounceLight = new THREE.DirectionalLight(0xffb6c1, 2);
-        bounceLight.position.set(0, -2, 2);
-        scene.add(bounceLight);
+        const ambientLight = new THREE.AmbientLight(0x201020, 0.5);
+        scene.add(ambientLight);
 
-        // 5. Ambient
-        const hemiLight = new THREE.HemisphereLight(0xffd1dc, 0x1a0f1a, 0.3);
-        scene.add(hemiLight);
-
-        // Character groups
+        // CHARACTERS
         const tomGroup = new THREE.Group();
         const jerryGroup = new THREE.Group();
-        
-        let tomModel = null;
-        let jerryModel = null;
+        let tomModel = null, jerryModel = null;
+        let modelsLoaded = 0;
 
-        // Load glTF models
-        const loader = new GLTFLoader();
+        // HEART PARTICLE SYSTEM
+        const heartShape = new THREE.Shape();
+        heartShape.moveTo(0, 0);
+        heartShape.bezierCurveTo(0, -0.3, -0.6, -0.3, -0.6, 0);
+        heartShape.bezierCurveTo(-0.6, 0.6, 0, 1.2, 0, 1.2);
+        heartShape.bezierCurveTo(0, 1.2, 0.6, 0.6, 0.6, 0);
+        heartShape.bezierCurveTo(0.6, -0.3, 0, -0.3, 0, 0);
+
+        const heartGeo = new THREE.ExtrudeGeometry(heartShape, {
+            depth: 0.1,
+            bevelEnabled: true,
+            bevelSegments: 2,
+            steps: 2,
+            bevelSize: 0.05,
+            bevelThickness: 0.05
+        });
+
+        // GLOWING HEART between characters
+        const mainHeart = new THREE.Mesh(
+            heartGeo,
+            new THREE.MeshStandardMaterial({
+                color: 0xff1493,
+                emissive: 0xff0066,
+                emissiveIntensity: 2,
+                roughness: 0.2,
+                metalness: 0.8
+            })
+        );
+        mainHeart.scale.set(0.3, 0.3, 0.3);
+        mainHeart.position.set(0, 2, 0);
+        mainHeart.rotation.x = Math.PI;
+        mainHeart.visible = false;
+        scene.add(mainHeart);
+
+        // Heart particles
+        const particleCount = 100;
+        const heartParticles = new THREE.InstancedMesh(
+            heartGeo,
+            new THREE.MeshBasicMaterial({
+                color: 0xff69b4,
+                transparent: true,
+                opacity: 0.8
+            }),
+            particleCount
+        );
         
-        function loadCharacter(url, targetGroup, isTom) {
+        const dummy = new THREE.Object3D();
+        const particleData = [];
+        
+        for (let i = 0; i < particleCount; i++) {
+            particleData.push({
+                x: (Math.random() - 0.5) * 10,
+                y: Math.random() * 5,
+                z: (Math.random() - 0.5) * 5,
+                speed: 0.01 + Math.random() * 0.02,
+                scale: 0.05 + Math.random() * 0.1,
+                phase: Math.random() * Math.PI * 2
+            });
+        }
+        
+        scene.add(heartParticles);
+
+        // LOAD MODELS
+        const loader = new GLTFLoader();
+
+        function loadModel(url, group, isTom) {
             loader.load(url, (gltf) => {
                 const model = gltf.scene;
                 
-                // AUTO-SCALE to consistent size
+                // Normalize scale
                 const box = new THREE.Box3().setFromObject(model);
                 const size = box.getSize(new THREE.Vector3());
-                const maxDim = Math.max(size.x, size.y, size.z);
-                
-                // Target height: 1.7 units (consistent scale)
-                const targetHeight = 1.7;
-                const scale = targetHeight / size.y;
+                const scale = 1.6 / size.y;
                 model.scale.setScalar(scale);
                 
-                // Center and place on ground
                 const center = box.getCenter(new THREE.Vector3());
-                model.position.x = -center.x * scale;
-                model.position.z = -center.z * scale;
-                model.position.y = -box.min.y * scale; // Place feet on ground
+                model.position.sub(center.multiplyScalar(scale));
+                model.position.y -= box.min.y * scale;
                 
-                // Enable shadows and improve materials
+                // Enhance materials
                 model.traverse((child) => {
                     if (child.isMesh) {
                         child.castShadow = true;
                         child.receiveShadow = true;
-                        
-                        // Enhance material
                         if (child.material) {
-                            child.material.roughness = Math.max(child.material.roughness, 0.4);
-                            child.material.metalness = Math.min(child.material.metalness, 0.1);
-                            
-                            // Add subtle SSS effect
-                            if (child.material.color) {
-                                const color = child.material.color;
-                                // Slightly warm up skin tones
-                                if (color.r > 0.5 && color.g > 0.3 && color.b > 0.2) {
-                                    color.r = Math.min(color.r * 1.1, 1);
-                                    color.g = Math.min(color.g * 0.95, 1);
-                                }
-                            }
+                            child.material.roughness = 0.6;
+                            child.material.metalness = 0.1;
                         }
                     }
                 });
                 
-                targetGroup.add(model);
+                group.add(model);
                 
                 if (isTom) {
                     tomModel = model;
-                    // Tom on left, facing right
-                    targetGroup.position.set(-2.5, 0, 0);
-                    targetGroup.rotation.y = Math.PI / 8;
+                    group.position.set(-4, 0, 0);
                 } else {
                     jerryModel = model;
-                    // Jerry on right, facing left
-                    targetGroup.position.set(2.5, 0, 0);
-                    targetGroup.rotation.y = -Math.PI / 8;
+                    group.position.set(4, 0, 0);
                 }
                 
-                console.log(`Loaded ${isTom ? 'Tom' : 'Jerry'}: height=${size.y.toFixed(2)}, scale=${scale.toFixed(2)}`);
-                
-            }, undefined, (error) => {
-                console.error(`Failed to load ${isTom ? 'Tom' : 'Jerry'}:`, error);
+                modelsLoaded++;
+                if (modelsLoaded === 2) {
+                    setTimeout(() => {
+                        document.getElementById('loading').classList.add('hidden');
+                        document.querySelectorAll('.cinematic-bars').forEach(b => b.classList.add('hidden'));
+                    }, 1000);
+                }
             });
         }
 
-        // Load models
-        loadCharacter(
+        loadModel(
             'https://streetfootball1v1.github.io/valentines/models/Tom.glb',
-            tomGroup,
-            true
+            tomGroup, true
         );
-        
-        loadCharacter(
+        loadModel(
             'https://streetfootball1v1.github.io/valentines/models/DJerry.glb',
-            jerryGroup,
-            false
+            jerryGroup, false
         );
 
         scene.add(tomGroup);
         scene.add(jerryGroup);
 
-        // Particles - romantic dust
-        const particleCount = 300;
-        const particleGeo = new THREE.BufferGeometry();
-        const particlePositions = new Float32Array(particleCount * 3);
-        const particleSpeeds = [];
-
-        for (let i = 0; i < particleCount; i++) {
-            particlePositions[i * 3] = (Math.random() - 0.5) * 15;
-            particlePositions[i * 3 + 1] = Math.random() * 8;
-            particlePositions[i * 3 + 2] = (Math.random() - 0.5) * 10 - 2;
-            particleSpeeds.push({
-                y: 0.002 + Math.random() * 0.005,
-                x: (Math.random() - 0.5) * 0.002,
-                z: (Math.random() - 0.5) * 0.002
-            });
-        }
-
-        particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
-        
-        const particleMat = new THREE.PointsMaterial({
-            color: 0xffb6c1,
-            size: 0.08,
-            transparent: true,
-            opacity: 0.6,
-            blending: THREE.AdditiveBlending,
-            sizeAttenuation: true
-        });
-
-        const particles = new THREE.Points(particleGeo, particleMat);
-        scene.add(particles);
-
-        // Ground - subtle reflection
-        const groundGeo = new THREE.PlaneGeometry(50, 50);
-        const groundMat = new THREE.MeshStandardMaterial({ 
-            color: 0x0f050f,
-            roughness: 0.1,
-            metalness: 0.5
-        });
-        const ground = new THREE.Mesh(groundGeo, groundMat);
+        // GROUND - Reflective
+        const ground = new THREE.Mesh(
+            new THREE.PlaneGeometry(50, 50),
+            new THREE.MeshStandardMaterial({
+                color: 0x0a050a,
+                roughness: 0.05,
+                metalness: 0.9
+            })
+        );
         ground.rotation.x = -Math.PI / 2;
-        ground.position.y = 0;
         ground.receiveShadow = true;
         scene.add(ground);
 
-        // Scroll state
+        // SCROLL SYSTEM
         let scrollProgress = 0;
-        let targetScrollProgress = 0;
-        const sections = document.querySelectorAll('.scene-section');
-
+        let targetScroll = 0;
+        
         window.addEventListener('scroll', () => {
-            const maxScroll = document.body.scrollHeight - window.innerHeight;
-            targetScrollProgress = Math.max(0, Math.min(1, window.scrollY / maxScroll));
+            const max = document.body.scrollHeight - window.innerHeight;
+            targetScroll = Math.max(0, Math.min(1, window.scrollY / max));
         });
 
-        // Text animations
+        // Text animations with letter splitting
+        function splitText(element) {
+            const text = element.textContent;
+            element.innerHTML = '';
+            text.split('').forEach((char, i) => {
+                const span = document.createElement('span');
+                span.textContent = char === ' ' ? '\u00A0' : char;
+                span.style.animationDelay = `${i * 0.05}s`;
+                element.appendChild(span);
+            });
+        }
+
+        document.querySelectorAll('h1, h2').forEach(el => splitText(el));
+
+        // Intersection Observer
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
-                const overlay = entry.target.querySelector('.text-overlay');
                 if (entry.isIntersecting) {
-                    overlay.classList.add('visible');
-                } else {
-                    overlay.classList.remove('visible');
+                    entry.target.querySelector('.text-overlay').classList.add('visible');
                 }
             });
-        }, { threshold: 0.5 });
+        }, { threshold: 0.6 });
 
-        sections.forEach(section => observer.observe(section));
+        document.querySelectorAll('.scene-section').forEach(s => observer.observe(s));
 
-        // Animation
+        // ANIMATION LOOP
         const clock = new THREE.Clock();
-        let time = 0;
-
-        setTimeout(() => {
-            document.getElementById('loading').classList.add('hidden');
-        }, 2000);
-
+        
         function animate() {
             requestAnimationFrame(animate);
             
+            const time = clock.getElapsedTime();
             const delta = clock.getDelta();
-            time += delta;
-
-            // Smooth scroll
-            scrollProgress += (targetScrollProgress - scrollProgress) * 0.03;
-
-            // Scene phases
-            const phase = scrollProgress * 3; // 0 to 3
-
-            // Character movement - approach each other
-            const startDist = 3.5;
-            const endDist = 0.6;
-            const currentDist = THREE.MathUtils.lerp(startDist, endDist, Math.min(phase / 2.5, 1));
             
-            if (tomGroup && jerryGroup) {
+            // Smooth scroll
+            scrollProgress += (targetScroll - scrollProgress) * 0.05;
+            document.getElementById('progressBar').style.width = `${scrollProgress * 100}%`;
+            
+            const phase = scrollProgress * 3; // 0-3
+
+            if (tomModel && jerryModel) {
+                // MOVEMENT - Walking toward each other
+                const startDist = 4;
+                const meetDist = 0.8;
+                const currentDist = THREE.MathUtils.lerp(startDist, meetDist, Math.min(phase / 2.2, 1));
+                
                 tomGroup.position.x = -currentDist;
                 jerryGroup.position.x = currentDist;
                 
-                // Rotate to face each other more as they get closer
-                const baseAngle = Math.PI / 8;
-                const closeAngle = Math.PI / 2.2;
-                const angle = THREE.MathUtils.lerp(baseAngle, closeAngle, Math.min(phase / 2.5, 1));
+                // Walking animation (bobbing)
+                const walkSpeed = 8;
+                const walkAmp = 0.08;
                 
-                tomGroup.rotation.y = angle;
-                jerryGroup.rotation.y = -angle;
+                if (phase < 2.2) {
+                    tomGroup.position.y = Math.abs(Math.sin(time * walkSpeed)) * walkAmp;
+                    jerryGroup.position.y = Math.abs(Math.sin(time * walkSpeed + 0.5)) * walkAmp;
+                    
+                    // Sway while walking
+                    tomGroup.rotation.z = Math.sin(time * walkSpeed) * 0.03;
+                    jerryGroup.rotation.z = Math.sin(time * walkSpeed + 0.5) * 0.03;
+                } else {
+                    // Stop and face each other
+                    tomGroup.position.y = Math.sin(time * 1.5) * 0.02; // Breathing
+                    jerryGroup.position.y = Math.sin(time * 1.5 + 1) * 0.02;
+                    
+                    // Turn to face
+                    const turnAmount = Math.min((phase - 2.2) / 0.3, 1);
+                    tomGroup.rotation.y = THREE.MathUtils.lerp(0, Math.PI / 2.5, turnAmount);
+                    jerryGroup.rotation.y = THREE.MathUtils.lerp(0, -Math.PI / 2.5, turnAmount);
+                }
                 
-                // Subtle breathing animation
-                const breath = Math.sin(time * 1.5) * 0.015;
-                tomGroup.position.y = breath;
-                jerryGroup.position.y = Math.sin(time * 1.5 + 1) * 0.015;
-                
-                // Sway
-                tomGroup.rotation.z = Math.sin(time * 0.5) * 0.01;
-                jerryGroup.rotation.z = Math.sin(time * 0.5 + 2) * 0.01;
-            }
-
-            // Camera - dramatic movement
-            const baseZ = 6;
-            const closeZ = 2.5;
-            const zoom = THREE.MathUtils.lerp(baseZ, closeZ, Math.min(phase / 2.5, 1));
-            
-            camera.position.z = zoom + Math.sin(time * 0.3) * 0.05;
-            camera.position.y = 1.2 + Math.sin(time * 0.2) * 0.03;
-            
-            // Orbit at climax
-            if (phase > 2.2) {
-                const orbitProgress = (phase - 2.2) / 0.8;
-                camera.position.x = Math.sin(orbitProgress * Math.PI * 0.3) * 1.5;
-                camera.lookAt(0, 1.3, 0);
-            } else {
-                camera.position.x = Math.sin(time * 0.1) * 0.2;
-                camera.lookAt(0, 1.1, 0);
-            }
-
-            // Lighting evolution
-            const warmth = Math.min(phase / 2.5, 1);
-            
-            // Key light warms up
-            keyLight.color.setHSL(0.08 + warmth * 0.02, 0.6, 0.85);
-            keyLight.intensity = 80 + warmth * 60;
-            
-            // Rim light intensifies and shifts to pink
-            rimLight.color.setHSL(0.9 - warmth * 0.1, 0.8, 0.7);
-            rimLight.intensity = 60 + warmth * 100;
-            
-            // Fill becomes warmer
-            fillLight.color.setHSL(0.7 - warmth * 0.2, 0.5, 0.6);
-            fillLight.intensity = 3 + warmth * 2;
-
-            // Bloom intensifies
-            bloomPass.strength = 0.4 + warmth * 0.4;
-
-            // Particles
-            const positions = particles.geometry.attributes.position.array;
-            for (let i = 0; i < particleCount; i++) {
-                positions[i * 3 + 1] += particleSpeeds[i].y;
-                positions[i * 3] += particleSpeeds[i].x + Math.sin(time + i) * 0.001;
-                
-                if (positions[i * 3 + 1] > 8) {
-                    positions[i * 3 + 1] = 0;
+                // Hand reaching at climax
+                if (phase > 2.5) {
+                    const reach = (phase - 2.5) / 0.5;
+                    tomGroup.rotation.z = THREE.MathUtils.lerp(0, 0.1, reach);
+                    jerryGroup.rotation.z = THREE.MathUtils.lerp(0, -0.1, reach);
                 }
             }
-            particles.geometry.attributes.position.needsUpdate = true;
+
+            // CAMERA - Dramatic moves
+            const baseZ = 7;
+            const closeZ = 3;
+            camera.position.z = THREE.MathUtils.lerp(baseZ, closeZ, Math.min(phase / 2, 1));
             
-            // Particles gather between characters at climax
-            if (phase > 1.5) {
-                const gatherStrength = (phase - 1.5) / 1.5;
-                particles.material.opacity = 0.6 + gatherStrength * 0.4;
-                particles.material.size = 0.08 + gatherStrength * 0.05;
+            // Slight orbit
+            camera.position.x = Math.sin(time * 0.1 + phase) * 0.5;
+            camera.lookAt(0, 1.2, 0);
+
+            // MAIN HEART appears at climax
+            if (phase > 2) {
+                mainHeart.visible = true;
+                const heartScale = Math.min((phase - 2) * 2, 1.5);
+                mainHeart.scale.setScalar(0.3 * heartScale);
+                mainHeart.rotation.y = time * 0.5;
+                mainHeart.material.emissiveIntensity = 2 + Math.sin(time * 3) * 0.5;
             }
+
+            // PARTICLES
+            for (let i = 0; i < particleCount; i++) {
+                const data = particleData[i];
+                
+                // Float up
+                data.y += data.speed;
+                if (data.y > 6) data.y = 0;
+                
+                // Spiral toward center at climax
+                let x = data.x;
+                let z = data.z;
+                
+                if (phase > 1.5) {
+                    const attraction = (phase - 1.5) / 1.5;
+                    x *= (1 - attraction * 0.5);
+                    z *= (1 - attraction * 0.5);
+                }
+                
+                dummy.position.set(
+                    x + Math.sin(time + data.phase) * 0.5,
+                    data.y,
+                    z + Math.cos(time + data.phase) * 0.5
+                );
+                
+                dummy.rotation.set(
+                    time * 0.5,
+                    time * 0.3,
+                    0
+                );
+                
+                dummy.scale.setScalar(data.scale * (1 + Math.sin(time * 2 + data.phase) * 0.3));
+                dummy.updateMatrix();
+                heartParticles.setMatrixAt(i, dummy.matrix);
+            }
+            heartParticles.instanceMatrix.needsUpdate = true;
+
+            // LIGHTING evolution
+            spotLight.intensity = 150 + phase * 50;
+            spotLight.color.setHSL(0.9, 0.5, 0.8 + phase * 0.1);
+            
+            bloomPass.strength = 0.4 + phase * 0.4;
 
             composer.render();
         }
