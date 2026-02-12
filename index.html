@@ -252,9 +252,15 @@
         const hemiLight = new THREE.HemisphereLight(0xffd1dc, 0x8b7d8b, 0.6);
         scene.add(hemiLight);
 
-        // Character placeholders (replace with glTF models)
+        // Character groups
         const tomGroup = new THREE.Group();
         const jerryGroup = new THREE.Group();
+        
+        // Store references for animation
+        let tomModel = null;
+        let jerryModel = null;
+        let tomMixer = null;
+        let jerryMixer = null;
 
         // Create placeholder character meshes (stylized cute forms)
         function createPlaceholderCharacter(color, isTom) {
@@ -281,8 +287,7 @@
             const headMat = new THREE.MeshPhysicalMaterial({
                 color: 0xffe4d6,
                 roughness: 0.3,
-                metalness: 0,
-                subsurfaceScattering: true
+                metalness: 0
             });
             const head = new THREE.Mesh(headGeo, headMat);
             head.position.y = 1.8;
@@ -332,15 +337,19 @@
             return group;
         }
 
-        // Create placeholder characters
+        // Create placeholder characters initially
         const tomPlaceholder = createPlaceholderCharacter(0x4a90e2, true);
         tomGroup.add(tomPlaceholder);
+        tomModel = tomPlaceholder;
+        
         tomGroup.position.set(-4, 0, 0);
         tomGroup.rotation.y = Math.PI / 6;
         scene.add(tomGroup);
 
         const jerryPlaceholder = createPlaceholderCharacter(0xe91e63, false);
         jerryGroup.add(jerryPlaceholder);
+        jerryModel = jerryPlaceholder;
+        
         jerryGroup.position.set(4, 0, 0);
         jerryGroup.rotation.y = -Math.PI / 6;
         scene.add(jerryGroup);
@@ -423,20 +432,28 @@
         const tomOffset = Math.random() * 100;
         const jerryOffset = Math.random() * 100;
 
-        // Load glTF models (replace placeholders when available)
+        // Load glTF models
         const loader = new GLTFLoader();
         
-        // Function to replace placeholder with actual model
-        function loadCharacter(url, placeholder, position, rotation) {
+        // Function to load character with proper setup
+        function loadCharacter(url, targetGroup, placeholder, isTom) {
             loader.load(url, (gltf) => {
                 const model = gltf.scene;
                 
-                // Remove placeholder
-                placeholder.parent.remove(placeholder);
+                // Remove placeholder from group
+                targetGroup.remove(placeholder);
                 
-                // Setup model
-                model.position.copy(position);
-                model.rotation.y = rotation;
+                // Auto-scale model to fit scene (normalize size)
+                const box = new THREE.Box3().setFromObject(model);
+                const size = box.getSize(new THREE.Vector3());
+                const maxDim = Math.max(size.x, size.y, size.z);
+                const scale = 2 / maxDim; // Normalize to ~2 units height
+                model.scale.setScalar(scale);
+                
+                // Center the model
+                const center = box.getCenter(new THREE.Vector3());
+                model.position.sub(center.multiplyScalar(scale));
+                model.position.y += 1; // Lift to stand on ground
                 
                 // Enable shadows
                 model.traverse((child) => {
@@ -444,37 +461,65 @@
                         child.castShadow = true;
                         child.receiveShadow = true;
                         if (child.material) {
-                            child.material.roughness = Math.max(child.material.roughness, 0.3);
+                            child.material.roughness = Math.max(child.material.roughness || 0.5, 0.3);
                         }
                     }
                 });
                 
-                // Add to scene
-                scene.add(model);
+                // Add to group
+                targetGroup.add(model);
                 
-                // Update reference
-                if (placeholder === tomPlaceholder) {
-                    tomGroup.clear();
-                    tomGroup.add(model);
+                // Store reference
+                if (isTom) {
+                    tomModel = model;
+                    // Setup animation mixer if animations exist
+                    if (gltf.animations && gltf.animations.length > 0) {
+                        tomMixer = new THREE.AnimationMixer(model);
+                        gltf.animations.forEach((clip) => {
+                            tomMixer.clipAction(clip).play();
+                        });
+                    }
                 } else {
-                    jerryGroup.clear();
-                    jerryGroup.add(model);
+                    jerryModel = model;
+                    if (gltf.animations && gltf.animations.length > 0) {
+                        jerryMixer = new THREE.AnimationMixer(model);
+                        gltf.animations.forEach((clip) => {
+                            jerryMixer.clipAction(clip).play();
+                        });
+                    }
                 }
-            }, undefined, (error) => {
-                console.log('Model load failed, using placeholder:', error);
+                
+                console.log(`Loaded ${isTom ? 'Tom' : 'Jerry'} successfully`);
+                
+            }, 
+            (progress) => {
+                console.log(`${isTom ? 'Tom' : 'Jerry'} loading:`, (progress.loaded / progress.total * 100) + '%');
+            },
+            (error) => {
+                console.error(`Failed to load ${isTom ? 'Tom' : 'Jerry'}:`, error);
+                // Keep placeholder on error
             });
         }
 
-              loadCharacter(
-               'https://drive.google.com/uc?export=download&id=1VEiOFpXlNYcYx6ZcD-7A57BVgB7k-MAv',
-                tomPlaceholder,
-                new THREE.Vector3(-4, 0, 0),
-                Math.PI / 6
-          );
+        // ЗАГРУЗКА МОДЕЛЕЙ С ПРАВИЛЬНЫМИ ИМЕНАМИ ФАЙЛОВ
+        loadCharacter(
+            'https://streetfootball1v1.github.io/valentines/models/Tom.glb',
+            tomGroup,
+            tomPlaceholder,
+            true
+        );
+        
+        loadCharacter(
+            'https://streetfootball1v1.github.io/valentines/models/DJerry.glb',
+            jerryGroup,
+            jerryPlaceholder,
+            false
+        );
 
+        // Hide loading screen after timeout
         setTimeout(() => {
             document.getElementById('loading').classList.add('hidden');
-        }, 1500);
+        }, 3000);
 
         // Main animation loop
         function animate() {
@@ -483,16 +528,15 @@
             const delta = clock.getDelta();
             time += delta;
 
+            // Update animation mixers
+            if (tomMixer) tomMixer.update(delta);
+            if (jerryMixer) jerryMixer.update(delta);
+
             // Smooth scroll interpolation
             scrollProgress += (targetScrollProgress - scrollProgress) * 0.05;
 
             // Scene phases based on scroll
-            // Phase 0: Apart (0-0.33)
-            // Phase 1: Moving closer (0.33-0.66)
-            // Phase 2: Almost together (0.66-0.9)
-            // Phase 3: Together/Climax (0.9-1.0)
-
-            const phase = Math.min(scrollProgress * 3, 2.5); // 0 to 2.5 range
+            const phase = Math.min(scrollProgress * 3, 2.5);
             
             // Character positions based on scroll
             const startDistance = 4;
@@ -509,7 +553,7 @@
 
             // Camera movement - cinematic drift and zoom
             const zoomLevel = THREE.MathUtils.lerp(8, 3.5, Math.min(phase / 2, 1));
-            camera.position.z = zoomLevel + Math.sin(time * 0.3) * 0.1; // subtle breathing
+            camera.position.z = zoomLevel + Math.sin(time * 0.3) * 0.1;
             
             // Camera orbit at climax
             if (phase > 2) {
@@ -534,16 +578,18 @@
             // Fill becomes warmer
             fillLight.color.setHSL(0.6 - warmth * 0.1, 0.3, 0.95);
 
-            // Idle animations (breathing, subtle bounce)
-            const tomBreath = Math.sin(time * 2 + tomOffset) * 0.02;
-            const jerryBreath = Math.sin(time * 2.3 + jerryOffset) * 0.02;
+            // Idle animations for placeholders (only if still using placeholders)
+            if (!tomMixer && tomModel === tomPlaceholder) {
+                const tomBreath = Math.sin(time * 2 + tomOffset) * 0.02;
+                tomGroup.position.y = tomBreath;
+                tomGroup.rotation.z = Math.sin(time * 1.5 + tomOffset) * 0.02;
+            }
             
-            tomGroup.position.y = tomBreath;
-            jerryGroup.position.y = jerryBreath;
-            
-            // Subtle hand movement (if bones exist, otherwise whole group subtle rotation)
-            tomGroup.rotation.z = Math.sin(time * 1.5 + tomOffset) * 0.02;
-            jerryGroup.rotation.z = Math.sin(time * 1.7 + jerryOffset) * 0.02;
+            if (!jerryMixer && jerryModel === jerryPlaceholder) {
+                const jerryBreath = Math.sin(time * 2.3 + jerryOffset) * 0.02;
+                jerryGroup.position.y = jerryBreath;
+                jerryGroup.rotation.z = Math.sin(time * 1.7 + jerryOffset) * 0.02;
+            }
 
             // Rain activation at climax
             if (phase > 1.5) {
@@ -555,7 +601,6 @@
                     positions[i * 3 + 1] += rainVelocities[i].y;
                     positions[i * 3 + 2] += rainVelocities[i].z;
                     
-                    // Reset if below ground
                     if (positions[i * 3 + 1] < 0) {
                         positions[i * 3 + 1] = 10;
                         positions[i * 3] = (Math.random() - 0.5) * 20;
@@ -564,7 +609,6 @@
                 }
                 rainSystem.geometry.attributes.position.needsUpdate = true;
                 
-                // Glow increases
                 bloomPass.strength = 0.3 + (phase - 1.5) * 0.4;
             } else {
                 rainSystem.visible = false;
