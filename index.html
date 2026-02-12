@@ -14,7 +14,7 @@
         body {
             font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
             overflow-x: hidden;
-            background: linear-gradient(180deg, #ffdde1 0%, #ee9ca7 50%, #d4a5a5 100%);
+            background: #1a0f1a;
         }
         
         #canvas-container {
@@ -42,13 +42,17 @@
         
         .text-overlay {
             text-align: center;
-            color: #4a3f3f;
-            text-shadow: 0 2px 20px rgba(255, 255, 255, 0.8);
+            color: #fff0f5;
+            text-shadow: 0 4px 30px rgba(255, 182, 193, 0.5);
             opacity: 0;
             transform: translateY(30px);
             transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
             pointer-events: auto;
             padding: 2rem;
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         .text-overlay.visible {
@@ -57,32 +61,37 @@
         }
         
         .text-overlay h1 {
-            font-size: clamp(2rem, 5vw, 4rem);
+            font-size: clamp(2.5rem, 6vw, 5rem);
             font-weight: 300;
-            letter-spacing: 0.15em;
+            letter-spacing: 0.2em;
             margin-bottom: 1rem;
-            line-height: 1.4;
+            line-height: 1.3;
+            background: linear-gradient(135deg, #fff 0%, #ffb6c1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
         
         .text-overlay h2 {
-            font-size: clamp(1.5rem, 3vw, 2.5rem);
+            font-size: clamp(1.8rem, 4vw, 3rem);
             font-weight: 300;
-            letter-spacing: 0.1em;
-            opacity: 0.9;
+            letter-spacing: 0.15em;
+            opacity: 0.95;
+            color: #ffe4e1;
         }
         
         .text-overlay p {
-            font-size: clamp(1.2rem, 2.5vw, 1.8rem);
+            font-size: clamp(1.3rem, 2.5vw, 2rem);
             font-weight: 300;
-            letter-spacing: 0.05em;
-            margin-top: 1rem;
+            letter-spacing: 0.1em;
+            margin-top: 1.5rem;
             font-style: italic;
+            color: #ffc0cb;
         }
         
         .fade-line {
-            height: 2px;
-            width: 100px;
-            background: linear-gradient(90deg, transparent, rgba(74, 63, 63, 0.4), transparent);
+            height: 1px;
+            width: 150px;
+            background: linear-gradient(90deg, transparent, rgba(255, 182, 193, 0.6), transparent);
             margin: 2rem auto;
         }
         
@@ -92,23 +101,23 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #ffdde1 0%, #ee9ca7 100%);
+            background: radial-gradient(ellipse at center, #2d1b2d 0%, #0f050f 100%);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 1000;
-            transition: opacity 1s ease;
+            transition: opacity 1.5s ease;
         }
         
         .loading-text {
             font-size: 1.5rem;
-            color: #4a3f3f;
-            letter-spacing: 0.3em;
+            color: #ffb6c1;
+            letter-spacing: 0.5em;
             animation: pulse 2s infinite;
         }
         
         @keyframes pulse {
-            0%, 100% { opacity: 0.6; }
+            0%, 100% { opacity: 0.4; }
             50% { opacity: 1; }
         }
         
@@ -131,14 +140,14 @@
             <div class="text-overlay">
                 <h1>Почти 4 года…</h1>
                 <div class="fade-line"></div>
-                <p>Scroll to begin the journey</p>
+                <p>Scroll to begin</p>
             </div>
         </section>
 
         <section class="scene-section" data-scene="1">
             <div class="text-overlay">
-                <h2>Distance makes the heart</h2>
-                <h2>grow fonder</h2>
+                <h2>Every moment</h2>
+                <h2>led us here</h2>
             </div>
         </section>
 
@@ -146,7 +155,7 @@
             <div class="text-overlay">
                 <h2>И я до сих пор…</h2>
                 <div class="fade-line"></div>
-                <p>Every step brings us closer</p>
+                <p>Closer with every step</p>
             </div>
         </section>
 
@@ -173,20 +182,17 @@
     <script type="module">
         import * as THREE from 'three';
         import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
         import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
         import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
         import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 
-        // Scene setup
+        // Scene setup - cinematic dark atmosphere
         const scene = new THREE.Scene();
-        
-        // Soft gradient fog for depth
-        scene.fog = new THREE.FogExp2(0xffdde1, 0.02);
-        scene.background = new THREE.Color(0xffdde1);
+        scene.fog = new THREE.FogExp2(0x1a0f1a, 0.08);
+        scene.background = new THREE.Color(0x1a0f1a);
 
-        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-        camera.position.set(0, 1.5, 8);
+        const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.set(0, 1.2, 6);
 
         const renderer = new THREE.WebGLRenderer({ 
             antialias: true, 
@@ -194,7 +200,6 @@
             powerPreference: "high-performance"
         });
         
-        // Cinematic renderer settings
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         renderer.shadowMap.enabled = true;
@@ -202,208 +207,190 @@
         renderer.physicallyCorrectLights = true;
         renderer.outputColorSpace = THREE.SRGBColorSpace;
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.3;
+        renderer.toneMappingExposure = 1.0;
         
         document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-        // Post-processing for cinematic bloom
+        // Post-processing
         const composer = new EffectComposer(renderer);
         const renderPass = new RenderPass(scene, camera);
         composer.addPass(renderPass);
 
         const bloomPass = new UnrealBloomPass(
             new THREE.Vector2(window.innerWidth, window.innerHeight),
-            0.3, // strength
-            0.4, // radius
-            0.85 // threshold
+            0.4,
+            0.5,
+            0.7
         );
         composer.addPass(bloomPass);
 
-        // Cinematic Lighting Setup
-        // 1. Key Light - Warm, soft, from side
-        const keyLight = new THREE.SpotLight(0xfff0e6, 80);
-        keyLight.position.set(-5, 4, 5);
-        keyLight.angle = Math.PI / 4;
-        keyLight.penumbra = 0.5;
+        // DRAMATIC CINEMATIC LIGHTING
+        // 1. Key Light - warm, soft, from side (main illumination)
+        const keyLight = new THREE.SpotLight(0xffd4a3, 100);
+        keyLight.position.set(-3, 3, 4);
+        keyLight.angle = Math.PI / 5;
+        keyLight.penumbra = 0.6;
         keyLight.decay = 2;
-        keyLight.distance = 50;
+        keyLight.distance = 30;
         keyLight.castShadow = true;
-        keyLight.shadow.mapSize.width = 2048;
-        keyLight.shadow.mapSize.height = 2048;
+        keyLight.shadow.mapSize.width = 4096;
+        keyLight.shadow.mapSize.height = 4096;
         keyLight.shadow.bias = -0.0001;
-        keyLight.shadow.radius = 4;
+        keyLight.shadow.radius = 8;
         scene.add(keyLight);
 
-        // 2. Rim Light - Behind characters, brighter, separates from background
-        const rimLight = new THREE.SpotLight(0xffffff, 60);
-        rimLight.position.set(0, 3, -5);
-        rimLight.angle = Math.PI / 3;
-        rimLight.penumbra = 0.8;
+        // 2. Rim Light - strong backlight for silhouette
+        const rimLight = new THREE.SpotLight(0xff69b4, 80);
+        rimLight.position.set(0, 4, -4);
+        rimLight.angle = Math.PI / 4;
+        rimLight.penumbra = 0.7;
         rimLight.decay = 2;
-        rimLight.distance = 50;
+        rimLight.distance = 30;
         scene.add(rimLight);
 
-        // 3. Fill Light - Subtle, cooler tone
-        const fillLight = new THREE.DirectionalLight(0xe6f0ff, 2);
-        fillLight.position.set(5, 2, 3);
+        // 3. Fill Light - cool, subtle
+        const fillLight = new THREE.DirectionalLight(0x6a5acd, 3);
+        fillLight.position.set(4, 2, 2);
         scene.add(fillLight);
 
-        // 4. Ambient/Hemisphere for mood
-        const hemiLight = new THREE.HemisphereLight(0xffd1dc, 0x8b7d8b, 0.6);
+        // 4. Ground bounce light
+        const bounceLight = new THREE.DirectionalLight(0xffb6c1, 2);
+        bounceLight.position.set(0, -2, 2);
+        scene.add(bounceLight);
+
+        // 5. Ambient
+        const hemiLight = new THREE.HemisphereLight(0xffd1dc, 0x1a0f1a, 0.3);
         scene.add(hemiLight);
 
         // Character groups
         const tomGroup = new THREE.Group();
         const jerryGroup = new THREE.Group();
         
-        // Store references for animation
         let tomModel = null;
         let jerryModel = null;
-        let tomMixer = null;
-        let jerryMixer = null;
 
-        // Bone references for manual animation
-        let tomBones = {
-            head: null,
-            spine: null,
-            leftHand: null,
-            rightHand: null,
-            root: null
-        };
-        let jerryBones = {
-            head: null,
-            spine: null,
-            leftHand: null,
-            rightHand: null,
-            root: null
-        };
-
-        // Create placeholder character meshes (stylized cute forms)
-        function createPlaceholderCharacter(color, isTom) {
-            const group = new THREE.Group();
-            
-            // Body - soft rounded form
-            const bodyGeo = new THREE.SphereGeometry(0.6, 32, 32);
-            bodyGeo.scale(1, 1.3, 0.8);
-            const bodyMat = new THREE.MeshPhysicalMaterial({
-                color: color,
-                roughness: 0.4,
-                metalness: 0.1,
-                clearcoat: 0.3,
-                clearcoatRoughness: 0.2
+        // Load glTF models
+        const loader = new GLTFLoader();
+        
+        function loadCharacter(url, targetGroup, isTom) {
+            loader.load(url, (gltf) => {
+                const model = gltf.scene;
+                
+                // AUTO-SCALE to consistent size
+                const box = new THREE.Box3().setFromObject(model);
+                const size = box.getSize(new THREE.Vector3());
+                const maxDim = Math.max(size.x, size.y, size.z);
+                
+                // Target height: 1.7 units (consistent scale)
+                const targetHeight = 1.7;
+                const scale = targetHeight / size.y;
+                model.scale.setScalar(scale);
+                
+                // Center and place on ground
+                const center = box.getCenter(new THREE.Vector3());
+                model.position.x = -center.x * scale;
+                model.position.z = -center.z * scale;
+                model.position.y = -box.min.y * scale; // Place feet on ground
+                
+                // Enable shadows and improve materials
+                model.traverse((child) => {
+                    if (child.isMesh) {
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+                        
+                        // Enhance material
+                        if (child.material) {
+                            child.material.roughness = Math.max(child.material.roughness, 0.4);
+                            child.material.metalness = Math.min(child.material.metalness, 0.1);
+                            
+                            // Add subtle SSS effect
+                            if (child.material.color) {
+                                const color = child.material.color;
+                                // Slightly warm up skin tones
+                                if (color.r > 0.5 && color.g > 0.3 && color.b > 0.2) {
+                                    color.r = Math.min(color.r * 1.1, 1);
+                                    color.g = Math.min(color.g * 0.95, 1);
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                targetGroup.add(model);
+                
+                if (isTom) {
+                    tomModel = model;
+                    // Tom on left, facing right
+                    targetGroup.position.set(-2.5, 0, 0);
+                    targetGroup.rotation.y = Math.PI / 8;
+                } else {
+                    jerryModel = model;
+                    // Jerry on right, facing left
+                    targetGroup.position.set(2.5, 0, 0);
+                    targetGroup.rotation.y = -Math.PI / 8;
+                }
+                
+                console.log(`Loaded ${isTom ? 'Tom' : 'Jerry'}: height=${size.y.toFixed(2)}, scale=${scale.toFixed(2)}`);
+                
+            }, undefined, (error) => {
+                console.error(`Failed to load ${isTom ? 'Tom' : 'Jerry'}:`, error);
             });
-            const body = new THREE.Mesh(bodyGeo, bodyMat);
-            body.position.y = 0.8;
-            body.castShadow = true;
-            body.receiveShadow = true;
-            group.add(body);
-
-            // Head - larger, cute proportions
-            const headGeo = new THREE.SphereGeometry(0.5, 32, 32);
-            const headMat = new THREE.MeshPhysicalMaterial({
-                color: 0xffe4d6,
-                roughness: 0.3,
-                metalness: 0
-            });
-            const head = new THREE.Mesh(headGeo, headMat);
-            head.position.y = 1.8;
-            head.castShadow = true;
-            head.receiveShadow = true;
-            group.add(head);
-
-            // Eyes - big with glint
-            const eyeGeo = new THREE.SphereGeometry(0.12, 16, 16);
-            const eyeMat = new THREE.MeshPhysicalMaterial({
-                color: 0x2c3e50,
-                roughness: 0.1,
-                metalness: 0.1
-            });
-            
-            const leftEye = new THREE.Mesh(eyeGeo, eyeMat);
-            leftEye.position.set(-0.15, 1.85, 0.4);
-            group.add(leftEye);
-            
-            const rightEye = new THREE.Mesh(eyeGeo, eyeMat);
-            rightEye.position.set(0.15, 1.85, 0.4);
-            group.add(rightEye);
-
-            // Eye glints
-            const glintGeo = new THREE.SphereGeometry(0.03, 8, 8);
-            const glintMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-            
-            const leftGlint = new THREE.Mesh(glintGeo, glintMat);
-            leftGlint.position.set(-0.12, 1.88, 0.48);
-            group.add(leftGlint);
-            
-            const rightGlint = new THREE.Mesh(glintGeo, glintMat);
-            rightGlint.position.set(0.18, 1.88, 0.48);
-            group.add(rightGlint);
-
-            // Soft hair (simplified as hemisphere)
-            const hairGeo = new THREE.SphereGeometry(0.52, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2);
-            const hairMat = new THREE.MeshPhysicalMaterial({
-                color: isTom ? 0x3d2314 : 0x8b4513,
-                roughness: 0.6,
-                metalness: 0.1
-            });
-            const hair = new THREE.Mesh(hairGeo, hairMat);
-            hair.position.y = 1.8;
-            group.add(hair);
-
-            return group;
         }
 
-        // Create placeholder characters initially
-        const tomPlaceholder = createPlaceholderCharacter(0x4a90e2, true);
-        tomGroup.add(tomPlaceholder);
-        tomModel = tomPlaceholder;
+        // Load models
+        loadCharacter(
+            'https://streetfootball1v1.github.io/valentines/models/Tom.glb',
+            tomGroup,
+            true
+        );
         
-        tomGroup.position.set(-4, 0, 0);
-        tomGroup.rotation.y = Math.PI / 6;
-        scene.add(tomGroup);
+        loadCharacter(
+            'https://streetfootball1v1.github.io/valentines/models/DJerry.glb',
+            jerryGroup,
+            false
+        );
 
-        const jerryPlaceholder = createPlaceholderCharacter(0xe91e63, false);
-        jerryGroup.add(jerryPlaceholder);
-        jerryModel = jerryPlaceholder;
-        
-        jerryGroup.position.set(4, 0, 0);
-        jerryGroup.rotation.y = -Math.PI / 6;
+        scene.add(tomGroup);
         scene.add(jerryGroup);
 
-        // Frozen raindrops particles
-        const rainCount = 200;
-        const rainGeo = new THREE.BufferGeometry();
-        const rainPositions = new Float32Array(rainCount * 3);
-        const rainVelocities = [];
+        // Particles - romantic dust
+        const particleCount = 300;
+        const particleGeo = new THREE.BufferGeometry();
+        const particlePositions = new Float32Array(particleCount * 3);
+        const particleSpeeds = [];
 
-        for (let i = 0; i < rainCount; i++) {
-            rainPositions[i * 3] = (Math.random() - 0.5) * 20;
-            rainPositions[i * 3 + 1] = Math.random() * 10;
-            rainPositions[i * 3 + 2] = (Math.random() - 0.5) * 10;
-            rainVelocities.push({
-                y: -0.02 - Math.random() * 0.03,
-                x: (Math.random() - 0.5) * 0.01,
-                z: (Math.random() - 0.5) * 0.01
+        for (let i = 0; i < particleCount; i++) {
+            particlePositions[i * 3] = (Math.random() - 0.5) * 15;
+            particlePositions[i * 3 + 1] = Math.random() * 8;
+            particlePositions[i * 3 + 2] = (Math.random() - 0.5) * 10 - 2;
+            particleSpeeds.push({
+                y: 0.002 + Math.random() * 0.005,
+                x: (Math.random() - 0.5) * 0.002,
+                z: (Math.random() - 0.5) * 0.002
             });
         }
 
-        rainGeo.setAttribute('position', new THREE.BufferAttribute(rainPositions, 3));
+        particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
         
-        const rainMat = new THREE.PointsMaterial({
-            color: 0xffffff,
-            size: 0.05,
+        const particleMat = new THREE.PointsMaterial({
+            color: 0xffb6c1,
+            size: 0.08,
             transparent: true,
             opacity: 0.6,
-            blending: THREE.AdditiveBlending
+            blending: THREE.AdditiveBlending,
+            sizeAttenuation: true
         });
 
-        const rainSystem = new THREE.Points(rainGeo, rainMat);
-        rainSystem.visible = false;
-        scene.add(rainSystem);
+        const particles = new THREE.Points(particleGeo, particleMat);
+        scene.add(particles);
 
-        // Ground plane (invisible shadow catcher)
+        // Ground - subtle reflection
         const groundGeo = new THREE.PlaneGeometry(50, 50);
-        const groundMat = new THREE.ShadowMaterial({ opacity: 0.1 });
+        const groundMat = new THREE.MeshStandardMaterial({ 
+            color: 0x0f050f,
+            roughness: 0.1,
+            metalness: 0.5
+        });
         const ground = new THREE.Mesh(groundGeo, groundMat);
         ground.rotation.x = -Math.PI / 2;
         ground.position.y = 0;
@@ -414,305 +401,131 @@
         let scrollProgress = 0;
         let targetScrollProgress = 0;
         const sections = document.querySelectorAll('.scene-section');
-        const textOverlays = document.querySelectorAll('.text-overlay');
 
-        // Smooth scroll handling
         window.addEventListener('scroll', () => {
             const maxScroll = document.body.scrollHeight - window.innerHeight;
-            targetScrollProgress = window.scrollY / maxScroll;
+            targetScrollProgress = Math.max(0, Math.min(1, window.scrollY / maxScroll));
         });
 
-        // Intersection Observer for text animations
-        const observerOptions = {
-            threshold: 0.5,
-            rootMargin: '0px'
-        };
-
+        // Text animations
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
+                const overlay = entry.target.querySelector('.text-overlay');
                 if (entry.isIntersecting) {
-                    entry.target.querySelector('.text-overlay').classList.add('visible');
+                    overlay.classList.add('visible');
                 } else {
-                    entry.target.querySelector('.text-overlay').classList.remove('visible');
+                    overlay.classList.remove('visible');
                 }
             });
-        }, observerOptions);
+        }, { threshold: 0.5 });
 
         sections.forEach(section => observer.observe(section));
 
-        // Animation variables
+        // Animation
         const clock = new THREE.Clock();
         let time = 0;
 
-        // Character idle animation offsets
-        const tomOffset = Math.random() * 100;
-        const jerryOffset = Math.random() * 100;
-
-        // Function to find bones in loaded model
-        function findBones(model, boneNames) {
-            const bones = {};
-            model.traverse((child) => {
-                if (child.isBone || child.type === 'Bone') {
-                    const name = child.name.toLowerCase();
-                    if (name.includes('head') || name.includes('neck')) bones.head = child;
-                    if (name.includes('spine') || name.includes('chest') || name.includes('torso')) bones.spine = child;
-                    if (name.includes('hand') || name.includes('arm')) {
-                        if (name.includes('left')) bones.leftHand = child;
-                        if (name.includes('right')) bones.rightHand = child;
-                    }
-                    if (name.includes('root') || name.includes('hips') || name.includes('pelvis')) bones.root = child;
-                }
-            });
-            return bones;
-        }
-
-        // Load glTF models
-        const loader = new GLTFLoader();
-        
-        // Function to load character with proper setup
-        function loadCharacter(url, targetGroup, placeholder, isTom) {
-            loader.load(url, (gltf) => {
-                const model = gltf.scene;
-                
-                // Remove placeholder from group
-                targetGroup.remove(placeholder);
-                
-                // Auto-scale model to fit scene (normalize size)
-                const box = new THREE.Box3().setFromObject(model);
-                const size = box.getSize(new THREE.Vector3());
-                const maxDim = Math.max(size.x, size.y, size.z);
-                const scale = 2 / maxDim; // Normalize to ~2 units height
-                model.scale.setScalar(scale);
-                
-                // Center the model
-                const center = box.getCenter(new THREE.Vector3());
-                model.position.sub(center.multiplyScalar(scale));
-                model.position.y += 1; // Lift to stand on ground
-                
-                // Enable shadows
-                model.traverse((child) => {
-                    if (child.isMesh) {
-                        child.castShadow = true;
-                        child.receiveShadow = true;
-                        if (child.material) {
-                            child.material.roughness = Math.max(child.material.roughness || 0.5, 0.3);
-                        }
-                    }
-                });
-                
-                // Add to group
-                targetGroup.add(model);
-                
-                // Find bones for animation
-                const bones = findBones(model);
-                console.log(`${isTom ? 'Tom' : 'Jerry'} bones found:`, bones);
-                
-                // Store reference
-                if (isTom) {
-                    tomModel = model;
-                    tomBones = bones;
-                    // Setup animation mixer if animations exist
-                    if (gltf.animations && gltf.animations.length > 0) {
-                        tomMixer = new THREE.AnimationMixer(model);
-                        gltf.animations.forEach((clip) => {
-                            tomMixer.clipAction(clip).play();
-                        });
-                        console.log('Tom has built-in animations:', gltf.animations.length);
-                    } else {
-                        console.log('Tom has no built-in animations, using procedural');
-                    }
-                } else {
-                    jerryModel = model;
-                    jerryBones = bones;
-                    if (gltf.animations && gltf.animations.length > 0) {
-                        jerryMixer = new THREE.AnimationMixer(model);
-                        gltf.animations.forEach((clip) => {
-                            jerryMixer.clipAction(clip).play();
-                        });
-                        console.log('Jerry has built-in animations:', gltf.animations.length);
-                    } else {
-                        console.log('Jerry has no built-in animations, using procedural');
-                    }
-                }
-                
-                console.log(`Loaded ${isTom ? 'Tom' : 'Jerry'} successfully`);
-                
-            }, 
-            (progress) => {
-                console.log(`${isTom ? 'Tom' : 'Jerry'} loading:`, (progress.loaded / progress.total * 100) + '%');
-            },
-            (error) => {
-                console.error(`Failed to load ${isTom ? 'Tom' : 'Jerry'}:`, error);
-                // Keep placeholder on error
-            });
-        }
-
-        // ЗАГРУЗКА МОДЕЛЕЙ С ПРАВИЛЬНЫМИ ИМЕНАМИ ФАЙЛОВ
-        loadCharacter(
-            'https://streetfootball1v1.github.io/valentines/models/Tom.glb',
-            tomGroup,
-            tomPlaceholder,
-            true
-        );
-        
-        loadCharacter(
-            'https://streetfootball1v1.github.io/valentines/models/DJerry.glb',
-            jerryGroup,
-            jerryPlaceholder,
-            false
-        );
-
-        // Hide loading screen after timeout
         setTimeout(() => {
             document.getElementById('loading').classList.add('hidden');
-        }, 3000);
+        }, 2000);
 
-        // Procedural animation function
-        function animateCharacter(model, bones, time, offset, isTom, phase) {
-            if (!model) return;
-            
-            // Breathing animation (scale Y slightly)
-            const breath = Math.sin(time * 2 + offset) * 0.02;
-            model.scale.y = 2 / Math.max(
-                new THREE.Box3().setFromObject(model).getSize(new THREE.Vector3()).y, 
-                1
-            ) + breath * 0.1;
-            
-            // Gentle floating/bobbing
-            model.position.y = 1 + Math.sin(time * 1.5 + offset) * 0.03;
-            
-            // Swaying rotation
-            model.rotation.z = Math.sin(time * 0.8 + offset) * 0.02;
-            
-            // Head looking at each other when close
-            if (bones.head && phase > 0.5) {
-                const lookAmount = (phase - 0.5) * 2; // 0 to 1
-                const targetRotation = isTom ? 0.3 : -0.3;
-                bones.head.rotation.y = THREE.MathUtils.lerp(0, targetRotation, lookAmount);
-                bones.head.rotation.x = Math.sin(time * 2 + offset) * 0.05; // Subtle nod
-            }
-            
-            // Spine breathing
-            if (bones.spine) {
-                bones.spine.rotation.x = Math.sin(time * 2 + offset) * 0.02;
-            }
-            
-            // Hand gestures (subtle)
-            if (bones.leftHand) {
-                bones.leftHand.rotation.z = Math.sin(time * 1.2 + offset) * 0.1;
-            }
-            if (bones.rightHand) {
-                bones.rightHand.rotation.z = Math.cos(time * 1.3 + offset) * 0.1;
-            }
-        }
-
-        // Main animation loop
         function animate() {
             requestAnimationFrame(animate);
             
             const delta = clock.getDelta();
             time += delta;
 
-            // Update animation mixers (if models have built-in animations)
-            if (tomMixer) tomMixer.update(delta);
-            if (jerryMixer) jerryMixer.update(delta);
+            // Smooth scroll
+            scrollProgress += (targetScrollProgress - scrollProgress) * 0.03;
 
-            // Smooth scroll interpolation
-            scrollProgress += (targetScrollProgress - scrollProgress) * 0.05;
+            // Scene phases
+            const phase = scrollProgress * 3; // 0 to 3
 
-            // Scene phases based on scroll
-            const phase = Math.min(scrollProgress * 3, 2.5);
+            // Character movement - approach each other
+            const startDist = 3.5;
+            const endDist = 0.6;
+            const currentDist = THREE.MathUtils.lerp(startDist, endDist, Math.min(phase / 2.5, 1));
             
-            // Character positions based on scroll
-            const startDistance = 4;
-            const endDistance = 0.8;
-            const currentDistance = THREE.MathUtils.lerp(startDistance, endDistance, Math.min(phase / 2, 1));
-            
-            tomGroup.position.x = -currentDistance;
-            jerryGroup.position.x = currentDistance;
-            
-            // Rotation - turn to face each other more as they get closer
-            const lookAngle = THREE.MathUtils.lerp(Math.PI / 6, Math.PI / 2.5, Math.min(phase / 2, 1));
-            tomGroup.rotation.y = lookAngle;
-            jerryGroup.rotation.y = -lookAngle;
-
-            // Camera movement - cinematic drift and zoom
-            const zoomLevel = THREE.MathUtils.lerp(8, 3.5, Math.min(phase / 2, 1));
-            camera.position.z = zoomLevel + Math.sin(time * 0.3) * 0.1;
-            
-            // Camera orbit at climax
-            if (phase > 2) {
-                const orbitAngle = (phase - 2) * Math.PI * 0.5;
-                camera.position.x = Math.sin(orbitAngle) * 2;
-                camera.position.y = 1.5 + Math.cos(orbitAngle) * 0.5;
-                camera.lookAt(0, 1, 0);
-            } else {
-                camera.position.x = Math.sin(time * 0.2) * 0.3;
-                camera.position.y = 1.5 + Math.cos(time * 0.15) * 0.1;
-                camera.lookAt(0, 1.2, 0);
+            if (tomGroup && jerryGroup) {
+                tomGroup.position.x = -currentDist;
+                jerryGroup.position.x = currentDist;
+                
+                // Rotate to face each other more as they get closer
+                const baseAngle = Math.PI / 8;
+                const closeAngle = Math.PI / 2.2;
+                const angle = THREE.MathUtils.lerp(baseAngle, closeAngle, Math.min(phase / 2.5, 1));
+                
+                tomGroup.rotation.y = angle;
+                jerryGroup.rotation.y = -angle;
+                
+                // Subtle breathing animation
+                const breath = Math.sin(time * 1.5) * 0.015;
+                tomGroup.position.y = breath;
+                jerryGroup.position.y = Math.sin(time * 1.5 + 1) * 0.015;
+                
+                // Sway
+                tomGroup.rotation.z = Math.sin(time * 0.5) * 0.01;
+                jerryGroup.rotation.z = Math.sin(time * 0.5 + 2) * 0.01;
             }
 
-            // Lighting evolution - warmer as they get closer
-            const warmth = Math.min(phase / 2, 1);
-            keyLight.color.setHSL(0.08, 0.5 + warmth * 0.3, 0.94);
-            keyLight.intensity = 80 + warmth * 40;
+            // Camera - dramatic movement
+            const baseZ = 6;
+            const closeZ = 2.5;
+            const zoom = THREE.MathUtils.lerp(baseZ, closeZ, Math.min(phase / 2.5, 1));
             
-            // Rim light intensifies
-            rimLight.intensity = 60 + warmth * 60;
+            camera.position.z = zoom + Math.sin(time * 0.3) * 0.05;
+            camera.position.y = 1.2 + Math.sin(time * 0.2) * 0.03;
+            
+            // Orbit at climax
+            if (phase > 2.2) {
+                const orbitProgress = (phase - 2.2) / 0.8;
+                camera.position.x = Math.sin(orbitProgress * Math.PI * 0.3) * 1.5;
+                camera.lookAt(0, 1.3, 0);
+            } else {
+                camera.position.x = Math.sin(time * 0.1) * 0.2;
+                camera.lookAt(0, 1.1, 0);
+            }
+
+            // Lighting evolution
+            const warmth = Math.min(phase / 2.5, 1);
+            
+            // Key light warms up
+            keyLight.color.setHSL(0.08 + warmth * 0.02, 0.6, 0.85);
+            keyLight.intensity = 80 + warmth * 60;
+            
+            // Rim light intensifies and shifts to pink
+            rimLight.color.setHSL(0.9 - warmth * 0.1, 0.8, 0.7);
+            rimLight.intensity = 60 + warmth * 100;
             
             // Fill becomes warmer
-            fillLight.color.setHSL(0.6 - warmth * 0.1, 0.3, 0.95);
+            fillLight.color.setHSL(0.7 - warmth * 0.2, 0.5, 0.6);
+            fillLight.intensity = 3 + warmth * 2;
 
-            // Procedural animations for loaded models
-            if (tomModel && tomModel !== tomPlaceholder) {
-                animateCharacter(tomModel, tomBones, time, tomOffset, true, phase);
-            } else if (!tomMixer && tomModel === tomPlaceholder) {
-                // Idle animations for placeholder
-                const tomBreath = Math.sin(time * 2 + tomOffset) * 0.02;
-                tomGroup.position.y = tomBreath;
-                tomGroup.rotation.z = Math.sin(time * 1.5 + tomOffset) * 0.02;
-            }
-            
-            if (jerryModel && jerryModel !== jerryPlaceholder) {
-                animateCharacter(jerryModel, jerryBones, time, jerryOffset, false, phase);
-            } else if (!jerryMixer && jerryModel === jerryPlaceholder) {
-                // Idle animations for placeholder
-                const jerryBreath = Math.sin(time * 2.3 + jerryOffset) * 0.02;
-                jerryGroup.position.y = jerryBreath;
-                jerryGroup.rotation.z = Math.sin(time * 1.7 + jerryOffset) * 0.02;
-            }
+            // Bloom intensifies
+            bloomPass.strength = 0.4 + warmth * 0.4;
 
-            // Rain activation at climax
-            if (phase > 1.5) {
-                rainSystem.visible = true;
-                const positions = rainSystem.geometry.attributes.position.array;
+            // Particles
+            const positions = particles.geometry.attributes.position.array;
+            for (let i = 0; i < particleCount; i++) {
+                positions[i * 3 + 1] += particleSpeeds[i].y;
+                positions[i * 3] += particleSpeeds[i].x + Math.sin(time + i) * 0.001;
                 
-                for (let i = 0; i < rainCount; i++) {
-                    positions[i * 3] += rainVelocities[i].x;
-                    positions[i * 3 + 1] += rainVelocities[i].y;
-                    positions[i * 3 + 2] += rainVelocities[i].z;
-                    
-                    if (positions[i * 3 + 1] < 0) {
-                        positions[i * 3 + 1] = 10;
-                        positions[i * 3] = (Math.random() - 0.5) * 20;
-                        positions[i * 3 + 2] = (Math.random() - 0.5) * 10;
-                    }
+                if (positions[i * 3 + 1] > 8) {
+                    positions[i * 3 + 1] = 0;
                 }
-                rainSystem.geometry.attributes.position.needsUpdate = true;
-                
-                bloomPass.strength = 0.3 + (phase - 1.5) * 0.4;
-            } else {
-                rainSystem.visible = false;
-                bloomPass.strength = 0.3;
             }
-
-            // Fog density changes with emotion
-            scene.fog.density = 0.02 - (warmth * 0.015);
+            particles.geometry.attributes.position.needsUpdate = true;
+            
+            // Particles gather between characters at climax
+            if (phase > 1.5) {
+                const gatherStrength = (phase - 1.5) / 1.5;
+                particles.material.opacity = 0.6 + gatherStrength * 0.4;
+                particles.material.size = 0.08 + gatherStrength * 0.05;
+            }
 
             composer.render();
         }
 
-        // Handle resize
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
