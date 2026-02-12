@@ -3,8 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Almost 4 Years — Our Story</title>
+    <title>Our Story — A Cinematic Experience</title>
     <style>
+        :root {
+            --primary: #ff2a6d;
+            --secondary: #05d9e8;
+            --dark: #01012b;
+            --light: #d1f7ff;
+            --gold: #ffd700;
+        }
+        
         * {
             margin: 0;
             padding: 0;
@@ -12,9 +20,11 @@
         }
         
         body {
-            font-family: 'Cormorant Garamond', serif;
+            font-family: 'Cormorant Garamond', 'Playfair Display', serif;
+            background: var(--dark);
+            color: var(--light);
             overflow: hidden;
-            background: #000;
+            cursor: none;
         }
         
         #canvas-container {
@@ -26,255 +36,265 @@
             z-index: 1;
         }
         
-        /* Cinematic black bars */
-        .cinematic-bars {
+        /* Cinematic UI */
+        .cinematic-frame {
+            position: fixed;
+            pointer-events: none;
+            z-index: 100;
+        }
+        
+        .vignette {
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.8) 100%);
+            opacity: 0.6;
+        }
+        
+        .grain {
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            opacity: 0.03;
+            animation: grain 0.5s steps(10) infinite;
+        }
+        
+        @keyframes grain {
+            0%, 100% { transform: translate(0, 0); }
+            10% { transform: translate(-2%, -2%); }
+            20% { transform: translate(2%, 2%); }
+            30% { transform: translate(-1%, 1%); }
+            40% { transform: translate(1%, -1%); }
+            50% { transform: translate(-2%, 2%); }
+            60% { transform: translate(2%, -2%); }
+            70% { transform: translate(-1%, -1%); }
+            80% { transform: translate(1%, 1%); }
+            90% { transform: translate(-2%, -1%); }
+        }
+        
+        .letterbox {
             position: fixed;
             left: 0;
             width: 100%;
-            height: 60px;
+            height: 12vh;
             background: #000;
-            z-index: 100;
-            transition: transform 1s ease;
+            z-index: 90;
+            transition: transform 1.2s cubic-bezier(0.77, 0, 0.175, 1);
         }
         
-        .cinematic-bars.top { top: 0; }
-        .cinematic-bars.bottom { bottom: 0; }
+        .letterbox.top { top: 0; transform: translateY(-100%); }
+        .letterbox.bottom { bottom: 0; transform: translateY(100%); }
         
-        .cinematic-bars.hidden {
-            transform: scaleY(0);
+        .letterbox.active {
+            transform: translateY(0);
         }
         
-        .scroll-container {
-            position: relative;
-            z-index: 10;
-            height: 400vh;
-        }
-        
-        .scene-section {
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-        
-        .text-overlay {
+        /* Text System */
+        .subtitle-container {
+            position: fixed;
+            bottom: 15vh;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 80;
             text-align: center;
-            color: #fff;
             opacity: 0;
-            transform: scale(0.9) translateY(50px);
-            transition: all 1.5s cubic-bezier(0.23, 1, 0.32, 1);
-            pointer-events: none;
-            max-width: 800px;
-            padding: 2rem;
+            transition: opacity 1s;
         }
         
-        .text-overlay.visible {
+        .subtitle-container.visible {
             opacity: 1;
-            transform: scale(1) translateY(0);
         }
         
-        .text-overlay h1 {
-            font-size: clamp(3rem, 8vw, 6rem);
-            font-weight: 300;
-            letter-spacing: 0.3em;
-            margin-bottom: 1rem;
-            text-shadow: 0 0 40px rgba(255, 100, 150, 0.5);
-            overflow: hidden;
-        }
-        
-        .text-overlay h1 span {
-            display: inline-block;
-            opacity: 0;
-            transform: translateY(100%);
-            animation: revealText 0.8s forwards;
-        }
-        
-        @keyframes revealText {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .text-overlay h2 {
-            font-size: clamp(2rem, 5vw, 4rem);
-            font-weight: 300;
-            letter-spacing: 0.2em;
-            color: #ffb6c1;
-            text-shadow: 0 0 30px rgba(255, 182, 193, 0.6);
-        }
-        
-        .text-overlay p {
+        .subtitle {
             font-size: clamp(1.5rem, 3vw, 2.5rem);
             font-weight: 300;
-            letter-spacing: 0.15em;
-            margin-top: 2rem;
-            font-style: italic;
-            color: #fff0f5;
+            letter-spacing: 0.2em;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.8);
+            margin-bottom: 0.5rem;
         }
         
-        .heart-divider {
-            width: 0;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, #ff69b4, transparent);
-            margin: 2rem auto;
-            transition: width 1.5s ease;
+        .subtitle-russian {
+            font-size: clamp(2rem, 4vw, 3.5rem);
+            color: var(--primary);
+            text-shadow: 0 0 30px var(--primary);
         }
         
-        .text-overlay.visible .heart-divider {
-            width: 200px;
-        }
-        
-        /* Progress bar */
-        .scroll-progress {
+        /* Interactive cursor */
+        .cursor {
             position: fixed;
-            bottom: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 200px;
-            height: 2px;
-            background: rgba(255, 255, 255, 0.2);
-            z-index: 50;
-            border-radius: 2px;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1000;
+            transition: transform 0.1s, opacity 0.3s;
+            mix-blend-mode: difference;
         }
         
-        .scroll-progress-bar {
+        .cursor.hover {
+            transform: scale(2);
+            background: var(--primary);
+        }
+        
+        /* Progress */
+        .timeline {
+            position: fixed;
+            bottom: 5vh;
+            left: 10%;
+            width: 80%;
+            height: 2px;
+            background: rgba(255,255,255,0.1);
+            z-index: 80;
+            opacity: 0;
+            transition: opacity 1s;
+        }
+        
+        .timeline.visible {
+            opacity: 1;
+        }
+        
+        .timeline-progress {
             height: 100%;
-            background: linear-gradient(90deg, #ff69b4, #ffb6c1);
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
             width: 0%;
-            transition: width 0.1s;
-            box-shadow: 0 0 10px #ff69b4;
+            box-shadow: 0 0 10px var(--primary);
+            transition: width 0.1s linear;
         }
         
-        /* Skip hint */
-        .skip-hint {
-            position: fixed;
-            bottom: 100px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 0.9rem;
-            letter-spacing: 0.3em;
-            z-index: 50;
-            animation: bounce 2s infinite;
-        }
-        
-        @keyframes bounce {
-            0%, 100% { transform: translateX(-50%) translateY(0); }
-            50% { transform: translateX(-50%) translateY(-10px); }
-        }
-        
-        #loading {
+        /* Start overlay */
+        #start-screen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: #000;
+            background: var(--dark);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            z-index: 1000;
-            transition: opacity 2s ease;
+            z-index: 2000;
+            transition: opacity 1.5s, visibility 1.5s;
         }
         
-        .loading-heart {
-            width: 60px;
-            height: 60px;
-            background: #ff69b4;
+        #start-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+        
+        .start-heart {
+            width: 80px;
+            height: 80px;
+            background: var(--primary);
             position: relative;
             transform: rotate(-45deg);
-            animation: heartbeat 1.5s ease infinite;
-            box-shadow: 0 0 60px #ff69b4;
+            animation: heartbeat 2s ease infinite;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
         }
         
-        .loading-heart::before,
-        .loading-heart::after {
+        .start-heart:hover {
+            transform: rotate(-45deg) scale(1.2);
+            box-shadow: 0 0 60px var(--primary);
+        }
+        
+        .start-heart::before,
+        .start-heart::after {
             content: '';
-            width: 60px;
-            height: 60px;
+            width: 80px;
+            height: 80px;
             position: absolute;
-            background: #ff69b4;
+            background: var(--primary);
             border-radius: 50%;
         }
         
-        .loading-heart::before { top: -30px; left: 0; }
-        .loading-heart::after { left: 30px; top: 0; }
+        .start-heart::before { top: -40px; left: 0; }
+        .start-heart::after { left: 40px; top: 0; }
         
         @keyframes heartbeat {
             0%, 100% { transform: rotate(-45deg) scale(1); }
-            50% { transform: rotate(-45deg) scale(1.1); }
+            25% { transform: rotate(-45deg) scale(1.1); }
+            50% { transform: rotate(-45deg) scale(1); }
+            75% { transform: rotate(-45deg) scale(1.05); }
         }
         
-        .loading-text {
+        .start-text {
             margin-top: 60px;
-            color: #ffb6c1;
             font-size: 1.2rem;
             letter-spacing: 0.5em;
+            color: var(--light);
+            opacity: 0.7;
         }
         
-        .hidden {
+        /* Final title */
+        .final-title {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 70;
+            text-align: center;
             opacity: 0;
             pointer-events: none;
+            transition: opacity 2s;
+        }
+        
+        .final-title.visible {
+            opacity: 1;
+        }
+        
+        .final-title h1 {
+            font-size: clamp(4rem, 10vw, 8rem);
+            font-weight: 300;
+            letter-spacing: 0.3em;
+            color: var(--gold);
+            text-shadow: 0 0 60px var(--gold);
+            margin-bottom: 1rem;
+        }
+        
+        .final-title p {
+            font-size: clamp(1.5rem, 3vw, 2rem);
+            letter-spacing: 0.2em;
+            color: var(--light);
         }
     </style>
 </head>
 <body>
 
-    <div id="loading">
-        <div class="loading-heart"></div>
-        <div class="loading-text">LOADING OUR STORY</div>
+    <div id="start-screen">
+        <div class="start-heart" onclick="startExperience()"></div>
+        <div class="start-text">CLICK TO BEGIN OUR STORY</div>
     </div>
 
-    <div class="cinematic-bars top"></div>
-    <div class="cinematic-bars bottom"></div>
+    <div class="cinematic-frame vignette"></div>
+    <div class="cinematic-frame grain"></div>
+    
+    <div class="letterbox top" id="letterboxTop"></div>
+    <div class="letterbox bottom" id="letterboxBottom"></div>
 
     <div id="canvas-container"></div>
 
-    <div class="scroll-progress">
-        <div class="scroll-progress-bar" id="progressBar"></div>
-    </div>
-    
-    <div class="skip-hint">SCROLL TO BEGIN</div>
-
-    <div class="scroll-container">
-        <section class="scene-section" data-scene="0">
-            <div class="text-overlay">
-                <h1 id="title1">Почти 4 года…</h1>
-                <div class="heart-divider"></div>
-                <p>Every moment led us here</p>
-            </div>
-        </section>
-
-        <section class="scene-section" data-scene="1">
-            <div class="text-overlay">
-                <h2>Through distance</h2>
-                <h2>and time</h2>
-                <div class="heart-divider"></div>
-                <p>Our hearts found their way</p>
-            </div>
-        </section>
-
-        <section class="scene-section" data-scene="2">
-            <div class="text-overlay">
-                <h2>И я до сих пор…</h2>
-                <div class="heart-divider"></div>
-                <p>With every beat of my heart</p>
-            </div>
-        </section>
-
-        <section class="scene-section" data-scene="3">
-            <div class="text-overlay">
-                <h1 id="titleFinal">выбираю тебя.</h1>
-                <div class="heart-divider"></div>
-                <p>Today. Tomorrow. Always.</p>
-            </div>
-        </section>
+    <div class="subtitle-container" id="subtitles">
+        <div class="subtitle" id="subtitleEng"></div>
+        <div class="subtitle-russian" id="subtitleRus"></div>
     </div>
 
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&display=swap" rel="stylesheet">
+    <div class="timeline" id="timeline">
+        <div class="timeline-progress" id="timelineProgress"></div>
+    </div>
+
+    <div class="final-title" id="finalTitle">
+        <h1>выбираю тебя</h1>
+        <p>Always. Forever.</p>
+    </div>
+
+    <div class="cursor" id="cursor"></div>
+
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Playfair+Display:wght@300;400&display=swap" rel="stylesheet">
 
     <script type="importmap">
         {
@@ -291,152 +311,150 @@
         import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
         import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
         import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+        import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
 
-        // SCENE SETUP - Cinematic dark
+        // SCENARIO - Cinematic beats
+        const SCENARIO = [
+            { time: 0,    eng: "", rus: "", camera: "wide", action: "idle" },
+            { time: 3,    eng: "Almost 4 years...", rus: "Почти 4 года…", camera: "dolly_in", action: "notice" },
+            { time: 8,    eng: "Through every moment", rus: "Через каждое мгновение", camera: "orbit", action: "turn" },
+            { time: 13,   eng: "We found our way", rus: "Мы нашли свой путь", camera: "close", action: "walk" },
+            { time: 18,   eng: "And I still...", rus: "И я до сих пор…", camera: "intimate", action: "reach" },
+            { time: 23,   eng: "", rus: "выбираю тебя", camera: "climax", action: "embrace" }
+        ];
+
+        let currentBeat = 0;
+        let sceneTime = 0;
+        let isPlaying = false;
+
+        // THREE SETUP
         const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x050205, 0.15);
-        scene.background = new THREE.Color(0x050205);
+        scene.fog = new THREE.FogExp2(0x01012b, 0.08);
+        scene.background = new THREE.Color(0x01012b);
 
-        const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 100);
-        camera.position.set(0, 1.4, 8);
-
-        const renderer = new THREE.WebGLRenderer({ 
-            antialias: true,
-            powerPreference: "high-performance"
-        });
+        const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 100);
         
+        const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 0.9;
-        
+        renderer.toneMappingExposure = 0.8;
         document.getElementById('canvas-container').appendChild(renderer.domElement);
 
         // POST PROCESSING
         const composer = new EffectComposer(renderer);
         composer.addPass(new RenderPass(scene, camera));
-        
+
         const bloomPass = new UnrealBloomPass(
             new THREE.Vector2(window.innerWidth, window.innerHeight),
-            0.6, 0.8, 0.4
+            0.5, 0.6, 0.3
         );
         composer.addPass(bloomPass);
 
-        // CINEMATIC LIGHTING - Dramatic
-        const spotLight = new THREE.SpotLight(0xffd4e5, 200);
-        spotLight.position.set(0, 8, 5);
-        spotLight.angle = Math.PI / 6;
-        spotLight.penumbra = 0.8;
-        spotLight.castShadow = true;
-        spotLight.shadow.mapSize.set(4096, 4096);
-        spotLight.shadow.bias = -0.0001;
-        scene.add(spotLight);
+        // CINEMATIC LIGHTING - Three-point with drama
+        const keyLight = new THREE.SpotLight(0xffd4e5, 150);
+        keyLight.position.set(-3, 5, 4);
+        keyLight.angle = Math.PI / 8;
+        keyLight.penumbra = 0.7;
+        keyLight.castShadow = true;
+        keyLight.shadow.mapSize.set(4096, 4096);
+        keyLight.shadow.bias = -0.0001;
+        scene.add(keyLight);
 
-        const rimLight1 = new THREE.SpotLight(0xff69b4, 100);
-        rimLight1.position.set(-5, 3, -3);
-        scene.add(rimLight1);
+        const fillLight = new THREE.DirectionalLight(0x05d9e8, 20);
+        fillLight.position.set(4, 2, 2);
+        scene.add(fillLight);
 
-        const rimLight2 = new THREE.SpotLight(0x00bfff, 80);
-        rimLight2.position.set(5, 3, -3);
-        scene.add(rimLight2);
+        const backLight = new THREE.SpotLight(0xff2a6d, 100);
+        backLight.position.set(0, 4, -5);
+        backLight.lookAt(0, 0, 0);
+        scene.add(backLight);
 
-        const ambientLight = new THREE.AmbientLight(0x201020, 0.5);
+        const ambientLight = new THREE.AmbientLight(0x01012b, 0.3);
         scene.add(ambientLight);
 
         // CHARACTERS
         const tomGroup = new THREE.Group();
         const jerryGroup = new THREE.Group();
         let tomModel = null, jerryModel = null;
-        let modelsLoaded = 0;
+        let modelsReady = false;
 
-        // HEART PARTICLE SYSTEM
-        const heartShape = new THREE.Shape();
-        heartShape.moveTo(0, 0);
-        heartShape.bezierCurveTo(0, -0.3, -0.6, -0.3, -0.6, 0);
-        heartShape.bezierCurveTo(-0.6, 0.6, 0, 1.2, 0, 1.2);
-        heartShape.bezierCurveTo(0, 1.2, 0.6, 0.6, 0.6, 0);
-        heartShape.bezierCurveTo(0.6, -0.3, 0, -0.3, 0, 0);
-
-        const heartGeo = new THREE.ExtrudeGeometry(heartShape, {
-            depth: 0.1,
-            bevelEnabled: true,
-            bevelSegments: 2,
-            steps: 2,
-            bevelSize: 0.05,
-            bevelThickness: 0.05
+        // CONNECTION LINE (visual metaphor)
+        const curve = new THREE.CatmullRomCurve3([
+            new THREE.Vector3(-5, 1, 0),
+            new THREE.Vector3(0, 2, 0),
+            new THREE.Vector3(5, 1, 0)
+        ]);
+        
+        const connectionGeo = new THREE.TubeGeometry(curve, 64, 0.02, 8, false);
+        const connectionMat = new THREE.MeshBasicMaterial({
+            color: 0xff2a6d,
+            transparent: true,
+            opacity: 0
         });
+        const connectionLine = new THREE.Mesh(connectionGeo, connectionMat);
+        scene.add(connectionLine);
 
-        // GLOWING HEART between characters
-        const mainHeart = new THREE.Mesh(
-            heartGeo,
-            new THREE.MeshStandardMaterial({
-                color: 0xff1493,
-                emissive: 0xff0066,
-                emissiveIntensity: 2,
-                roughness: 0.2,
-                metalness: 0.8
-            })
-        );
-        mainHeart.scale.set(0.3, 0.3, 0.3);
-        mainHeart.position.set(0, 2, 0);
-        mainHeart.rotation.x = Math.PI;
-        mainHeart.visible = false;
-        scene.add(mainHeart);
-
-        // Heart particles
-        const particleCount = 100;
-        const heartParticles = new THREE.InstancedMesh(
-            heartGeo,
-            new THREE.MeshBasicMaterial({
-                color: 0xff69b4,
-                transparent: true,
-                opacity: 0.8
-            }),
+        // PARTICLES - Emotional atmosphere
+        const particleCount = 50;
+        const particles = new THREE.InstancedMesh(
+            new THREE.SphereGeometry(0.03, 8, 8),
+            new THREE.MeshBasicMaterial({ color: 0x05d9e8 }),
             particleCount
         );
         
-        const dummy = new THREE.Object3D();
         const particleData = [];
-        
         for (let i = 0; i < particleCount; i++) {
             particleData.push({
-                x: (Math.random() - 0.5) * 10,
-                y: Math.random() * 5,
-                z: (Math.random() - 0.5) * 5,
-                speed: 0.01 + Math.random() * 0.02,
-                scale: 0.05 + Math.random() * 0.1,
+                baseX: (Math.random() - 0.5) * 8,
+                baseY: 0.5 + Math.random() * 2,
+                baseZ: (Math.random() - 0.5) * 4,
+                speed: 0.2 + Math.random() * 0.3,
                 phase: Math.random() * Math.PI * 2
             });
         }
-        
-        scene.add(heartParticles);
+        scene.add(particles);
+
+        // GROUND - Reflective stage
+        const ground = new THREE.Mesh(
+            new THREE.PlaneGeometry(100, 100),
+            new THREE.MeshStandardMaterial({
+                color: 0x01012b,
+                roughness: 0.1,
+                metalness: 0.8
+            })
+        );
+        ground.rotation.x = -Math.PI / 2;
+        ground.receiveShadow = true;
+        scene.add(ground);
 
         // LOAD MODELS
         const loader = new GLTFLoader();
 
-        function loadModel(url, group, isTom) {
+        function loadCharacter(url, group, isTom) {
             loader.load(url, (gltf) => {
                 const model = gltf.scene;
                 
-                // Normalize scale
+                // Professional scaling
                 const box = new THREE.Box3().setFromObject(model);
-                const size = box.getSize(new THREE.Vector3());
-                const scale = 1.6 / size.y;
+                const height = box.max.y - box.min.y;
+                const scale = 1.7 / height;
                 model.scale.setScalar(scale);
                 
                 const center = box.getCenter(new THREE.Vector3());
-                model.position.sub(center.multiplyScalar(scale));
-                model.position.y -= box.min.y * scale;
+                model.position.x = -center.x * scale;
+                model.position.z = -center.z * scale;
+                model.position.y = -box.min.y * scale;
                 
-                // Enhance materials
+                // Cinematic materials
                 model.traverse((child) => {
                     if (child.isMesh) {
                         child.castShadow = true;
                         child.receiveShadow = true;
                         if (child.material) {
-                            child.material.roughness = 0.6;
+                            child.material.roughness = 0.5;
                             child.material.metalness = 0.1;
                         }
                     }
@@ -444,199 +462,223 @@
                 
                 group.add(model);
                 
-                if (isTom) {
-                    tomModel = model;
-                    group.position.set(-4, 0, 0);
-                } else {
-                    jerryModel = model;
-                    group.position.set(4, 0, 0);
-                }
+                if (isTom) tomModel = model;
+                else jerryModel = model;
                 
-                modelsLoaded++;
-                if (modelsLoaded === 2) {
-                    setTimeout(() => {
-                        document.getElementById('loading').classList.add('hidden');
-                        document.querySelectorAll('.cinematic-bars').forEach(b => b.classList.add('hidden'));
-                    }, 1000);
+                if (tomModel && jerryModel) {
+                    modelsReady = true;
+                    // Initial positions
+                    tomGroup.position.set(-5, 0, 0);
+                    jerryGroup.position.set(5, 0, 0);
+                    tomGroup.rotation.y = Math.PI / 2;
+                    jerryGroup.rotation.y = -Math.PI / 2;
                 }
             });
         }
 
-        loadModel(
-            'https://streetfootball1v1.github.io/valentines/models/Tom.glb',
-            tomGroup, true
-        );
-        loadModel(
-            'https://streetfootball1v1.github.io/valentines/models/DJerry.glb',
-            jerryGroup, false
-        );
+        loadCharacter('https://streetfootball1v1.github.io/valentines/models/Tom.glb', tomGroup, true);
+        loadCharacter('https://streetfootball1v1.github.io/valentines/models/DJerry.glb', jerryGroup, false);
 
         scene.add(tomGroup);
         scene.add(jerryGroup);
 
-        // GROUND - Reflective
-        const ground = new THREE.Mesh(
-            new THREE.PlaneGeometry(50, 50),
-            new THREE.MeshStandardMaterial({
-                color: 0x0a050a,
-                roughness: 0.05,
-                metalness: 0.9
-            })
-        );
-        ground.rotation.x = -Math.PI / 2;
-        ground.receiveShadow = true;
-        scene.add(ground);
+        // CINEMATIC CAMERA SYSTEM
+        const cameraStates = {
+            wide: { pos: new THREE.Vector3(0, 2, 12), lookAt: new THREE.Vector3(0, 1, 0), fov: 50 },
+            dolly_in: { pos: new THREE.Vector3(0, 1.5, 8), lookAt: new THREE.Vector3(0, 1.2, 0), fov: 40 },
+            orbit: { pos: new THREE.Vector3(6, 2, 6), lookAt: new THREE.Vector3(0, 1.2, 0), fov: 35 },
+            close: { pos: new THREE.Vector3(0, 1.3, 4), lookAt: new THREE.Vector3(0, 1.4, 0), fov: 30 },
+            intimate: { pos: new THREE.Vector3(2, 1.4, 3), lookAt: new THREE.Vector3(0, 1.5, 0), fov: 25 },
+            climax: { pos: new THREE.Vector3(0, 1.5, 2.5), lookAt: new THREE.Vector3(0, 1.6, 0), fov: 20 }
+        };
 
-        // SCROLL SYSTEM
-        let scrollProgress = 0;
-        let targetScroll = 0;
-        
-        window.addEventListener('scroll', () => {
-            const max = document.body.scrollHeight - window.innerHeight;
-            targetScroll = Math.max(0, Math.min(1, window.scrollY / max));
-        });
+        let currentCameraState = 'wide';
+        let cameraTransition = 0;
 
-        // Text animations with letter splitting
-        function splitText(element) {
-            const text = element.textContent;
-            element.innerHTML = '';
-            text.split('').forEach((char, i) => {
-                const span = document.createElement('span');
-                span.textContent = char === ' ' ? '\u00A0' : char;
-                span.style.animationDelay = `${i * 0.05}s`;
-                element.appendChild(span);
-            });
+        function updateCamera(delta) {
+            const target = cameraStates[currentCameraState];
+            cameraTransition = Math.min(cameraTransition + delta * 0.5, 1);
+            
+            // Smooth interpolation
+            camera.position.lerp(target.pos, 0.02);
+            
+            const currentLookAt = new THREE.Vector3(0, 1.2, 0);
+            currentLookAt.lerp(target.lookAt, 0.02);
+            camera.lookAt(currentLookAt);
+            
+            camera.fov = THREE.MathUtils.lerp(camera.fov, target.fov, 0.02);
+            camera.updateProjectionMatrix();
         }
 
-        document.querySelectorAll('h1, h2').forEach(el => splitText(el));
+        // ANIMATION SYSTEM
+        function animateCharacters(time, delta) {
+            if (!tomModel || !jerryModel) return;
 
-        // Intersection Observer
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.querySelector('.text-overlay').classList.add('visible');
-                }
+            const beat = SCENARIO[currentBeat] || SCENARIO[SCENARIO.length - 1];
+            
+            // Tom animation states
+            switch(beat.action) {
+                case 'idle':
+                    tomGroup.position.y = Math.sin(time) * 0.02;
+                    jerryGroup.position.y = Math.sin(time + 1) * 0.02;
+                    break;
+                    
+                case 'notice':
+                    // Turn to look at each other
+                    const turnProgress = Math.min((sceneTime - beat.time) / 3, 1);
+                    tomGroup.rotation.y = THREE.MathUtils.lerp(Math.PI / 2, Math.PI / 4, turnProgress);
+                    jerryGroup.rotation.y = THREE.MathUtils.lerp(-Math.PI / 2, -Math.PI / 4, turnProgress);
+                    break;
+                    
+                case 'walk':
+                    // Walk toward each other
+                    const walkProgress = Math.min((sceneTime - beat.time) / 5, 1);
+                    tomGroup.position.x = THREE.MathUtils.lerp(-5, -1.5, walkProgress);
+                    jerryGroup.position.x = THREE.MathUtils.lerp(5, 1.5, walkProgress);
+                    
+                    // Walking bob
+                    const bob = Math.abs(Math.sin(time * 8)) * 0.1;
+                    tomGroup.position.y = bob;
+                    jerryGroup.position.y = bob;
+                    break;
+                    
+                case 'reach':
+                    // Slow approach, hands reaching
+                    const reachProgress = Math.min((sceneTime - beat.time) / 3, 1);
+                    tomGroup.position.x = THREE.MathUtils.lerp(-1.5, -0.8, reachProgress);
+                    jerryGroup.position.x = THREE.MathUtils.lerp(1.5, 0.8, reachProgress);
+                    
+                    // Connection line appears
+                    connectionMat.opacity = reachProgress * 0.5;
+                    break;
+                    
+                case 'embrace':
+                    // Final embrace
+                    tomGroup.position.x = THREE.MathUtils.lerp(-0.8, -0.4, 0.1);
+                    jerryGroup.position.x = THREE.MathUtils.lerp(0.8, 0.4, 0.1);
+                    tomGroup.rotation.y = Math.PI / 6;
+                    jerryGroup.rotation.y = -Math.PI / 6;
+                    
+                    // Intense bloom
+                    bloomPass.strength = 1.5 + Math.sin(time * 3) * 0.3;
+                    connectionMat.opacity = 0.8;
+                    break;
+            }
+        }
+
+        // UI UPDATES
+        function updateSubtitles() {
+            const beat = SCENARIO.find((b, i) => {
+                const next = SCENARIO[i + 1];
+                return sceneTime >= b.time && (!next || sceneTime < next.time);
             });
-        }, { threshold: 0.6 });
+            
+            if (beat && (beat.eng || beat.rus)) {
+                document.getElementById('subtitleEng').textContent = beat.eng;
+                document.getElementById('subtitleRus').textContent = beat.rus;
+                document.getElementById('subtitles').classList.add('visible');
+            } else {
+                document.getElementById('subtitles').classList.remove('visible');
+            }
+            
+            // Update camera state
+            if (beat && beat.camera !== currentCameraState) {
+                currentCameraState = beat.camera;
+                cameraTransition = 0;
+            }
+            
+            // Check beat progression
+            const nextBeat = SCENARIO[currentBeat + 1];
+            if (nextBeat && sceneTime >= nextBeat.time) {
+                currentBeat++;
+            }
+        }
 
-        document.querySelectorAll('.scene-section').forEach(s => observer.observe(s));
-
-        // ANIMATION LOOP
+        // MAIN LOOP
         const clock = new THREE.Clock();
-        
+
         function animate() {
             requestAnimationFrame(animate);
             
-            const time = clock.getElapsedTime();
             const delta = clock.getDelta();
+            const time = clock.getElapsedTime();
             
-            // Smooth scroll
-            scrollProgress += (targetScroll - scrollProgress) * 0.05;
-            document.getElementById('progressBar').style.width = `${scrollProgress * 100}%`;
-            
-            const phase = scrollProgress * 3; // 0-3
-
-            if (tomModel && jerryModel) {
-                // MOVEMENT - Walking toward each other
-                const startDist = 4;
-                const meetDist = 0.8;
-                const currentDist = THREE.MathUtils.lerp(startDist, meetDist, Math.min(phase / 2.2, 1));
+            if (isPlaying && modelsReady) {
+                sceneTime += delta;
+                updateCamera(delta);
+                animateCharacters(time, delta);
+                updateSubtitles();
                 
-                tomGroup.position.x = -currentDist;
-                jerryGroup.position.x = currentDist;
+                // Timeline
+                const totalTime = SCENARIO[SCENARIO.length - 1].time + 5;
+                const progress = Math.min(sceneTime / totalTime, 1);
+                document.getElementById('timelineProgress').style.width = `${progress * 100}%`;
                 
-                // Walking animation (bobbing)
-                const walkSpeed = 8;
-                const walkAmp = 0.08;
-                
-                if (phase < 2.2) {
-                    tomGroup.position.y = Math.abs(Math.sin(time * walkSpeed)) * walkAmp;
-                    jerryGroup.position.y = Math.abs(Math.sin(time * walkSpeed + 0.5)) * walkAmp;
-                    
-                    // Sway while walking
-                    tomGroup.rotation.z = Math.sin(time * walkSpeed) * 0.03;
-                    jerryGroup.rotation.z = Math.sin(time * walkSpeed + 0.5) * 0.03;
-                } else {
-                    // Stop and face each other
-                    tomGroup.position.y = Math.sin(time * 1.5) * 0.02; // Breathing
-                    jerryGroup.position.y = Math.sin(time * 1.5 + 1) * 0.02;
-                    
-                    // Turn to face
-                    const turnAmount = Math.min((phase - 2.2) / 0.3, 1);
-                    tomGroup.rotation.y = THREE.MathUtils.lerp(0, Math.PI / 2.5, turnAmount);
-                    jerryGroup.rotation.y = THREE.MathUtils.lerp(0, -Math.PI / 2.5, turnAmount);
+                // Final title
+                if (sceneTime > 22) {
+                    document.getElementById('finalTitle').classList.add('visible');
+                    document.getElementById('subtitles').classList.remove('visible');
                 }
                 
-                // Hand reaching at climax
-                if (phase > 2.5) {
-                    const reach = (phase - 2.5) / 0.5;
-                    tomGroup.rotation.z = THREE.MathUtils.lerp(0, 0.1, reach);
-                    jerryGroup.rotation.z = THREE.MathUtils.lerp(0, -0.1, reach);
+                // End
+                if (sceneTime > 28) {
+                    isPlaying = false;
                 }
             }
-
-            // CAMERA - Dramatic moves
-            const baseZ = 7;
-            const closeZ = 3;
-            camera.position.z = THREE.MathUtils.lerp(baseZ, closeZ, Math.min(phase / 2, 1));
             
-            // Slight orbit
-            camera.position.x = Math.sin(time * 0.1 + phase) * 0.5;
-            camera.lookAt(0, 1.2, 0);
-
-            // MAIN HEART appears at climax
-            if (phase > 2) {
-                mainHeart.visible = true;
-                const heartScale = Math.min((phase - 2) * 2, 1.5);
-                mainHeart.scale.setScalar(0.3 * heartScale);
-                mainHeart.rotation.y = time * 0.5;
-                mainHeart.material.emissiveIntensity = 2 + Math.sin(time * 3) * 0.5;
-            }
-
-            // PARTICLES
+            // Particles
+            const dummy = new THREE.Object3D();
             for (let i = 0; i < particleCount; i++) {
                 const data = particleData[i];
-                
-                // Float up
-                data.y += data.speed;
-                if (data.y > 6) data.y = 0;
-                
-                // Spiral toward center at climax
-                let x = data.x;
-                let z = data.z;
-                
-                if (phase > 1.5) {
-                    const attraction = (phase - 1.5) / 1.5;
-                    x *= (1 - attraction * 0.5);
-                    z *= (1 - attraction * 0.5);
-                }
+                const t = time * data.speed + data.phase;
                 
                 dummy.position.set(
-                    x + Math.sin(time + data.phase) * 0.5,
-                    data.y,
-                    z + Math.cos(time + data.phase) * 0.5
+                    data.baseX + Math.sin(t) * 0.5,
+                    data.baseY + Math.sin(t * 0.5) * 0.3,
+                    data.baseZ + Math.cos(t) * 0.5
                 );
                 
-                dummy.rotation.set(
-                    time * 0.5,
-                    time * 0.3,
-                    0
-                );
-                
-                dummy.scale.setScalar(data.scale * (1 + Math.sin(time * 2 + data.phase) * 0.3));
+                dummy.scale.setScalar(1 + Math.sin(t * 2) * 0.5);
                 dummy.updateMatrix();
-                heartParticles.setMatrixAt(i, dummy.matrix);
+                particles.setMatrixAt(i, dummy.matrix);
             }
-            heartParticles.instanceMatrix.needsUpdate = true;
-
-            // LIGHTING evolution
-            spotLight.intensity = 150 + phase * 50;
-            spotLight.color.setHSL(0.9, 0.5, 0.8 + phase * 0.1);
+            particles.instanceMatrix.needsUpdate = true;
             
-            bloomPass.strength = 0.4 + phase * 0.4;
-
+            // Light animation
+            keyLight.intensity = 100 + Math.sin(time * 0.5) * 20;
+            backLight.intensity = 80 + Math.sin(time * 0.7 + 1) * 30;
+            
             composer.render();
         }
+
+        // INTERACTION
+        window.startExperience = function() {
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('letterboxTop').classList.add('active');
+            document.getElementById('letterboxBottom').classList.add('active');
+            document.getElementById('timeline').classList.add('visible');
+            
+            setTimeout(() => {
+                isPlaying = true;
+                sceneTime = 0;
+                currentBeat = 0;
+            }, 1500);
+        };
+
+        // Cursor
+        document.addEventListener('mousemove', (e) => {
+            const cursor = document.getElementById('cursor');
+            cursor.style.left = e.clientX - 10 + 'px';
+            cursor.style.top = e.clientY - 10 + 'px';
+        });
+
+        document.querySelector('.start-heart').addEventListener('mouseenter', () => {
+            document.getElementById('cursor').classList.add('hover');
+        });
+
+        document.querySelector('.start-heart').addEventListener('mouseleave', () => {
+            document.getElementById('cursor').classList.remove('hover');
+        });
 
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
