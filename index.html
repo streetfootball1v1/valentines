@@ -24,7 +24,6 @@ body {
     overflow-x: hidden;
 }
 
-/* Контейнер скролла */
 .scroll-container {
     height: 100vh;
     overflow-y: scroll;
@@ -32,13 +31,13 @@ body {
 }
 
 .section {
-    height: 100vh;
+    min-height: 100vh;
     scroll-snap-align: start;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 60px 40px;
+    padding: 80px 40px;
     text-align: center;
     opacity: 0;
     transform: translateY(30px);
@@ -55,62 +54,60 @@ body {
     transform: translateY(0);
 }
 
-/* Видео — фиксированные пропорции */
+/* Видео — сохраняем оригинальные пропорции, но ограничиваем размер */
 .video-wrapper {
-    width: 75%;
-    max-width: 900px;
-    aspect-ratio: 16 / 9;
+    width: auto;
+    max-width: 85%;
+    max-height: 55vh;
     position: relative;
-    overflow: hidden;
     border-radius: 12px;
-    box-shadow: 0 30px 80px rgba(0,0,0,0.12);
+    overflow: hidden;
+    box-shadow: 0 25px 70px rgba(0,0,0,0.1);
 }
 
 video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    max-width: 100%;
+    max-height: 55vh;
+    width: auto;
+    height: auto;
     display: block;
+    border-radius: 12px;
 }
 
-/* Печатная машинка для первой секции */
+/* Печатная машинка */
 .typewriter {
-    margin-top: 50px;
-    font-size: 1.5rem;
+    margin-top: 45px;
+    font-size: 1.45rem;
     font-weight: 300;
-    line-height: 1.9;
-    max-width: 750px;
-    letter-spacing: 0.3px;
+    line-height: 1.8;
+    max-width: 800px;
 }
 
 .typewriter-line {
-    overflow: hidden;
-    white-space: nowrap;
-    margin: 0 auto;
     opacity: 0;
+    margin: 8px 0;
 }
 
 .typewriter-line.typing {
     opacity: 1;
-    animation: typing 2.5s steps(45, end);
+    animation: fadeIn 0.5s ease;
 }
 
-@keyframes typing {
-    from { width: 0 }
-    to { width: 100% }
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 /* Остальные captions */
 .caption {
-    margin-top: 50px;
-    font-size: 1.4rem;
+    margin-top: 45px;
+    font-size: 1.35rem;
     font-weight: 300;
-    line-height: 1.9;
-    max-width: 750px;
-    letter-spacing: 0.3px;
+    line-height: 1.8;
+    max-width: 800px;
     opacity: 0;
     transform: translateY(20px);
-    transition: opacity 0.8s ease 0.4s, transform 0.8s ease 0.4s;
+    transition: opacity 0.8s ease 0.3s, transform 0.8s ease 0.3s;
 }
 
 .section.active .caption {
@@ -120,25 +117,26 @@ video {
 
 /* Финальная секция */
 .final-section {
-    background: linear-gradient(to bottom, #eaeaea, #e0e0e0);
+    background: linear-gradient(to bottom, #eaeaea, #e5e5e5);
 }
 
 .final-content {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 40px;
+    gap: 35px;
 }
 
 .photo-frame {
-    width: 300px;
-    height: 300px;
+    width: 280px;
+    height: 280px;
     border-radius: 50%;
     overflow: hidden;
-    border: 4px solid rgba(255,255,255,0.8);
-    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    border: 3px solid rgba(255,255,255,0.9);
+    box-shadow: 0 15px 50px rgba(0,0,0,0.12);
+    background: #ddd;
     opacity: 0;
-    transform: scale(0.8);
+    transform: scale(0.85);
     transition: all 1.2s ease 0.3s;
 }
 
@@ -154,13 +152,12 @@ video {
 }
 
 .final-text {
-    font-size: 2.5rem;
+    font-size: 2.2rem;
     font-weight: 300;
-    letter-spacing: 6px;
-    color: #1c1c1c;
+    letter-spacing: 5px;
     opacity: 0;
-    transform: translateY(20px);
-    transition: all 1s ease 0.8s;
+    transform: translateY(15px);
+    transition: all 1s ease 0.7s;
 }
 
 .section.active .final-text {
@@ -169,12 +166,11 @@ video {
 }
 
 .final-date {
-    font-size: 1rem;
-    color: #666;
+    font-size: 0.95rem;
+    color: #777;
     letter-spacing: 3px;
-    margin-top: 15px;
     opacity: 0;
-    transition: opacity 1s ease 1.2s;
+    transition: opacity 1s ease 1s;
 }
 
 .section.active .final-date {
@@ -184,12 +180,12 @@ video {
 /* Индикатор прокрутки */
 .scroll-hint {
     position: absolute;
-    bottom: 40px;
+    bottom: 35px;
     left: 50%;
     transform: translateX(-50%);
-    opacity: 0.4;
+    opacity: 0.35;
     animation: bounce 2s infinite;
-    color: #666;
+    color: #888;
 }
 
 @keyframes bounce {
@@ -201,36 +197,41 @@ video {
 /* Адаптив */
 @media (max-width: 768px) {
     .section {
-        padding: 40px 20px;
+        padding: 60px 20px;
     }
     
     .video-wrapper {
-        width: 90%;
+        max-width: 95%;
+        max-height: 50vh;
+    }
+    
+    video {
+        max-height: 50vh;
     }
     
     .typewriter {
-        font-size: 1.1rem;
-        white-space: normal;
+        font-size: 1.15rem;
+        margin-top: 35px;
     }
     
     .typewriter-line {
-        white-space: normal;
         opacity: 1;
         animation: none;
     }
     
     .caption {
-        font-size: 1.15rem;
+        font-size: 1.1rem;
+        margin-top: 35px;
     }
     
     .photo-frame {
-        width: 220px;
-        height: 220px;
+        width: 200px;
+        height: 200px;
     }
     
     .final-text {
-        font-size: 1.8rem;
-        letter-spacing: 4px;
+        font-size: 1.7rem;
+        letter-spacing: 3px;
     }
 }
 </style>
@@ -240,24 +241,22 @@ video {
 
 <div class="scroll-container">
 
-    <!-- Секция 1: Печатная машинка -->
     <section class="section">
         <div class="video-wrapper">
             <video src="V1.mp4" autoplay muted loop playsinline></video>
         </div>
         <div class="typewriter">
             <div class="typewriter-line" data-delay="0">Мы жили почти напротив друг друга.</div>
-            <div class="typewriter-line" data-delay="2500">И я тогда ещё не знал,</div>
-            <div class="typewriter-line" data-delay="5000">что в одном из этих окон — вся моя жизнь.</div>
+            <div class="typewriter-line" data-delay="2000">И я тогда ещё не знал,</div>
+            <div class="typewriter-line" data-delay="4000">что в одном из этих окон — вся моя жизнь.</div>
         </div>
         <div class="scroll-hint">
-            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                 <path d="M12 5v14M19 12l-7 7-7-7"/>
             </svg>
         </div>
     </section>
 
-    <!-- Секция 2 -->
     <section class="section">
         <div class="video-wrapper">
             <video src="V2.mp4" autoplay muted loop playsinline></video>
@@ -270,7 +269,6 @@ video {
         </div>
     </section>
 
-    <!-- Секция 3 -->
     <section class="section">
         <div class="video-wrapper">
             <video src="V3.mp4" autoplay muted loop playsinline></video>
@@ -283,7 +281,6 @@ video {
         </div>
     </section>
 
-    <!-- Секция 4 -->
     <section class="section">
         <div class="video-wrapper">
             <video src="V4.mp4" autoplay muted loop playsinline></video>
@@ -295,7 +292,6 @@ video {
         </div>
     </section>
 
-    <!-- Секция 5 -->
     <section class="section">
         <div class="video-wrapper">
             <video src="V5.mp4" autoplay muted loop playsinline></video>
@@ -307,11 +303,10 @@ video {
         </div>
     </section>
 
-    <!-- Секция 6: Финал с фото -->
     <section class="section final-section">
         <div class="final-content">
             <div class="photo-frame">
-                <img src="photo.jpg" alt="Мы">
+                <img src="photo.jpg" alt="Мы" onerror="this.style.display='none'">
             </div>
             <div class="final-text">ВСЕГДА</div>
             <div class="final-date">08.09</div>
@@ -321,13 +316,27 @@ video {
 </div>
 
 <script>
-/* Печатная машинка */
+/* Печатная машинка — посимвольная */
 function startTypewriter() {
     const lines = document.querySelectorAll('.typewriter-line');
-    lines.forEach(line => {
+    
+    lines.forEach((line, index) => {
+        const text = line.textContent;
+        line.textContent = '';
+        line.style.opacity = '1';
+        
         const delay = parseInt(line.dataset.delay);
+        
         setTimeout(() => {
-            line.classList.add('typing');
+            let charIndex = 0;
+            const interval = setInterval(() => {
+                if (charIndex < text.length) {
+                    line.textContent += text[charIndex];
+                    charIndex++;
+                } else {
+                    clearInterval(interval);
+                }
+            }, 45); // скорость печати
         }, delay);
     });
 }
@@ -341,7 +350,7 @@ const observer = new IntersectionObserver(entries => {
             entry.target.classList.add("active");
         }
     });
-}, { threshold: 0.5 });
+}, { threshold: 0.4 });
 
 document.querySelectorAll(".section").forEach((section, index) => {
     if (index > 0) observer.observe(section);
