@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Почти 4 года — Наша история</title>
+    <title>Почти 4 года</title>
     <style>
         * {
             margin: 0;
@@ -11,59 +11,69 @@
             box-sizing: border-box;
         }
         
-        html {
-            scroll-behavior: auto;
-        }
-        
+        /* ФОН под цвет видео — замените на свой */
         body {
             font-family: 'Cormorant Garamond', Georgia, serif;
-            background: #000;
+            background: #1a1515; /* Тёплый тёмный, подберите под видео */
             color: #fff;
             overflow-x: hidden;
         }
         
-        .cinematic-overlay {
+        /* Blur backdrop для плавных краёв */
+        .video-backdrop {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100vh;
-            background: radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.5) 100%);
-            pointer-events: none;
-            z-index: 10;
+            z-index: 0;
+            filter: blur(80px) brightness(0.4);
+            transform: scale(1.2);
         }
         
-        .video-container {
-            position: fixed;
-            top: 0;
-            left: 0;
+        .video-backdrop video {
             width: 100%;
-            height: 100vh;
-            z-index: 1;
-            opacity: 0;
-            transition: opacity 0.8s ease;
-        }
-        
-        .video-container.active {
-            opacity: 1;
-        }
-        
-        .video-container video {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            min-width: 100%;
-            min-height: 100%;
-            width: auto;
-            height: auto;
-            transform: translate(-50%, -50%);
+            height: 100%;
             object-fit: cover;
         }
         
+        /* Основное видео — без растяжения */
+        .video-main {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            max-width: 100%;
+            max-height: 100vh;
+            box-shadow: 0 20px 100px rgba(0,0,0,0.8);
+        }
+        
+        .video-main video {
+            display: block;
+            max-width: 100%;
+            max-height: 100vh;
+            width: auto;
+            height: auto;
+        }
+        
+        /* Оверлей для читаемости текста */
+        .text-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: radial-gradient(ellipse at center, transparent 40%, rgba(26,21,21,0.8) 100%);
+            pointer-events: none;
+            z-index: 5;
+        }
+        
+        /* Сцены */
         .scene {
             position: relative;
             height: 300vh;
-            z-index: 20;
+            z-index: 10;
         }
         
         .scene-content {
@@ -93,156 +103,78 @@
         .text-block h2 {
             font-size: clamp(2.5rem, 8vw, 5rem);
             font-weight: 300;
-            letter-spacing: 0.15em;
-            text-shadow: 0 4px 30px rgba(0,0,0,0.8);
+            letter-spacing: 0.1em;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.8);
             margin-bottom: 1rem;
         }
         
         .text-block p {
-            font-size: clamp(1.2rem, 3vw, 1.8rem);
+            font-size: clamp(1rem, 2vw, 1.5rem);
             letter-spacing: 0.2em;
-            color: #ffb6c1;
+            color: #d4a5a5;
         }
         
-        .progress-bar {
-            position: fixed;
-            bottom: 40px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 200px;
-            height: 2px;
-            background: rgba(255,255,255,0.2);
-            z-index: 100;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: #ff69b4;
-            width: 0%;
-            box-shadow: 0 0 10px #ff69b4;
-        }
-        
-        .scene-indicator {
-            position: fixed;
-            bottom: 60px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: rgba(255,255,255,0.6);
-            font-size: 0.8rem;
-            letter-spacing: 0.3em;
-            z-index: 100;
-        }
-        
-        /* Start button for autoplay policy */
-        #start-screen {
+        /* Start screen */
+        #start {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: #000;
+            background: #1a1515;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            z-index: 2000;
+            z-index: 100;
             transition: opacity 1s;
         }
         
-        #start-screen.hidden {
+        #start.hidden {
             opacity: 0;
             pointer-events: none;
         }
         
         .start-btn {
-            width: 100px;
-            height: 100px;
-            border: 2px solid #ff69b4;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            padding: 20px 40px;
+            border: 1px solid #d4a5a5;
+            background: transparent;
+            color: #d4a5a5;
+            font-family: inherit;
+            font-size: 1rem;
+            letter-spacing: 0.3em;
             cursor: pointer;
             transition: all 0.3s;
-            color: #ff69b4;
-            font-size: 1rem;
-            letter-spacing: 0.2em;
         }
         
         .start-btn:hover {
-            background: #ff69b4;
-            color: #000;
-            transform: scale(1.1);
-        }
-        
-        .start-text {
-            margin-top: 2rem;
-            color: #ffb6c1;
-            letter-spacing: 0.3em;
-        }
-        
-        /* Debug info */
-        #debug {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            color: #0f0;
-            font-family: monospace;
-            font-size: 12px;
-            z-index: 3000;
-            background: rgba(0,0,0,0.8);
-            padding: 10px;
-            display: none;
+            background: #d4a5a5;
+            color: #1a1515;
         }
     </style>
 </head>
 <body>
 
-    <div id="debug"></div>
-
-    <div id="start-screen">
-        <div class="start-btn" onclick="startExperience()">НАЧАТЬ</div>
-        <div class="start-text">НАЖМИТЕ ДЛЯ ПРОСМОТРА</div>
+    <div id="start">
+        <button class="start-btn" onclick="start()">НАЧАТЬ</button>
     </div>
 
-    <div class="cinematic-overlay"></div>
+    <!-- Blur backdrop (текущее активное видео размыто) -->
+    <div class="video-backdrop" id="backdrop">
+        <video muted playsinline loop id="bgVideo"></video>
+    </div>
 
-    <!-- Videos with crossOrigin for CORS -->
-    <div class="video-container" data-scene="0">
-        <video id="video1" playsinline muted preload="auto" crossorigin="anonymous">
-            <source src="https://streetfootball1v1.github.io/valentines/v1.mp4" type="video/mp4">
-        </video>
+    <!-- Основное видео чёткое, без растяжения -->
+    <div class="video-main" id="mainContainer">
+        <video muted playsinline loop id="mainVideo"></video>
     </div>
-    
-    <div class="video-container" data-scene="1">
-        <video id="video2" playsinline muted preload="auto" crossorigin="anonymous">
-            <source src="https://streetfootball1v1.github.io/valentines/v2.mp4" type="video/mp4">
-        </video>
-    </div>
-    
-    <div class="video-container" data-scene="2">
-        <video id="video3" playsinline muted preload="auto" crossorigin="anonymous">
-            <source src="https://streetfootball1v1.github.io/valentines/v3.mp4" type="video/mp4">
-        </video>
-    </div>
-    
-    <div class="video-container" data-scene="3">
-        <video id="video4" playsinline muted preload="auto" crossorigin="anonymous">
-            <source src="https://streetfootball1v1.github.io/valentines/v4.mp4" type="video/mp4">
-        </video>
-    </div>
-    
-    <div class="video-container" data-scene="4">
-        <video id="video5" playsinline muted preload="auto" crossorigin="anonymous">
-            <source src="https://streetfootball1v1.github.io/valentines/v5.mp4" type="video/mp4">
-        </video>
-    </div>
+
+    <div class="text-overlay"></div>
 
     <div class="scene" data-scene="0">
         <div class="scene-content">
             <div class="text-block">
-                <h2>Почти 4 года…</h2>
-                <p>Наша история началась</p>
+                <h2>Почти 4 года</h2>
+                <p>Наша история</p>
             </div>
         </div>
     </div>
@@ -250,8 +182,8 @@
     <div class="scene" data-scene="1">
         <div class="scene-content">
             <div class="text-block">
-                <h2>Сквозь расстояние и время</h2>
-                <p>Мы преодолевали препятствия</p>
+                <h2>Сквозь расстояние</h2>
+                <p>Любовь сильнее</p>
             </div>
         </div>
     </div>
@@ -259,8 +191,8 @@
     <div class="scene" data-scene="2">
         <div class="scene-content">
             <div class="text-block">
-                <h2>Наши сердца нашли путь</h2>
-                <p>Каждая встреча — как в первый раз</p>
+                <h2>Каждый день</h2>
+                <p>Выбираю тебя</p>
             </div>
         </div>
     </div>
@@ -268,231 +200,82 @@
     <div class="scene" data-scene="3">
         <div class="scene-content">
             <div class="text-block">
-                <h2>И я до сих пор…</h2>
-                <p>Каждое утро выбираю тебя</p>
+                <h2>Навсегда</h2>
+                <p>Сегодня и всегда</p>
             </div>
         </div>
     </div>
-
-    <div class="scene" data-scene="4">
-        <div class="scene-content">
-            <div class="text-block">
-                <h2>Выбираю тебя</h2>
-                <p>Сегодня. Завтра. Всегда.</p>
-            </div>
-        </div>
-    </div>
-
-    <div class="progress-bar">
-        <div class="progress-fill" id="progressFill"></div>
-    </div>
-    
-    <div class="scene-indicator" id="sceneIndicator">01 / 05</div>
-
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&display=swap" rel="stylesheet">
 
     <script>
-        const DEBUG = true;
-        const debugEl = document.getElementById('debug');
-        if (DEBUG) debugEl.style.display = 'block';
-        
-        function log(msg) {
-            console.log(msg);
-            if (DEBUG) debugEl.innerHTML += msg + '<br>';
-        }
+        const videos = [
+            'https://streetfootball1v1.github.io/valentines/v1.mp4',
+            'https://streetfootball1v1.github.io/valentines/v2.mp4',
+            'https://streetfootball1v1.github.io/valentines/v3.mp4',
+            'https://streetfootball1v1.github.io/valentines/v4.mp4',
+            'https://streetfootball1v1.github.io/valentines/v5.mp4'
+        ];
 
+        let current = 0;
         let scrubber = null;
-        let isStarted = false;
 
-        window.startExperience = function() {
-            document.getElementById('start-screen').classList.add('hidden');
-            isStarted = true;
-            
-            // Initialize scrubber after user interaction
+        function start() {
+            document.getElementById('start').classList.add('hidden');
             scrubber = new VideoScrubber();
-        };
+        }
 
         class VideoScrubber {
             constructor() {
-                this.videos = [];
-                this.scenes = [];
+                this.bgVideo = document.getElementById('bgVideo');
+                this.mainVideo = document.getElementById('mainVideo');
                 this.sceneHeight = window.innerHeight * 3;
-                this.currentScene = 0;
-                this.targetTime = 0;
-                this.smoothing = 0.15;
-                this.isScrolling = false;
                 
-                this.init();
-            }
-            
-            init() {
-                // Collect videos
-                for (let i = 0; i < 5; i++) {
-                    const video = document.getElementById(`video${i + 1}`);
-                    const scene = document.querySelector(`.scene[data-scene="${i}"]`);
-                    const container = document.querySelector(`.video-container[data-scene="${i}"]`);
-                    
-                    if (video && scene) {
-                        this.videos.push({
-                            element: video,
-                            container: container,
-                            duration: 0,
-                            loaded: false,
-                            frameRate: 30
-                        });
-                        this.scenes.push(scene);
-                        
-                        // Force play to enable scrubbing
-                        video.play().catch(e => log(`Video ${i+1} play error: ${e.message}`));
-                    }
-                }
-                
-                // Wait for metadata
-                this.loadVideos();
-                
+                this.loadVideo(0);
                 window.addEventListener('scroll', this.onScroll.bind(this), { passive: true });
-                window.addEventListener('resize', this.onResize.bind(this));
-                
-                this.animate();
             }
             
-            loadVideos() {
-                let loaded = 0;
-                const total = this.videos.length;
+            loadVideo(index) {
+                current = index;
+                const src = videos[index];
                 
-                this.videos.forEach((v, i) => {
-                    const video = v.element;
-                    
-                    const checkLoaded = () => {
-                        // Try to get duration multiple ways
-                        let dur = video.duration;
-                        
-                        // If duration is invalid, try seeking
-                        if (!dur || dur === Infinity || isNaN(dur)) {
-                            video.currentTime = 0.1;
-                            dur = video.duration;
-                        }
-                        
-                        if (dur && dur !== Infinity && !isNaN(dur)) {
-                            v.duration = dur;
-                            v.loaded = true;
-                            loaded++;
-                            log(`Video ${i+1}: ${dur.toFixed(2)}s`);
-                            
-                            if (loaded === total) {
-                                log('All videos ready');
-                                this.updateScene(0);
-                            }
-                        } else {
-                            // Fallback: assume 5 seconds
-                            v.duration = 5;
-                            v.loaded = true;
-                            loaded++;
-                            log(`Video ${i+1}: fallback 5s`);
-                            
-                            if (loaded === total) {
-                                this.updateScene(0);
-                            }
-                        }
-                    };
-                    
-                    if (video.readyState >= 2) {
-                        checkLoaded();
-                    } else {
-                        video.addEventListener('loadeddata', checkLoaded, { once: true });
-                        video.addEventListener('error', () => {
-                            v.duration = 5;
-                            v.loaded = true;
-                            loaded++;
-                            log(`Video ${i+1}: error, using 5s`);
-                            if (loaded === total) this.updateScene(0);
-                        }, { once: true });
-                    }
-                });
+                this.bgVideo.src = src;
+                this.mainVideo.src = src;
+                
+                this.bgVideo.load();
+                this.mainVideo.load();
+                
+                this.bgVideo.play().catch(() => {});
+                this.mainVideo.play().catch(() => {});
             }
             
             onScroll() {
-                this.isScrolling = true;
-                clearTimeout(this.scrollTimeout);
-                this.scrollTimeout = setTimeout(() => {
-                    this.isScrolling = false;
-                }, 100);
+                const y = window.pageYOffset;
+                const scene = Math.min(Math.floor(y / this.sceneHeight), 4);
                 
-                const scrollY = window.pageYOffset;
-                const totalH = this.sceneHeight * this.scenes.length;
-                const progress = Math.min(scrollY / (totalH - window.innerHeight), 1);
-                
-                document.getElementById('progressFill').style.width = `${progress * 100}%`;
-                
-                const sceneIdx = Math.min(Math.floor(scrollY / this.sceneHeight), this.scenes.length - 1);
-                
-                if (sceneIdx !== this.currentScene) {
-                    this.updateScene(sceneIdx);
+                if (scene !== current) {
+                    this.loadVideo(scene);
                 }
                 
-                const sceneScroll = scrollY - (sceneIdx * this.sceneHeight);
-                const sceneProg = Math.max(0, Math.min(sceneScroll / this.sceneHeight, 1));
+                // Scrubbing
+                const sceneY = y - (scene * this.sceneHeight);
+                const progress = sceneY / this.sceneHeight;
                 
-                this.updateText(sceneIdx, sceneProg);
-                document.getElementById('sceneIndicator').textContent = `0${sceneIdx + 1} / 05`;
+                // Для видео с ключевыми кадрами каждый 1 кадр
+                const duration = 5.03; // ваша длительность
+                const time = (progress * duration) % duration;
                 
-                // Store for animation loop
-                this.lastSceneProgress = sceneProg;
-            }
-            
-            updateScene(idx) {
-                this.currentScene = idx;
-                this.videos.forEach((v, i) => {
-                    v.container.classList.toggle('active', i === idx);
-                    if (i === idx) v.element.play().catch(() => {});
-                    else v.element.pause();
+                if (Math.abs(this.mainVideo.currentTime - time) > 0.05) {
+                    this.mainVideo.currentTime = time;
+                    this.bgVideo.currentTime = time;
+                }
+                
+                // Text
+                document.querySelectorAll('.text-block').forEach((t, i) => {
+                    const show = i === scene && progress > 0.2 && progress < 0.8;
+                    t.classList.toggle('visible', show);
                 });
-            }
-            
-            updateText(idx, prog) {
-                const text = this.scenes[idx]?.querySelector('.text-block');
-                if (!text) return;
-                text.classList.toggle('visible', prog > 0.2 && prog < 0.8);
-            }
-            
-            animate() {
-                requestAnimationFrame(this.animate.bind(this));
-                
-                const v = this.videos[this.currentScene];
-                if (!v || !v.loaded) return;
-                
-                // Calculate target from stored progress or recalculate
-                let prog = this.lastSceneProgress || 0;
-                
-                // Recalculate if needed
-                const scrollY = window.pageYOffset;
-                const sceneStart = this.currentScene * this.sceneHeight;
-                prog = Math.max(0, Math.min((scrollY - sceneStart) / this.sceneHeight, 0.999));
-                
-                this.targetTime = prog * v.duration;
-                
-                const video = v.element;
-                const current = video.currentTime || 0;
-                const diff = this.targetTime - current;
-                
-                // Adaptive smoothing
-                const smooth = this.isScrolling ? 0.2 : 0.5;
-                
-                if (Math.abs(diff) > 0.05) {
-                    const newTime = current + diff * smooth;
-                    // Clamp to valid range
-                    video.currentTime = Math.max(0, Math.min(newTime, v.duration - 0.01));
-                    
-                    if (DEBUG && Math.random() < 0.01) {
-                        log(`Scene ${this.currentScene+1}: ${prog.toFixed(2)} -> ${newTime.toFixed(2)}s`);
-                    }
-                }
-            }
-            
-            onResize() {
-                this.sceneHeight = window.innerHeight * 3;
             }
         }
     </script>
+
 </body>
 </html>
