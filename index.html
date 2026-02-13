@@ -1,172 +1,184 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Для Снежаны</title>
-    <style>
-        :root {
-            --soft-pink: #fff0f3;
-            --accent-pink: #ff85a1;
-            --deep-rose: #a44a5f;
-            --card-white: #ffffff;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Для моей Снежаны</title>
+<style>
+:root {
+    --p1: #ffafbd; --p2: #ffc3a0;
+    --accent: #ff4d6d;
+}
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
-        body, html {
-            height: 100%;
-            background: var(--soft-pink);
-            font-family: 'Verdana', serif;
-            overflow: hidden;
-            color: var(--deep-rose);
-        }
+body, html {
+    height: 100%;
+    background: #fff0f3;
+    font-family: 'Verdana', sans-serif;
+    overflow: hidden;
+    color: #5a3e3e;
+}
 
-        /* Анимированный фон с сердцами */
-        .bg-container {
-            position: fixed;
-            inset: 0;
-            z-index: -1;
-            background: linear-gradient(180deg, #fff5f6 0%, #ffe4e9 100%);
-            overflow: hidden;
-        }
+/* Живой фон */
+.bg-decor {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(circle at 20% 30%, #fff5f6 0%, #ffe4e9 100%);
+}
 
-        .floating-heart {
-            position: absolute;
-            bottom: -50px;
-            filter: blur(2px);
-            opacity: 0.4;
-            animation: moveUp 15s infinite linear;
-            user-select: none;
-        }
+.bokeh {
+    position: absolute;
+    width: 400px; height: 400px;
+    background: var(--p1);
+    filter: blur(100px);
+    border-radius: 50%;
+    opacity: 0.3;
+    animation: drift 20s infinite alternate;
+}
 
-        @keyframes moveUp {
-            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
-            10% { opacity: 0.5; }
-            90% { opacity: 0.5; }
-            100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; }
-        }
+@keyframes drift {
+    from { transform: translate(-10%, -10%); }
+    to { transform: translate(20%, 20%); }
+}
 
-        /* Контейнер скролла */
-        .scroll-container {
-            height: 100vh;
-            overflow-y: scroll;
-            scroll-snap-type: y mandatory;
-            scrollbar-width: none;
-        }
-        .scroll-container::-webkit-scrollbar { display: none; }
+/* Передний план */
+.foreground-layer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 100;
+}
 
-        .section {
-            height: 100vh;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            scroll-snap-align: start;
-            position: relative;
-            perspective: 1200px;
-        }
+/* Скролл контейнер */
+.scroll-container {
+    height: 100vh;
+    overflow-y: scroll;
+    scroll-snap-type: y mandatory;
+    scrollbar-width: none;
+}
+.scroll-container::-webkit-scrollbar { display: none; }
 
-        /* Рамка видео в стиле Pixar */
-        .window-frame {
-            width: 854px;
-            height: 480px;
-            background: #fff;
-            padding: 12px;
-            border-radius: 25px;
-            box-shadow: 0 30px 60px rgba(255, 133, 161, 0.3), 
-                        0 0 0 5px rgba(255, 255, 255, 0.5);
-            transition: transform 1s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 1.5s ease;
-            opacity: 0;
-            transform: scale(0.9) rotateX(10deg);
-        }
-        .section.active .window-frame { 
-            opacity: 1; 
-            transform: scale(1) rotateX(0deg); 
-        }
+.section {
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    scroll-snap-align: start;
+    position: relative;
+    perspective: 1500px;
+}
 
-        video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 15px;
-            filter: saturate(1.2);
-        }
+/* Стиль окна */
+.window-outer {
+    position: relative;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(10px);
+    border-radius: 35px;
+    border: 2px solid rgba(255, 255, 255, 0.7);
+    box-shadow: 0 40px 100px rgba(255, 77, 109, 0.15);
+    transition: all 1s cubic-bezier(0.165, 0.84, 0.44, 1);
+    opacity: 0;
+    transform: scale(0.8) translateY(50px);
+}
+.section.active .window-outer {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    transition-delay: 0.3s;
+}
 
-        .caption {
-            margin-top: 40px;
-            font-size: 1.8rem;
-            color: var(--accent-pink);
-            font-weight: bold;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
-            opacity: 0;
-            transition: 1.2s ease 0.8s;
-            text-align: center;
-        }
-        .section.active .caption { opacity: 1; }
+.window-inner {
+    width: 854px; max-width: 90vw; height: 480px; max-height: 50vh;
+    border-radius: 25px;
+    overflow: hidden;
+    background: #000;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+}
 
-        /* Финальная открытка */
-        .final-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            z-index: 20;
-        }
+video { width: 100%; height: 100%; object-fit: cover; }
 
-        .card {
-            width: 550px;
-            min-height: 350px;
-            background: var(--card-white);
-            padding: 50px;
-            border-radius: 5px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
-            display: none;
-            text-align: left;
-            line-height: 1.8;
-            font-size: 1.3rem;
-            border-left: 15px solid var(--accent-pink);
-            position: relative;
-        }
+/* Подпись */
+.caption-plate {
+    margin-top: -30px;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(15px);
+    padding: 20px 60px;
+    border-radius: 50px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    border: 1px solid #fff;
+    opacity: 0;
+    transition: 1s ease 0.8s;
+}
+.section.active .caption-plate { opacity: 1; }
 
-        .card::before {
-            content: "♥";
-            position: absolute;
-            top: 10px; right: 20px;
-            color: var(--soft-pink);
-            font-size: 3rem;
-        }
+.caption-plate h2 {
+    font-size: 1.6rem;
+    background: linear-gradient(45deg, var(--accent), #ff85a1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
 
-        .open-button {
-            background: var(--accent-pink);
-            color: white;
-            padding: 20px 45px;
-            border-radius: 50px;
-            border: none;
-            font-size: 1.2rem;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 10px 25px rgba(255, 133, 161, 0.5);
-            transition: 0.3s;
-            letter-spacing: 1px;
-        }
-        .open-button:hover { transform: scale(1.1); background: #ff6b8e; }
+/* Финальная открытка */
+.letter-container {
+    display: none;
+    width: 600px;
+    background: #fff;
+    padding: 60px;
+    border-radius: 5px;
+    box-shadow: 30px 30px 0 rgba(255, 77, 109, 0.1);
+    border: 1px solid #eee;
+    position: relative;
+    font-family: 'Georgia', serif;
+}
 
-        #loader {
-            position: fixed; inset: 0; background: #fff;
-            display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000;
-            transition: 1s ease;
-        }
-    </style>
+.btn-magic {
+    background: var(--accent);
+    color: white;
+    padding: 25px 60px;
+    border-radius: 100px;
+    border: none;
+    font-size: 1.4rem;
+    cursor: pointer;
+    box-shadow: 0 15px 40px rgba(255, 77, 109, 0.4);
+    transition: 0.4s;
+}
+.btn-magic:hover { transform: translateY(-5px) scale(1.05); }
+
+#typewriter { line-height: 2; font-size: 1.2rem; }
+
+/* Лоадер */
+#loader {
+    position: fixed; inset: 0; background: #fff; z-index: 2000;
+    display: flex; justify-content: center; align-items: center;
+}
+
+/* Сердечки */
+.p-item {
+    transition: transform 0.3s ease, opacity 1s ease;
+    animation: heartbeat 4s infinite ease-in-out;
+}
+
+@keyframes heartbeat {
+    0%, 100% { transform: scale(1); opacity: 0.2; }
+    50% { transform: scale(1.2); opacity: 0.4; }
+}
+</style>
 </head>
 <body>
 
-<div id="loader">
-    <div style="font-size: 2rem; margin-bottom: 20px;">🎬</div>
-    <p style="letter-spacing: 3px; color: var(--accent-pink);">ГОТОВИМ ТВОЮ ИСТОРИЮ...</p>
+<div id="loader">✨ Создаем магию...</div>
+
+<div class="bg-decor">
+    <div class="bokeh" style="top: 10%; left: 10%;"></div>
+    <div class="bokeh" style="bottom: 10%; right: 10%; background: #ffc3a0;"></div>
 </div>
 
-<div class="bg-container" id="bg"></div>
+<div class="foreground-layer" id="fg"></div>
 
 <audio id="bg-music" loop>
     <source src="https://www.chosic.com/wp-content/uploads/2021/05/Starlight-City-Night-Piano.mp3" type="audio/mpeg">
@@ -174,106 +186,134 @@
 
 <div class="scroll-container">
     <section class="section">
-        <div class="window-frame"><video src="V1.mp4" autoplay muted loop playsinline></video></div>
-        <div class="caption">Почти 4 года…</div>
-    </section>
-    <section class="section">
-        <div class="window-frame"><video src="V2.mp4" autoplay muted loop playsinline></video></div>
-        <div class="caption">Сквозь расстояние и время</div>
-    </section>
-    <section class="section">
-        <div class="window-frame"><video src="V3.mp4" autoplay muted loop playsinline></video></div>
-        <div class="caption">Наши сердца нашли путь</div>
-    </section>
-    <section class="section">
-        <div class="window-frame"><video src="V4.mp4" autoplay muted loop playsinline></video></div>
-        <div class="caption">И я до сих пор…</div>
-    </section>
-    <section class="section">
-        <div class="window-frame"><video src="V5.mp4" autoplay muted loop playsinline></video></div>
-        <div class="caption">Выбираю тебя. Сегодня. Завтра. Всегда.</div>
+        <div class="window-outer">
+            <div class="window-inner"><video src="V1.mp4" autoplay muted loop playsinline></video></div>
+        </div>
+        <div class="caption-plate"><h2>Почти 4 года…</h2></div>
     </section>
 
     <section class="section">
-        <div class="final-wrapper">
-            <button class="open-button" id="btn-open">ОТКРОЙ МОЁ ПИСЬМО</button>
-            <div class="card" id="card">
-                <div id="text-target"></div>
-            </div>
+        <div class="window-outer">
+            <div class="window-inner"><video src="V2.mp4" autoplay muted loop playsinline></video></div>
+        </div>
+        <div class="caption-plate"><h2>Сквозь расстояние</h2></div>
+    </section>
+
+    <section class="section">
+        <div class="window-outer">
+            <div class="window-inner"><video src="V3.mp4" autoplay muted loop playsinline></video></div>
+        </div>
+        <div class="caption-plate"><h2>Наши сердца нашли путь</h2></div>
+    </section>
+
+    <section class="section">
+        <div class="window-outer">
+            <div class="window-inner"><video src="V4.mp4" autoplay muted loop playsinline></video></div>
+        </div>
+        <div class="caption-plate"><h2>И я до сих пор…</h2></div>
+    </section>
+
+    <section class="section">
+        <div class="window-outer">
+            <div class="window-inner"><video src="V5.mp4" autoplay muted loop playsinline></video></div>
+        </div>
+        <div class="caption-plate"><h2>Выбираю тебя. Всегда.</h2></div>
+    </section>
+
+    <section class="section">
+        <button class="btn-magic" id="openBtn">ПОСМОТРИ МНЕ В ГЛАЗА</button>
+        <div class="letter-container" id="card">
+            <div id="typewriter"></div>
         </div>
     </section>
 </div>
 
 <script>
-    // 1. Создание сердец на фоне
-    const bg = document.getElementById('bg');
-    const heartIcons = ['❤️', '🌸', '✨', '💖'];
-    for(let i=0; i<25; i++) {
-        const h = document.createElement('div');
-        h.className = 'floating-heart';
-        h.innerHTML = heartIcons[Math.floor(Math.random()*heartIcons.length)];
-        h.style.left = Math.random() * 100 + 'vw';
-        h.style.animationDelay = Math.random() * 10 + 's';
-        h.style.fontSize = (15 + Math.random() * 25) + 'px';
-        bg.appendChild(h);
-    }
+// Параллакс сердечек
+const fg = document.getElementById('fg');
+for(let i=0; i<15; i++) {
+    const heart = document.createElement('div');
+    heart.innerHTML = '❤️';
+    heart.style.position = 'absolute';
+    heart.style.left = Math.random() * 100 + 'vw';
+    heart.style.top = Math.random() * 100 + 'vh';
+    heart.style.fontSize = (Math.random() * 30 + 20) + 'px';
+    heart.style.opacity = '0.2';
+    heart.className = 'p-item';
+    fg.appendChild(heart);
+}
 
-    // 2. Логика открытки
-    const btn = document.getElementById('btn-open');
-    const card = document.getElementById('card');
-    const target = document.getElementById('text-target');
-    const music = document.getElementById('bg-music');
+document.addEventListener('mousemove', (e) => {
+    const x = (e.clientX / window.innerWidth - 0.5);
+    const y = (e.clientY / window.innerHeight - 0.5);
 
-    const message = "Моя дорогая Снежана!\n\nЭти видео — лишь малая часть того, как я тебя вижу. Ты — мой самый любимый человек, и я бесконечно благодарен судьбе за эти 4 года. Я люблю тебя всё сильнее с каждым днем. \n\nТвой навсегда. ♥";
-
-    btn.onclick = () => {
-        music.play();
-        btn.style.display = 'none';
-        card.style.display = 'block';
-        
-        let i = 0;
-        function typing() {
-            if (i < message.length) {
-                const char = message.charAt(i);
-                target.innerHTML += (char === '\n') ? '<br>' : char;
-                i++;
-                setTimeout(typing, 60);
-            }
-        }
-        typing();
-    };
-
-    // 3. Интерактив при скролле
-    const sections = document.querySelectorAll('.section');
-    const observer = new IntersectionObserver(entries => {
-        entries.forEach(entry => {
-            if(entry.isIntersecting) {
-                entry.target.classList.add('active');
-                // Запуск видео, если оно вдруг замерло
-                const v = entry.target.querySelector('video');
-                if(v) v.play();
-            }
-        });
-    }, { threshold: 0.6 });
-
-    sections.forEach(s => observer.observe(s));
-
-    // 4. Убираем лоадер
-    window.onload = () => {
-        const loader = document.getElementById('loader');
-        loader.style.opacity = '0';
-        setTimeout(() => loader.remove(), 1000);
-    };
-
-    // 5. Параллакс для окон
-    document.addEventListener('mousemove', (e) => {
-        const x = (e.clientX / window.innerWidth - 0.5) * 15;
-        const y = (e.clientY / window.innerHeight - 0.5) * 15;
-        const activeFrame = document.querySelector('.section.active .window-frame');
-        if(activeFrame) {
-            activeFrame.style.transform = `rotateY(${x}deg) rotateX(${-y}deg) scale(1)`;
-        }
+    document.querySelectorAll('.p-item').forEach(h => {
+        h.style.transform = `translate(${x * 50}px, ${y * 50}px)`;
     });
+
+    const win = document.querySelector('.section.active .window-outer');
+    if(win) {
+        win.style.transform = `rotateY(${x * 20}deg) rotateX(${-y * 20}deg)`;
+    }
+});
+
+// Лоадер
+window.onload = () => {
+    setTimeout(() => {
+        document.getElementById('loader').style.opacity = '0';
+        setTimeout(() => document.getElementById('loader').remove(), 1000);
+    }, 1500);
+};
+
+// IntersectionObserver для секций
+const obs = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+        if(entry.isIntersecting) entry.target.classList.add('active');
+    });
+}, { threshold: 0.5 });
+document.querySelectorAll('.section').forEach(s => obs.observe(s));
+
+// Логика финальной открытки
+const message = "Моя любимая Снежана!\n\nЯ долго думал, как передать всё то, что чувствую. Эти 4 года пролетели как один миг, но каждый этот миг бесценен, потому что в нем была ты. Ты — мой свет, мой дом и моё самое большое счастье. \n\nЯ люблю тебя. Сегодня, завтра и вечно.";
+
+document.getElementById('openBtn').onclick = function() {
+    document.getElementById('bg-music').play();
+    this.style.display = 'none';
+    const card = document.getElementById('card');
+    card.style.display = 'block';
+
+    let i = 0;
+    function type() {
+        if (i < message.length) {
+            const char = message.charAt(i);
+            document.getElementById('typewriter').innerHTML += char === '\n' ? '<br>' : char;
+            i++;
+            setTimeout(type, 50);
+        }
+    }
+    type();
+};
+
+// Улетающие сердечки при клике
+document.body.addEventListener('click', (e) => {
+    const heart = document.createElement('div');
+    heart.innerHTML = '❤️';
+    heart.style.position = 'absolute';
+    heart.style.left = e.clientX + 'px';
+    heart.style.top = e.clientY + 'px';
+    heart.style.fontSize = '24px';
+    heart.style.opacity = 1;
+    heart.style.transition = 'all 1s ease-out';
+    document.body.appendChild(heart);
+
+    setTimeout(() => {
+        heart.style.transform = 'translateY(-100px) scale(1.5)';
+        heart.style.opacity = 0;
+    }, 10);
+
+    setTimeout(() => heart.remove(), 1100);
+});
 </script>
+
 </body>
 </html>
