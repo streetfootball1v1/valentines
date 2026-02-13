@@ -3,613 +3,298 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Почти 4 года — Интерактивная история</title>
+    <title>Our Cinematic Story</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
         :root {
-            --frame-width: 854px;
-            --frame-height: 480px;
-            --bg-dark: #0f0f0f;
-            --bg-gradient: radial-gradient(ellipse at center, #1a1a1a 0%, #0a0a0a 100%);
-            --accent: #d4a574;
-            --text-light: #f5f0eb;
+            --bg-grad: radial-gradient(circle at center, #1a1b22 0%, #050508 100%);
+            --accent-soft: rgba(255, 230, 200, 0.08);
+            --text-color: #e8e8e8;
         }
-        
-        html {
-            scroll-behavior: smooth;
-        }
-        
-        body {
-            font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
-            background: var(--bg-dark);
-            color: var(--text-light);
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body, html {
+            height: 100%;
+            background: #050508;
+            color: var(--text-color);
+            font-family: 'Georgia', serif;
             overflow: hidden;
-            height: 100vh;
         }
-        
-        /* Film Grain Overlay */
-        .film-grain {
+
+        /* Фоновый шум и частицы */
+        .canvas-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            inset: 0;
             pointer-events: none;
-            z-index: 1000;
-            opacity: 0.04;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-            animation: grain 0.5s steps(10) infinite;
+            z-index: 5;
+            opacity: 0.4;
         }
-        
-        @keyframes grain {
-            0%, 100% { transform: translate(0, 0); }
-            10% { transform: translate(-5%, -5%); }
-            20% { transform: translate(5%, 5%); }
-            30% { transform: translate(-3%, 3%); }
-            40% { transform: translate(3%, -3%); }
-            50% { transform: translate(-5%, 5%); }
-            60% { transform: translate(5%, -5%); }
-            70% { transform: translate(-3%, -3%); }
-            80% { transform: translate(3%, 3%); }
-            90% { transform: translate(-5%, -3%); }
-        }
-        
-        /* Vignette */
-        .vignette {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.6) 100%);
-            pointer-events: none;
-            z-index: 999;
-        }
-        
-        /* Scroll Container */
+
         .scroll-container {
             height: 100vh;
             overflow-y: scroll;
             scroll-snap-type: y mandatory;
             scroll-behavior: smooth;
+            -ms-overflow-style: none; scrollbar-width: none;
         }
-        
-        /* Scene Section */
-        .scene {
+        .scroll-container::-webkit-scrollbar { display: none; }
+
+        .section {
             height: 100vh;
-            scroll-snap-align: start;
+            width: 100%;
             display: flex;
             flex-direction: column;
-            align-items: center;
             justify-content: center;
+            align-items: center;
+            scroll-snap-align: start;
             position: relative;
-            background: var(--bg-gradient);
+            perspective: 1500px;
+            background: var(--bg-grad);
         }
-        
-        /* The Frame - Digital Photo Frame */
-        .the-frame {
-            width: var(--frame-width);
-            height: var(--frame-height);
+
+        /* Световое пятно за видео */
+        .glow-behind {
+            position: absolute;
+            width: 1000px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+            filter: blur(60px);
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 2s ease;
+        }
+        .section.active .glow-behind { opacity: 1; }
+
+        /* Окно истории */
+        .story-window {
             position: relative;
+            width: 854px;
+            height: 480px;
+            z-index: 10;
             transform-style: preserve-3d;
-            transition: transform 0.1s ease-out;
+            transition: transform 0.15s ease-out, opacity 1.5s ease;
+            opacity: 0;
         }
-        
-        /* Frame Border */
-        .frame-border {
-            position: absolute;
-            top: -20px;
-            left: -20px;
-            right: -20px;
-            bottom: -20px;
-            background: linear-gradient(145deg, #2a2a2a 0%, #1a1a1a 50%, #0f0f0f 100%);
-            border-radius: 8px;
-            box-shadow: 
-                0 25px 80px rgba(0,0,0,0.8),
-                0 10px 30px rgba(0,0,0,0.6),
-                inset 0 1px 0 rgba(255,255,255,0.1),
-                inset 0 -1px 0 rgba(0,0,0,0.5);
-            z-index: -1;
-        }
-        
-        /* Frame inner bevel */
-        .frame-border::before {
-            content: '';
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            right: 10px;
-            bottom: 10px;
-            border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 4px;
-        }
-        
-        /* Video Container */
+        .section.active .story-window { opacity: 1; }
+
         .video-container {
             width: 100%;
             height: 100%;
-            background: #000;
-            border-radius: 4px;
             overflow: hidden;
-            position: relative;
+            border-radius: 6px;
+            box-shadow: 0 40px 80px rgba(0,0,0,0.9), 0 0 20px rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.05);
+            background: #000;
         }
-        
-        .video-container video {
+
+        video {
             width: 100%;
             height: 100%;
-            object-fit: contain;
-            filter: contrast(1.1) brightness(1.05) saturate(1.1);
+            object-fit: cover;
+            filter: saturate(1.1) contrast(1.05) brightness(1.1);
         }
-        
-        /* Caption below frame */
+
+        /* Текст в стиле кинотитров */
         .caption {
-            margin-top: 50px;
+            margin-top: 60px;
+            font-size: 1.6rem;
+            letter-spacing: 2px;
+            font-weight: 300;
             text-align: center;
+            color: rgba(255,255,255,0.8);
+            text-shadow: 0 4px 15px rgba(0,0,0,0.5);
             opacity: 0;
             transform: translateY(20px);
-            transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+            transition: all 2s cubic-bezier(0.16, 1, 0.3, 1) 0.6s;
         }
-        
-        .scene.active .caption {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        
-        .caption h2 {
-            font-size: 2.2rem;
-            font-weight: 300;
-            letter-spacing: 0.15em;
-            color: var(--text-light);
-            text-shadow: 0 4px 20px rgba(0,0,0,0.5);
-            margin-bottom: 0.5rem;
-        }
-        
-        .caption .subtitle {
-            font-size: 1rem;
-            letter-spacing: 0.3em;
-            color: var(--accent);
-            text-transform: uppercase;
-        }
-        
-        /* Scene Indicator Dots */
-        .scene-nav {
-            position: fixed;
-            right: 40px;
-            top: 50%;
-            transform: translateY(-50%);
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        
-        .nav-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.2);
-            cursor: pointer;
-            transition: all 0.3s;
-            position: relative;
-        }
-        
-        .nav-dot::before {
-            content: '';
-            position: absolute;
-            top: -8px;
-            left: -8px;
-            right: -8px;
-            bottom: -8px;
-        }
-        
-        .nav-dot.active {
-            background: var(--accent);
-            box-shadow: 0 0 15px var(--accent);
-            transform: scale(1.3);
-        }
-        
-        /* Progress Bar */
-        .progress-container {
+        .section.active .caption { opacity: 1; transform: translateY(0); }
+
+        /* Музыка и Инфо */
+        .controls {
             position: fixed;
             bottom: 40px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 100;
-            width: 300px;
-        }
-        
-        .progress-bar {
-            height: 1px;
-            background: rgba(255,255,255,0.1);
-            position: relative;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: var(--accent);
-            width: 0%;
-            transition: width 0.3s;
-            box-shadow: 0 0 10px var(--accent);
-        }
-        
-        .scene-number {
             text-align: center;
-            margin-top: 15px;
-            font-size: 0.75rem;
-            letter-spacing: 0.4em;
-            color: rgba(255,255,255,0.4);
         }
-        
-        /* Loader */
+
+        #music-toggle {
+            background: none;
+            border: 1px solid rgba(255,255,255,0.2);
+            color: rgba(255,255,255,0.5);
+            padding: 8px 25px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 10px;
+            letter-spacing: 3px;
+            transition: 0.3s;
+            backdrop-filter: blur(5px);
+        }
+        #music-toggle:hover { color: #fff; border-color: #fff; }
+
+        /* Загрузчик */
         #loader {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #0a0a0a;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-            transition: opacity 0.8s, visibility 0.8s;
+            position: fixed; inset: 0; background: #050508;
+            display: flex; justify-content: center; align-items: center; z-index: 1000;
+            transition: 1.5s ease;
         }
-        
-        #loader.hidden {
-            opacity: 0;
-            visibility: hidden;
-        }
-        
-        .loader-frame {
-            width: 200px;
-            height: 120px;
-            border: 1px solid rgba(212, 165, 116, 0.3);
-            position: relative;
-            animation: loaderPulse 2s ease infinite;
-        }
-        
-        @keyframes loaderPulse {
-            0%, 100% { border-color: rgba(212, 165, 116, 0.3); }
-            50% { border-color: rgba(212, 165, 116, 0.8); }
-        }
-        
-        .loader-text {
-            margin-top: 30px;
-            color: var(--accent);
-            font-size: 0.9rem;
-            letter-spacing: 0.4em;
-        }
-        
-        .loader-progress {
-            margin-top: 20px;
-            width: 200px;
-            height: 1px;
-            background: rgba(255,255,255,0.1);
-        }
-        
-        .loader-bar {
-            height: 100%;
-            background: var(--accent);
-            width: 0%;
-            transition: width 0.3s;
-        }
-        
-        /* Scroll hint */
-        .scroll-hint {
-            position: fixed;
-            bottom: 100px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: rgba(255,255,255,0.3);
-            font-size: 0.8rem;
-            letter-spacing: 0.3em;
-            z-index: 50;
-            animation: bounce 2s infinite;
-        }
-        
-        @keyframes bounce {
-            0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.3; }
-            50% { transform: translateX(-50%) translateY(-10px); opacity: 0.6; }
-        }
+        .loader-text { font-size: 12px; letter-spacing: 8px; font-weight: 100; color: #555; }
     </style>
 </head>
 <body>
 
-    <!-- Film effects -->
-    <div class="film-grain"></div>
-    <div class="vignette"></div>
-
-    <!-- Loader -->
     <div id="loader">
-        <div class="loader-frame"></div>
-        <div class="loader-text">ЗАГРУЗКА ИСТОРИИ</div>
-        <div class="loader-progress">
-            <div class="loader-bar" id="loaderBar"></div>
-        </div>
+        <div class="loader-text">WAITING FOR MAGIC...</div>
     </div>
 
-    <!-- Scene Navigation -->
-    <div class="scene-nav" id="sceneNav">
-        <div class="nav-dot active" data-scene="0"></div>
-        <div class="nav-dot" data-scene="1"></div>
-        <div class="nav-dot" data-scene="2"></div>
-        <div class="nav-dot" data-scene="3"></div>
-        <div class="nav-dot" data-scene="4"></div>
+    <canvas class="canvas-overlay" id="dustCanvas"></canvas>
+
+    <audio id="bg-music" loop>
+        <source src="https://www.chosic.com/wp-content/uploads/2021/04/Rainy-Day-Background-Music.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="controls">
+        <button id="music-toggle">START THE JOURNEY</button>
     </div>
 
-    <!-- Progress -->
-    <div class="progress-container">
-        <div class="progress-bar">
-            <div class="progress-fill" id="progressFill"></div>
-        </div>
-        <div class="scene-number" id="sceneNumber">01 / 05</div>
+    <div class="scroll-container">
+        <section class="section">
+            <div class="glow-behind"></div>
+            <div class="story-window">
+                <div class="video-container">
+                    <video src="V1.mp4" autoplay muted loop playsinline></video>
+                </div>
+            </div>
+            <div class="caption">Почти 4 года…</div>
+        </section>
+
+        <section class="section">
+            <div class="glow-behind"></div>
+            <div class="story-window">
+                <div class="video-container">
+                    <video src="V2.mp4" autoplay muted loop playsinline></video>
+                </div>
+            </div>
+            <div class="caption">Сквозь расстояние и время</div>
+        </section>
+
+        <section class="section">
+            <div class="glow-behind"></div>
+            <div class="story-window">
+                <div class="video-container">
+                    <video src="V3.mp4" autoplay muted loop playsinline></video>
+                </div>
+            </div>
+            <div class="caption">Наши сердца нашли путь</div>
+        </section>
+
+        <section class="section">
+            <div class="glow-behind"></div>
+            <div class="story-window">
+                <div class="video-container">
+                    <video src="V4.mp4" autoplay muted loop playsinline></video>
+                </div>
+            </div>
+            <div class="caption">И я до сих пор…</div>
+        </section>
+
+        <section class="section">
+            <div class="glow-behind"></div>
+            <div class="story-window">
+                <div class="video-container">
+                    <video src="V5.mp4" autoplay muted loop playsinline></video>
+                </div>
+            </div>
+            <div class="caption">Выбираю тебя. Сегодня. Завтра. Всегда.</div>
+        </section>
     </div>
-
-    <div class="scroll-hint" id="scrollHint">ПРОКРУТИТЕ ВНИЗ</div>
-
-    <!-- Main Content -->
-    <div class="scroll-container" id="scrollContainer">
-        
-        <!-- Scene 1 -->
-        <section class="scene" data-scene="0">
-            <div class="the-frame" id="frame-0">
-                <div class="frame-border"></div>
-                <div class="video-container">
-                    <video muted playsinline loop preload="auto" id="video-0">
-                        <source src="https://streetfootball1v1.github.io/valentines/v1.mp4" type="video/mp4">
-                    </video>
-                </div>
-            </div>
-            <div class="caption">
-                <h2>Почти 4 года…</h2>
-                <div class="subtitle">Начало истории</div>
-            </div>
-        </section>
-
-        <!-- Scene 2 -->
-        <section class="scene" data-scene="1">
-            <div class="the-frame" id="frame-1">
-                <div class="frame-border"></div>
-                <div class="video-container">
-                    <video muted playsinline loop preload="auto" id="video-1">
-                        <source src="https://streetfootball1v1.github.io/valentines/v2.mp4" type="video/mp4">
-                    </video>
-                </div>
-            </div>
-            <div class="caption">
-                <h2>Сквозь расстояние и время</h2>
-                <div class="subtitle">Любовь преодолевает всё</div>
-            </div>
-        </section>
-
-        <!-- Scene 3 -->
-        <section class="scene" data-scene="2">
-            <div class="the-frame" id="frame-2">
-                <div class="frame-border"></div>
-                <div class="video-container">
-                    <video muted playsinline loop preload="auto" id="video-2">
-                        <source src="https://streetfootball1v1.github.io/valentines/v3.mp4" type="video/mp4">
-                    </video>
-                </div>
-            </div>
-            <div class="caption">
-                <h2>Наши сердца нашли путь</h2>
-                <div class="subtitle">Каждый миг вместе</div>
-            </div>
-        </section>
-
-        <!-- Scene 4 -->
-        <section class="scene" data-scene="3">
-            <div class="the-frame" id="frame-3">
-                <div class="frame-border"></div>
-                <div class="video-container">
-                    <video muted playsinline loop preload="auto" id="video-3">
-                        <source src="https://streetfootball1v1.github.io/valentines/v4.mp4" type="video/mp4">
-                    </video>
-                </div>
-            </div>
-            <div class="caption">
-                <h2>И я до сих пор…</h2>
-                <div class="subtitle">Выбираю тебя каждый день</div>
-            </div>
-        </section>
-
-        <!-- Scene 5 -->
-        <section class="scene" data-scene="4">
-            <div class="the-frame" id="frame-4">
-                <div class="frame-border"></div>
-                <div class="video-container">
-                    <video muted playsinline loop preload="auto" id="video-4">
-                        <source src="https://streetfootball1v1.github.io/valentines/v5.mp4" type="video/mp4">
-                    </video>
-                </div>
-            </div>
-            <div class="caption">
-                <h2>Выбираю тебя</h2>
-                <div class="subtitle">Сегодня. Завтра. Всегда.</div>
-            </div>
-        </section>
-
-    </div>
-
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Playfair+Display:wght@300;400&display=swap" rel="stylesheet">
 
     <script>
-        // Application State
-        const state = {
-            currentScene: 0,
-            isLoading: true,
-            mouseX: 0,
-            mouseY: 0,
-            targetRotateX: 0,
-            targetRotateY: 0,
-            currentRotateX: 0,
-            currentRotateY: 0
-        };
+        // 1. Пылинки в воздухе (Dust Particles)
+        const canvas = document.getElementById('dustCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
 
-        // DOM Elements
-        const scrollContainer = document.getElementById('scrollContainer');
-        const scenes = document.querySelectorAll('.scene');
-        const frames = document.querySelectorAll('.the-frame');
-        const videos = document.querySelectorAll('video');
-        const navDots = document.querySelectorAll('.nav-dot');
-        const loader = document.getElementById('loader');
-        const loaderBar = document.getElementById('loaderBar');
-        const progressFill = document.getElementById('progressFill');
-        const sceneNumber = document.getElementById('sceneNumber');
-        const scrollHint = document.getElementById('scrollHint');
+        function initCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
 
-        // Video Loading
-        let loadedVideos = 0;
-        const totalVideos = videos.length;
-
-        function updateLoader() {
-            loadedVideos++;
-            const progress = (loadedVideos / totalVideos) * 100;
-            loaderBar.style.width = `${progress}%`;
-            
-            if (loadedVideos === totalVideos) {
-                setTimeout(() => {
-                    loader.classList.add('hidden');
-                    state.isLoading = false;
-                    playCurrentVideo();
-                }, 500);
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 1.5;
+                this.speedX = Math.random() * 0.5 - 0.25;
+                this.speedY = Math.random() * 0.5 - 0.25;
+                this.opacity = Math.random() * 0.5;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x > canvas.width) this.x = 0;
+                if (this.y > canvas.height) this.y = 0;
+            }
+            draw() {
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
             }
         }
 
-        videos.forEach((video, index) => {
-            video.addEventListener('canplaythrough', updateLoader, { once: true });
-            video.addEventListener('error', updateLoader, { once: true });
-            video.load();
-        });
-
-        // Video Playback Control
-        function playCurrentVideo() {
-            videos.forEach((video, index) => {
-                if (index === state.currentScene) {
-                    video.play().catch(() => {});
-                } else {
-                    video.pause();
-                    video.currentTime = 0;
-                }
-            });
+        function createParticles() {
+            for (let i = 0; i < 100; i++) particles.push(new Particle());
         }
 
-        // Scroll Snap Handling
-        const observerOptions = {
-            root: scrollContainer,
-            threshold: 0.5
-        };
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animateParticles);
+        }
 
-        const sceneObserver = new IntersectionObserver((entries) => {
+        window.addEventListener('resize', initCanvas);
+        initCanvas(); createParticles(); animateParticles();
+
+        // 2. Логика музыки
+        const music = document.getElementById('bg-music');
+        const mBtn = document.getElementById('music-toggle');
+        mBtn.addEventListener('click', () => {
+            if (music.paused) {
+                music.play();
+                mBtn.textContent = "ENJOY THE STORY";
+                mBtn.style.opacity = "0.2";
+            }
+        });
+
+        // 3. Loader
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loader').style.opacity = '0';
+                setTimeout(() => document.getElementById('loader').remove(), 1500);
+            }, 2500);
+        });
+
+        // 4. Скролл-трекинг
+        const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const sceneIndex = parseInt(entry.target.dataset.scene);
-                    
-                    // Update state
-                    state.currentScene = sceneIndex;
-                    
-                    // Update UI
-                    updateSceneUI(sceneIndex);
-                    
-                    // Update video playback
-                    playCurrentVideo();
-                    
-                    // Hide scroll hint after first scene
-                    if (sceneIndex > 0) {
-                        scrollHint.style.opacity = '0';
-                    }
-                }
+                if (entry.isIntersecting) entry.target.classList.add('active');
+                else entry.target.classList.remove('active');
             });
-        }, observerOptions);
+        }, { threshold: 0.6 });
 
-        scenes.forEach(scene => {
-            sceneObserver.observe(scene);
-        });
+        document.querySelectorAll('.section').forEach(s => observer.observe(s));
 
-        function updateSceneUI(index) {
-            // Update nav dots
-            navDots.forEach((dot, i) => {
-                dot.classList.toggle('active', i === index);
-            });
-            
-            // Update scene number
-            sceneNumber.textContent = `0${index + 1} / 05`;
-            
-            // Update progress
-            const progress = ((index + 1) / 5) * 100;
-            progressFill.style.width = `${progress}%`;
-            
-            // Update active class for captions
-            scenes.forEach((scene, i) => {
-                scene.classList.toggle('active', i === index);
-            });
-        }
-
-        // Mouse Parallax (Tilt Effect)
+        // 5. Tilt эффект (наклон)
         document.addEventListener('mousemove', (e) => {
-            if (state.isLoading) return;
-            
-            const centerX = window.innerWidth / 2;
-            const centerY = window.innerHeight / 2;
-            
-            // Calculate mouse position relative to center (-1 to 1)
-            state.mouseX = (e.clientX - centerX) / centerX;
-            state.mouseY = (e.clientY - centerY) / centerY;
-            
-            // Target rotation (limited range)
-            state.targetRotateY = state.mouseX * 3; // -3 to 3 degrees
-            state.targetRotateX = -state.mouseY * 3; // -3 to 3 degrees
-        });
-
-        // Smooth animation loop for tilt
-        function animateTilt() {
-            if (!state.isLoading) {
-                // Smooth interpolation
-                state.currentRotateX += (state.targetRotateX - state.currentRotateX) * 0.1;
-                state.currentRotateY += (state.targetRotateY - state.currentRotateY) * 0.1;
-                
-                // Apply to current frame only
-                const currentFrame = frames[state.currentScene];
-                if (currentFrame) {
-                    currentFrame.style.transform = `
-                        perspective(1000px)
-                        rotateX(${state.currentRotateX}deg)
-                        rotateY(${state.currentRotateY}deg)
-                    `;
-                }
-            }
-            
-            requestAnimationFrame(animateTilt);
-        }
-
-        animateTilt();
-
-        // Navigation Click Handling
-        navDots.forEach((dot, index) => {
-            dot.addEventListener('click', () => {
-                scenes[index].scrollIntoView({ behavior: 'smooth' });
-            });
-        });
-
-        // Keyboard Navigation
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowDown' && state.currentScene < 4) {
-                scenes[state.currentScene + 1].scrollIntoView({ behavior: 'smooth' });
-            } else if (e.key === 'ArrowUp' && state.currentScene > 0) {
-                scenes[state.currentScene - 1].scrollIntoView({ behavior: 'smooth' });
+            const x = (e.clientX / window.innerWidth - 0.5) * 10;
+            const y = (e.clientY / window.innerHeight - 0.5) * 10;
+            const activeWin = document.querySelector('.section.active .story-window');
+            if(activeWin) {
+                activeWin.style.transform = `rotateY(${x}deg) rotateX(${-y}deg)`;
             }
         });
-
-        // Initial state
-        updateSceneUI(0);
     </script>
-
 </body>
 </html>
