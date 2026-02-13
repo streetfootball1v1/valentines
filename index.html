@@ -19,8 +19,8 @@ html, body {
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background: #0f0f0f;
-    color: #f5f5f5;
+    background: linear-gradient(to bottom, #f5f5f5, #eaeaea);
+    color: #1c1c1c;
     overflow-x: hidden;
 }
 
@@ -55,28 +55,32 @@ body {
     transform: translateY(0);
 }
 
-/* Видео */
+/* Видео — фиксированные пропорции */
 .video-wrapper {
-    width: 70%;
-    max-width: 800px;
+    width: 75%;
+    max-width: 900px;
+    aspect-ratio: 16 / 9;
     position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.12);
 }
 
 video {
     width: 100%;
-    border-radius: 8px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-    background: #1a1a1a;
+    height: 100%;
+    object-fit: cover;
+    display: block;
 }
 
 /* Печатная машинка для первой секции */
 .typewriter {
     margin-top: 50px;
-    font-size: 1.6rem;
+    font-size: 1.5rem;
     font-weight: 300;
-    line-height: 2;
-    max-width: 700px;
-    letter-spacing: 0.5px;
+    line-height: 1.9;
+    max-width: 750px;
+    letter-spacing: 0.3px;
 }
 
 .typewriter-line {
@@ -88,7 +92,7 @@ video {
 
 .typewriter-line.typing {
     opacity: 1;
-    animation: typing 2.5s steps(40, end);
+    animation: typing 2.5s steps(45, end);
 }
 
 @keyframes typing {
@@ -99,11 +103,11 @@ video {
 /* Остальные captions */
 .caption {
     margin-top: 50px;
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     font-weight: 300;
-    line-height: 2;
-    max-width: 700px;
-    letter-spacing: 0.5px;
+    line-height: 1.9;
+    max-width: 750px;
+    letter-spacing: 0.3px;
     opacity: 0;
     transform: translateY(20px);
     transition: opacity 0.8s ease 0.4s, transform 0.8s ease 0.4s;
@@ -114,9 +118,9 @@ video {
     transform: translateY(0);
 }
 
-/* Финальная секция с фото */
+/* Финальная секция */
 .final-section {
-    background: #0a0a0a;
+    background: linear-gradient(to bottom, #eaeaea, #e0e0e0);
 }
 
 .final-content {
@@ -127,12 +131,12 @@ video {
 }
 
 .photo-frame {
-    width: 280px;
-    height: 280px;
+    width: 300px;
+    height: 300px;
     border-radius: 50%;
     overflow: hidden;
-    border: 3px solid rgba(255,255,255,0.1);
-    box-shadow: 0 0 60px rgba(255,255,255,0.05);
+    border: 4px solid rgba(255,255,255,0.8);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
     opacity: 0;
     transform: scale(0.8);
     transition: all 1.2s ease 0.3s;
@@ -150,9 +154,10 @@ video {
 }
 
 .final-text {
-    font-size: 3rem;
-    font-weight: 200;
-    letter-spacing: 8px;
+    font-size: 2.5rem;
+    font-weight: 300;
+    letter-spacing: 6px;
+    color: #1c1c1c;
     opacity: 0;
     transform: translateY(20px);
     transition: all 1s ease 0.8s;
@@ -164,10 +169,10 @@ video {
 }
 
 .final-date {
-    font-size: 1.1rem;
+    font-size: 1rem;
     color: #666;
-    letter-spacing: 4px;
-    margin-top: 20px;
+    letter-spacing: 3px;
+    margin-top: 15px;
     opacity: 0;
     transition: opacity 1s ease 1.2s;
 }
@@ -182,8 +187,9 @@ video {
     bottom: 40px;
     left: 50%;
     transform: translateX(-50%);
-    opacity: 0.3;
+    opacity: 0.4;
     animation: bounce 2s infinite;
+    color: #666;
 }
 
 @keyframes bounce {
@@ -203,7 +209,7 @@ video {
     }
     
     .typewriter {
-        font-size: 1.2rem;
+        font-size: 1.1rem;
         white-space: normal;
     }
     
@@ -214,16 +220,16 @@ video {
     }
     
     .caption {
-        font-size: 1.2rem;
+        font-size: 1.15rem;
     }
     
     .photo-frame {
-        width: 200px;
-        height: 200px;
+        width: 220px;
+        height: 220px;
     }
     
     .final-text {
-        font-size: 2rem;
+        font-size: 1.8rem;
         letter-spacing: 4px;
     }
 }
@@ -296,7 +302,7 @@ video {
         </div>
         <div class="caption">
             И если бы мне снова пришлось стоять<br>
-            под тем холодным дождем…<br><br>
+            под тем холодным дождём…<br><br>
             Я бы снова выбрал тебя.
         </div>
     </section>
@@ -305,7 +311,6 @@ video {
     <section class="section final-section">
         <div class="final-content">
             <div class="photo-frame">
-                <!-- ЗАГРУЗИ СЮДА ФОТО -->
                 <img src="photo.jpg" alt="Мы">
             </div>
             <div class="final-text">ВСЕГДА</div>
@@ -327,10 +332,9 @@ function startTypewriter() {
     });
 }
 
-/* Запускаем сразу для первой секции */
 startTypewriter();
 
-/* Intersection Observer для остальных секций */
+/* Intersection Observer */
 const observer = new IntersectionObserver(entries => {
     entries.forEach(entry => {
         if (entry.isIntersecting) {
