@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Почти 4 года — Наша история</title>
+    <title>Почти 4 года</title>
     <style>
         * {
             margin: 0;
@@ -11,93 +11,69 @@
             box-sizing: border-box;
         }
         
-        html {
-            scroll-behavior: auto;
-        }
-        
+        /* ФОН под цвет видео — замените на свой */
         body {
             font-family: 'Cormorant Garamond', Georgia, serif;
-            background: #000;
+            background: #1a1515; /* Тёплый тёмный, подберите под видео */
             color: #fff;
             overflow-x: hidden;
         }
         
-        /* Cinematic grain overlay */
-        .grain {
+        /* Blur backdrop для плавных краёв */
+        .video-backdrop {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100vh;
-            pointer-events: none;
-            z-index: 100;
-            opacity: 0.04;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-            animation: grain 0.5s steps(10) infinite;
+            z-index: 0;
+            filter: blur(80px) brightness(0.4);
+            transform: scale(1.2);
         }
         
-        @keyframes grain {
-            0%, 100% { transform: translate(0, 0); }
-            10% { transform: translate(-5%, -5%); }
-            20% { transform: translate(5%, 5%); }
-            30% { transform: translate(-3%, 3%); }
-            40% { transform: translate(3%, -3%); }
-            50% { transform: translate(-5%, 5%); }
-            60% { transform: translate(5%, -5%); }
-            70% { transform: translate(-3%, -3%); }
-            80% { transform: translate(3%, 3%); }
-            90% { transform: translate(-5%, -3%); }
-        }
-        
-        /* Vignette */
-        .vignette {
-            position: fixed;
-            top: 0;
-            left: 0;
+        .video-backdrop video {
             width: 100%;
-            height: 100vh;
-            pointer-events: none;
-            z-index: 90;
-            background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.6) 100%);
+            height: 100%;
+            object-fit: cover;
         }
         
-        /* Video containers with crossfade */
-        .video-container {
+        /* Основное видео — без растяжения */
+        .video-main {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100vh;
-            z-index: 1;
-            opacity: 0;
-            transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1);
-            transform: scale(1.05);
-            transition: opacity 1.2s ease, transform 8s ease;
-        }
-        
-        .video-container.active {
-            opacity: 1;
-            transform: scale(1);
-        }
-        
-        .video-container video {
-            position: absolute;
             top: 50%;
             left: 50%;
-            min-width: 100%;
-            min-height: 100%;
-            width: auto;
-            height: auto;
             transform: translate(-50%, -50%);
-            object-fit: cover;
-            filter: contrast(1.1) saturate(0.9);
+            z-index: 1;
+            max-width: 100%;
+            max-height: 100vh;
+            box-shadow: 0 20px 100px rgba(0,0,0,0.8);
         }
         
-        /* Scenes */
+        .video-main video {
+            display: block;
+            max-width: 100%;
+            max-height: 100vh;
+            width: auto;
+            height: auto;
+        }
+        
+        /* Оверлей для читаемости текста */
+        .text-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: radial-gradient(ellipse at center, transparent 40%, rgba(26,21,21,0.8) 100%);
+            pointer-events: none;
+            z-index: 5;
+        }
+        
+        /* Сцены */
         .scene {
             position: relative;
             height: 300vh;
-            z-index: 20;
+            z-index: 10;
         }
         
         .scene-content {
@@ -112,196 +88,93 @@
         
         .text-block {
             text-align: center;
-            max-width: 900px;
-            padding: 3rem;
+            max-width: 800px;
+            padding: 2rem;
             opacity: 0;
-            transform: translateY(40px) scale(0.95);
-            transition: all 1s cubic-bezier(0.23, 1, 0.32, 1);
+            transform: translateY(30px);
+            transition: all 0.8s ease;
         }
         
         .text-block.visible {
             opacity: 1;
-            transform: translateY(0) scale(1);
+            transform: translateY(0);
         }
         
         .text-block h2 {
-            font-size: clamp(3rem, 10vw, 7rem);
+            font-size: clamp(2.5rem, 8vw, 5rem);
             font-weight: 300;
-            letter-spacing: 0.12em;
-            line-height: 1.1;
-            text-shadow: 0 4px 30px rgba(0,0,0,0.6);
-            margin-bottom: 1.5rem;
-            background: linear-gradient(135deg, #fff 0%, #ffd4e5 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            letter-spacing: 0.1em;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.8);
+            margin-bottom: 1rem;
         }
         
         .text-block p {
-            font-size: clamp(1.3rem, 3vw, 2rem);
-            letter-spacing: 0.25em;
-            color: #ffb6c1;
-            text-transform: uppercase;
-        }
-        
-        /* Progress */
-        .progress-container {
-            position: fixed;
-            bottom: 50px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 200;
-            text-align: center;
-        }
-        
-        .progress-bar {
-            width: 250px;
-            height: 1px;
-            background: rgba(255,255,255,0.15);
-            position: relative;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #ff69b4, #ffd4e5);
-            width: 0%;
-            box-shadow: 0 0 20px rgba(255,105,180,0.6);
-            transition: width 0.1s linear;
-        }
-        
-        .scene-dots {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 15px;
-            padding: 0 5px;
-        }
-        
-        .dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.3);
-            transition: all 0.5s;
-        }
-        
-        .dot.active {
-            background: #ff69b4;
-            transform: scale(1.5);
-            box-shadow: 0 0 10px #ff69b4;
+            font-size: clamp(1rem, 2vw, 1.5rem);
+            letter-spacing: 0.2em;
+            color: #d4a5a5;
         }
         
         /* Start screen */
-        #start-screen {
+        #start {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: #000;
+            background: #1a1515;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            z-index: 3000;
-            transition: opacity 1.5s ease, visibility 1.5s;
+            z-index: 100;
+            transition: opacity 1s;
         }
         
-        #start-screen.hidden {
+        #start.hidden {
             opacity: 0;
-            visibility: hidden;
             pointer-events: none;
         }
         
-        .start-heart {
-            width: 80px;
-            height: 80px;
-            background: #ff2a6d;
-            position: relative;
-            transform: rotate(-45deg);
-            cursor: pointer;
-            animation: heartbeat 2s ease infinite;
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-        
-        .start-heart:hover {
-            transform: rotate(-45deg) scale(1.15);
-            box-shadow: 0 0 80px #ff2a6d;
-        }
-        
-        .start-heart::before,
-        .start-heart::after {
-            content: '';
-            width: 80px;
-            height: 80px;
-            position: absolute;
-            background: #ff2a6d;
-            border-radius: 50%;
-        }
-        
-        .start-heart::before { top: -40px; left: 0; }
-        .start-heart::after { left: 40px; top: 0; }
-        
-        @keyframes heartbeat {
-            0%, 100% { transform: rotate(-45deg) scale(1); }
-            25% { transform: rotate(-45deg) scale(1.08); }
-            50% { transform: rotate(-45deg) scale(1); }
-            75% { transform: rotate(-45deg) scale(1.04); }
-        }
-        
-        .start-text {
-            margin-top: 60px;
-            color: #ffb6c1;
-            letter-spacing: 0.4em;
+        .start-btn {
+            padding: 20px 40px;
+            border: 1px solid #d4a5a5;
+            background: transparent;
+            color: #d4a5a5;
+            font-family: inherit;
             font-size: 1rem;
+            letter-spacing: 0.3em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .start-btn:hover {
+            background: #d4a5a5;
+            color: #1a1515;
         }
     </style>
 </head>
 <body>
 
-    <div id="start-screen">
-        <div class="start-heart" onclick="startExperience()"></div>
-        <div class="start-text">НАЖМИТЕ НА СЕРДЦЕ</div>
+    <div id="start">
+        <button class="start-btn" onclick="start()">НАЧАТЬ</button>
     </div>
 
-    <div class="grain"></div>
-    <div class="vignette"></div>
-
-    <!-- Videos -->
-    <div class="video-container" data-scene="0">
-        <video id="video1" playsinline muted preload="auto" crossorigin="anonymous" loop>
-            <source src="https://streetfootball1v1.github.io/valentines/v1.mp4" type="video/mp4">
-        </video>
-    </div>
-    
-    <div class="video-container" data-scene="1">
-        <video id="video2" playsinline muted preload="auto" crossorigin="anonymous" loop>
-            <source src="https://streetfootball1v1.github.io/valentines/v2.mp4" type="video/mp4">
-        </video>
-    </div>
-    
-    <div class="video-container" data-scene="2">
-        <video id="video3" playsinline muted preload="auto" crossorigin="anonymous" loop>
-            <source src="https://streetfootball1v1.github.io/valentines/v3.mp4" type="video/mp4">
-        </video>
-    </div>
-    
-    <div class="video-container" data-scene="3">
-        <video id="video4" playsinline muted preload="auto" crossorigin="anonymous" loop>
-            <source src="https://streetfootball1v1.github.io/valentines/v4.mp4" type="video/mp4">
-        </video>
-    </div>
-    
-    <div class="video-container" data-scene="4">
-        <video id="video5" playsinline muted preload="auto" crossorigin="anonymous" loop>
-            <source src="https://streetfootball1v1.github.io/valentines/v5.mp4" type="video/mp4">
-        </video>
+    <!-- Blur backdrop (текущее активное видео размыто) -->
+    <div class="video-backdrop" id="backdrop">
+        <video muted playsinline loop id="bgVideo"></video>
     </div>
 
-    <!-- Scenes -->
+    <!-- Основное видео чёткое, без растяжения -->
+    <div class="video-main" id="mainContainer">
+        <video muted playsinline loop id="mainVideo"></video>
+    </div>
+
+    <div class="text-overlay"></div>
+
     <div class="scene" data-scene="0">
         <div class="scene-content">
             <div class="text-block">
                 <h2>Почти 4 года</h2>
-                <p>Начало нашей истории</p>
+                <p>Наша история</p>
             </div>
         </div>
     </div>
@@ -310,7 +183,7 @@
         <div class="scene-content">
             <div class="text-block">
                 <h2>Сквозь расстояние</h2>
-                <p>Любовь преодолевает всё</p>
+                <p>Любовь сильнее</p>
             </div>
         </div>
     </div>
@@ -318,8 +191,8 @@
     <div class="scene" data-scene="2">
         <div class="scene-content">
             <div class="text-block">
-                <h2>Сердце к сердцу</h2>
-                <p>Каждый миг вместе</p>
+                <h2>Каждый день</h2>
+                <p>Выбираю тебя</p>
             </div>
         </div>
     </div>
@@ -327,169 +200,82 @@
     <div class="scene" data-scene="3">
         <div class="scene-content">
             <div class="text-block">
-                <h2>И я до сих пор</h2>
-                <p>Выбираю тебя каждый день</p>
-            </div>
-        </div>
-    </div>
-
-    <div class="scene" data-scene="4">
-        <div class="scene-content">
-            <div class="text-block">
                 <h2>Навсегда</h2>
-                <p>Сегодня, завтра, всегда</p>
+                <p>Сегодня и всегда</p>
             </div>
         </div>
     </div>
-
-    <!-- Progress -->
-    <div class="progress-container">
-        <div class="progress-bar">
-            <div class="progress-fill" id="progressFill"></div>
-        </div>
-        <div class="scene-dots" id="sceneDots">
-            <div class="dot active" data-scene="0"></div>
-            <div class="dot" data-scene="1"></div>
-            <div class="dot" data-scene="2"></div>
-            <div class="dot" data-scene="3"></div>
-            <div class="dot" data-scene="4"></div>
-        </div>
-    </div>
-
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&display=swap" rel="stylesheet">
 
     <script>
+        const videos = [
+            'https://streetfootball1v1.github.io/valentines/v1.mp4',
+            'https://streetfootball1v1.github.io/valentines/v2.mp4',
+            'https://streetfootball1v1.github.io/valentines/v3.mp4',
+            'https://streetfootball1v1.github.io/valentines/v4.mp4',
+            'https://streetfootball1v1.github.io/valentines/v5.mp4'
+        ];
+
+        let current = 0;
         let scrubber = null;
 
-        window.startExperience = function() {
-            document.getElementById('start-screen').classList.add('hidden');
+        function start() {
+            document.getElementById('start').classList.add('hidden');
             scrubber = new VideoScrubber();
-        };
+        }
 
         class VideoScrubber {
             constructor() {
-                this.videos = [];
-                this.scenes = [];
+                this.bgVideo = document.getElementById('bgVideo');
+                this.mainVideo = document.getElementById('mainVideo');
                 this.sceneHeight = window.innerHeight * 3;
-                this.currentScene = 0;
-                this.targetTime = 0;
-                this.smoothing = 0.12;
-                this.isScrolling = false;
-                this.lastScrollY = 0;
                 
-                // Slow motion factor: stretch 5s video across full scroll
-                this.timeScale = 0.3; // 0.3 = slower, more cinematic
-                
-                this.init();
+                this.loadVideo(0);
+                window.addEventListener('scroll', this.onScroll.bind(this), { passive: true });
             }
             
-            init() {
-                for (let i = 0; i < 5; i++) {
-                    const video = document.getElementById(`video${i + 1}`);
-                    const scene = document.querySelector(`.scene[data-scene="${i}"]`);
-                    const container = document.querySelector(`.video-container[data-scene="${i}"]`);
-                    
-                    if (video && scene) {
-                        this.videos.push({
-                            element: video,
-                            container: container,
-                            duration: 5.03, // Known duration
-                            currentTime: 0
-                        });
-                        this.scenes.push(scene);
-                        
-                        // Start playing for smooth scrubbing
-                        video.play().catch(() => {});
-                    }
-                }
+            loadVideo(index) {
+                current = index;
+                const src = videos[index];
                 
-                window.addEventListener('scroll', this.onScroll.bind(this), { passive: true });
-                window.addEventListener('resize', () => {
-                    this.sceneHeight = window.innerHeight * 3;
-                });
+                this.bgVideo.src = src;
+                this.mainVideo.src = src;
                 
-                this.updateScene(0);
-                this.animate();
+                this.bgVideo.load();
+                this.mainVideo.load();
+                
+                this.bgVideo.play().catch(() => {});
+                this.mainVideo.play().catch(() => {});
             }
             
             onScroll() {
-                this.isScrolling = true;
-                clearTimeout(this.scrollTimeout);
-                this.scrollTimeout = setTimeout(() => {
-                    this.isScrolling = false;
-                }, 150);
+                const y = window.pageYOffset;
+                const scene = Math.min(Math.floor(y / this.sceneHeight), 4);
                 
-                const scrollY = window.pageYOffset;
-                this.lastScrollY = scrollY;
-                
-                const totalH = this.sceneHeight * this.scenes.length;
-                const progress = Math.min(scrollY / (totalH - window.innerHeight), 1);
-                
-                document.getElementById('progressFill').style.width = `${progress * 100}%`;
-                
-                const sceneIdx = Math.min(Math.floor(scrollY / this.sceneHeight), 4);
-                
-                if (sceneIdx !== this.currentScene) {
-                    this.updateScene(sceneIdx);
+                if (scene !== current) {
+                    this.loadVideo(scene);
                 }
                 
-                // Update dots
-                document.querySelectorAll('.dot').forEach((d, i) => {
-                    d.classList.toggle('active', i === sceneIdx);
+                // Scrubbing
+                const sceneY = y - (scene * this.sceneHeight);
+                const progress = sceneY / this.sceneHeight;
+                
+                // Для видео с ключевыми кадрами каждый 1 кадр
+                const duration = 5.03; // ваша длительность
+                const time = (progress * duration) % duration;
+                
+                if (Math.abs(this.mainVideo.currentTime - time) > 0.05) {
+                    this.mainVideo.currentTime = time;
+                    this.bgVideo.currentTime = time;
+                }
+                
+                // Text
+                document.querySelectorAll('.text-block').forEach((t, i) => {
+                    const show = i === scene && progress > 0.2 && progress < 0.8;
+                    t.classList.toggle('visible', show);
                 });
-                
-                // Text visibility
-                const sceneScroll = scrollY - (sceneIdx * this.sceneHeight);
-                const sceneProg = sceneScroll / this.sceneHeight;
-                const text = this.scenes[sceneIdx]?.querySelector('.text-block');
-                if (text) {
-                    const show = sceneProg > 0.15 && sceneProg < 0.85;
-                    text.classList.toggle('visible', show);
-                }
-            }
-            
-            updateScene(idx) {
-                this.currentScene = idx;
-                this.videos.forEach((v, i) => {
-                    const isActive = i === idx;
-                    v.container.classList.toggle('active', isActive);
-                    
-                    // Preload next video
-                    if (i === idx + 1) {
-                        v.element.play().catch(() => {});
-                    }
-                });
-            }
-            
-            animate() {
-                requestAnimationFrame(this.animate.bind(this));
-                
-                const v = this.videos[this.currentScene];
-                if (!v) return;
-                
-                // Calculate progress within current scene
-                const scrollY = window.pageYOffset;
-                const sceneStart = this.currentScene * this.sceneHeight;
-                let prog = (scrollY - sceneStart) / this.sceneHeight;
-                prog = Math.max(0, Math.min(prog, 1));
-                
-                // Loop video: when it ends, start from beginning smoothly
-                const loopedTime = (prog * v.duration * this.timeScale) % v.duration;
-                
-                this.targetTime = loopedTime;
-                
-                const video = v.element;
-                const current = video.currentTime || 0;
-                const diff = this.targetTime - current;
-                
-                // Handle loop boundary (don't jump backwards)
-                if (Math.abs(diff) > v.duration / 2) {
-                    video.currentTime = this.targetTime;
-                } else if (Math.abs(diff) > 0.03) {
-                    video.currentTime = current + diff * this.smoothing;
-                }
             }
         }
     </script>
+
 </body>
 </html>
