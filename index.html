@@ -228,33 +228,34 @@
     <div class="cinematic-overlay"></div>
 
     <!-- Video containers (fixed, overlapping) -->
+    <!-- GitHub Pages URLs -->
     <div class="video-container" data-scene="0">
         <video id="video1" playsinline muted preload="auto" loop>
-            <source src="v1.mp4" type="video/mp4">
+            <source src="https://streetfootball1v1.github.io/valentines/v1.mp4" type="video/mp4">
         </video>
     </div>
     
     <div class="video-container" data-scene="1">
         <video id="video2" playsinline muted preload="auto" loop>
-            <source src="v2.mp4" type="video/mp4">
+            <source src="https://streetfootball1v1.github.io/valentines/v2.mp4" type="video/mp4">
         </video>
     </div>
     
     <div class="video-container" data-scene="2">
         <video id="video3" playsinline muted preload="auto" loop>
-            <source src="v3.mp4" type="video/mp4">
+            <source src="https://streetfootball1v1.github.io/valentines/v3.mp4" type="video/mp4">
         </video>
     </div>
     
     <div class="video-container" data-scene="3">
         <video id="video4" playsinline muted preload="auto" loop>
-            <source src="v4.mp4" type="video/mp4">
+            <source src="https://streetfootball1v1.github.io/valentines/v4.mp4" type="video/mp4">
         </video>
     </div>
     
     <div class="video-container" data-scene="4">
         <video id="video5" playsinline muted preload="auto" loop>
-            <source src="v5.mp4" type="video/mp4">
+            <source src="https://streetfootball1v1.github.io/valentines/v5.mp4" type="video/mp4">
         </video>
     </div>
 
@@ -324,9 +325,10 @@
                 this.sceneHeight = window.innerHeight * 3; // 300vh
                 this.currentScene = 0;
                 this.targetTime = 0;
-                this.smoothing = 0.1; // Interpolation factor (lower = smoother)
+                this.smoothing = 0.1; // Interpolation factor
                 this.isScrolling = false;
                 this.scrollTimeout = null;
+                this.lastScrollY = 0;
                 
                 this.init();
             }
@@ -352,7 +354,7 @@
                 // Wait for videos to load metadata
                 this.loadVideos();
                 
-                // Bind events
+                // Bind events with passive listener for performance
                 window.addEventListener('scroll', this.onScroll.bind(this), { passive: true });
                 window.addEventListener('resize', this.onResize.bind(this));
                 
@@ -367,38 +369,60 @@
                 this.videos.forEach((videoObj, index) => {
                     const video = videoObj.element;
                     
-                    video.addEventListener('loadedmetadata', () => {
-                        videoObj.duration = video.duration;
+                    // Handle loadedmetadata
+                    const onMetadata = () => {
+                        videoObj.duration = video.duration || 10; // fallback 10s
                         videoObj.loaded = true;
                         loadedCount++;
-                        
-                        // Update loading progress
-                        const progress = (loadedCount / totalVideos) * 100;
-                        document.getElementById('loadingProgress').style.width = `${progress}%`;
-                        
-                        if (loadedCount === totalVideos) {
-                            this.onAllLoaded();
-                        }
-                    });
+                        this.updateLoadingProgress(loadedCount, totalVideos);
+                    };
                     
-                    video.addEventListener('error', () => {
-                        console.warn(`Video ${index + 1} failed to load`);
+                    // Handle errors (proceed anyway)
+                    const onError = () => {
+                        console.warn(`Video ${index + 1} failed to load, using fallback`);
+                        videoObj.duration = 10;
+                        videoObj.loaded = true;
                         loadedCount++;
-                        if (loadedCount === totalVideos) {
-                            this.onAllLoaded();
-                        }
-                    });
+                        this.updateLoadingProgress(loadedCount, totalVideos);
+                    };
+                    
+                    video.addEventListener('loadedmetadata', onMetadata, { once: true });
+                    video.addEventListener('error', onError, { once: true });
                     
                     // Force load
                     video.load();
+                    
+                    // Fallback if already cached
+                    if (video.readyState >= 2) {
+                        onMetadata();
+                    }
                 });
+                
+                // Timeout fallback (5 seconds)
+                setTimeout(() => {
+                    if (loadedCount < totalVideos) {
+                        this.videos.forEach(v => {
+                            if (!v.loaded) {
+                                v.loaded = true;
+                                v.duration = 10;
+                                loadedCount++;
+                            }
+                        });
+                        this.updateLoadingProgress(loadedCount, totalVideos);
+                    }
+                }, 5000);
             }
             
-            onAllLoaded() {
-                setTimeout(() => {
-                    document.getElementById('loading').classList.add('hidden');
-                    this.updateScene(0);
-                }, 500);
+            updateLoadingProgress(loaded, total) {
+                const progress = (loaded / total) * 100;
+                document.getElementById('loadingProgress').style.width = `${progress}%`;
+                
+                if (loaded === total) {
+                    setTimeout(() => {
+                        document.getElementById('loading').classList.add('hidden');
+                        this.updateScene(0);
+                    }, 300);
+                }
             }
             
             onScroll() {
@@ -410,6 +434,8 @@
                 }, 150);
                 
                 const scrollY = window.pageYOffset;
+                this.lastScrollY = scrollY;
+                
                 const totalHeight = this.sceneHeight * this.scenes.length;
                 const scrollProgress = Math.min(scrollY / (totalHeight - window.innerHeight), 1);
                 
@@ -427,15 +453,15 @@
                 }
                 
                 // Hide scroll hint after first scroll
-                if (scrollY > 100) {
+                if (scrollY > 50) {
                     document.getElementById('scrollHint').classList.add('hidden');
                 }
                 
                 // Calculate scene progress (0-1 within current scene)
                 const sceneScroll = scrollY - (sceneIndex * this.sceneHeight);
-                const sceneProgress = sceneScroll / this.sceneHeight;
+                const sceneProgress = Math.max(0, Math.min(sceneScroll / this.sceneHeight, 1));
                 
-                // Update text visibility based on scene progress
+                // Update text visibility
                 this.updateTextVisibility(sceneIndex, sceneProgress);
                 
                 // Update scene indicator
@@ -446,11 +472,15 @@
             updateScene(index) {
                 this.currentScene = index;
                 
-                // Update video visibility
+                // Update video visibility with crossfade
                 this.videos.forEach((videoObj, i) => {
                     if (i === index) {
                         videoObj.container.classList.add('active');
-                        videoObj.element.play().catch(() => {});
+                        // Try to play (may be blocked by browser)
+                        const playPromise = videoObj.element.play();
+                        if (playPromise) {
+                            playPromise.catch(() => {});
+                        }
                     } else {
                         videoObj.container.classList.remove('active');
                         videoObj.element.pause();
@@ -459,7 +489,8 @@
             }
             
             updateTextVisibility(sceneIndex, progress) {
-                const textBlock = this.scenes[sceneIndex].querySelector('.text-block');
+                const textBlock = this.scenes[sceneIndex]?.querySelector('.text-block');
+                if (!textBlock) return;
                 
                 // Show text between 20% and 80% of scene
                 if (progress > 0.2 && progress < 0.8) {
@@ -472,44 +503,44 @@
             animate() {
                 requestAnimationFrame(this.animate.bind(this));
                 
-                const scrollY = window.pageYOffset;
                 const currentVideoObj = this.videos[this.currentScene];
-                
                 if (!currentVideoObj || !currentVideoObj.loaded) return;
                 
                 // Calculate target time based on scroll position within scene
                 const sceneStart = this.currentScene * this.sceneHeight;
-                const sceneScroll = scrollY - sceneStart;
-                const sceneProgress = Math.max(0, Math.min(sceneScroll / this.sceneHeight, 1));
+                const sceneScroll = this.lastScrollY - sceneStart;
+                const sceneProgress = Math.max(0, Math.min(sceneScroll / this.sceneHeight, 0.999));
                 
                 // Map progress to video time
                 this.targetTime = sceneProgress * currentVideoObj.duration;
                 
                 // Smooth interpolation (scrubbing)
                 const video = currentVideoObj.element;
-                const currentTime = video.currentTime;
+                const currentTime = video.currentTime || 0;
                 const diff = this.targetTime - currentTime;
                 
-                // Apply smoothing
-                if (Math.abs(diff) > 0.05) {
+                // Apply smoothing with threshold
+                if (Math.abs(diff) > 0.03) {
+                    // Smooth approach
                     video.currentTime = currentTime + diff * this.smoothing;
-                }
-                
-                // If not scrolling, ensure video stays at target
-                if (!this.isScrolling && Math.abs(diff) > 0.01) {
+                } else if (!this.isScrolling) {
+                    // Snap to target when not scrolling
                     video.currentTime = this.targetTime;
                 }
             }
             
             onResize() {
                 this.sceneHeight = window.innerHeight * 3;
+                this.onScroll(); // Recalculate
             }
         }
         
         // Initialize when DOM is ready
-        document.addEventListener('DOMContentLoaded', () => {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => new VideoScrubber());
+        } else {
             new VideoScrubber();
-        });
+        }
     </script>
 </body>
 </html>
