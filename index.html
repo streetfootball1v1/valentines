@@ -11,65 +11,69 @@
             box-sizing: border-box;
         }
         
-        /* ФОН под цвет видео — замените на свой */
         body {
             font-family: 'Cormorant Garamond', Georgia, serif;
-            background: #1a1515; /* Тёплый тёмный, подберите под видео */
+            background: #1a1515;
             color: #fff;
             overflow-x: hidden;
         }
         
-        /* Blur backdrop для плавных краёв */
-        .video-backdrop {
+        /* Видео контейнеры - скрыты по умолчанию */
+        .video-scene {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100vh;
-            z-index: 0;
-            filter: blur(80px) brightness(0.4);
-            transform: scale(1.2);
-        }
-        
-        .video-backdrop video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        /* Основное видео — без растяжения */
-        .video-main {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
             z-index: 1;
-            max-width: 100%;
-            max-height: 100vh;
-            box-shadow: 0 20px 100px rgba(0,0,0,0.8);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.8s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
-        .video-main video {
-            display: block;
+        .video-scene.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        /* Blur backdrop */
+        .video-scene::before {
+            content: '';
+            position: absolute;
+            top: -10%;
+            left: -10%;
+            width: 120%;
+            height: 120%;
+            background: inherit;
+            filter: blur(60px) brightness(0.4);
+            z-index: -1;
+        }
+        
+        /* Видео без растяжения */
+        .video-scene video {
             max-width: 100%;
             max-height: 100vh;
             width: auto;
             height: auto;
+            box-shadow: 0 20px 80px rgba(0,0,0,0.6);
         }
         
-        /* Оверлей для читаемости текста */
-        .text-overlay {
+        /* Оверлей для текста */
+        .overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100vh;
-            background: radial-gradient(ellipse at center, transparent 40%, rgba(26,21,21,0.8) 100%);
+            background: radial-gradient(ellipse at center, transparent 50%, rgba(26,21,21,0.6) 100%);
             pointer-events: none;
             z-index: 5;
         }
         
-        /* Сцены */
+        /* Сцены для скролла */
         .scene {
             position: relative;
             height: 300vh;
@@ -150,6 +154,36 @@
             background: #d4a5a5;
             color: #1a1515;
         }
+        
+        /* Progress */
+        .progress {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 50;
+            text-align: center;
+        }
+        
+        .progress-bar {
+            width: 200px;
+            height: 2px;
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #d4a5a5;
+            width: 0%;
+            transition: width 0.1s;
+        }
+        
+        .scene-counter {
+            color: rgba(255,255,255,0.5);
+            font-size: 0.8rem;
+            letter-spacing: 0.2em;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -158,23 +192,45 @@
         <button class="start-btn" onclick="start()">НАЧАТЬ</button>
     </div>
 
-    <!-- Blur backdrop (текущее активное видео размыто) -->
-    <div class="video-backdrop" id="backdrop">
-        <video muted playsinline loop id="bgVideo"></video>
+    <!-- 5 видео сцен - все скрыты по умолчанию -->
+    <div class="video-scene" data-scene="0">
+        <video muted playsinline loop preload="auto">
+            <source src="https://streetfootball1v1.github.io/valentines/v1.mp4" type="video/mp4">
+        </video>
     </div>
 
-    <!-- Основное видео чёткое, без растяжения -->
-    <div class="video-main" id="mainContainer">
-        <video muted playsinline loop id="mainVideo"></video>
+    <div class="video-scene" data-scene="1">
+        <video muted playsinline loop preload="auto">
+            <source src="https://streetfootball1v1.github.io/valentines/v2.mp4" type="video/mp4">
+        </video>
     </div>
 
-    <div class="text-overlay"></div>
+    <div class="video-scene" data-scene="2">
+        <video muted playsinline loop preload="auto">
+            <source src="https://streetfootball1v1.github.io/valentines/v3.mp4" type="video/mp4">
+        </video>
+    </div>
 
+    <div class="video-scene" data-scene="3">
+        <video muted playsinline loop preload="auto">
+            <source src="https://streetfootball1v1.github.io/valentines/v4.mp4" type="video/mp4">
+        </video>
+    </div>
+
+    <div class="video-scene" data-scene="4">
+        <video muted playsinline loop preload="auto">
+            <source src="https://streetfootball1v1.github.io/valentines/v5.mp4" type="video/mp4">
+        </video>
+    </div>
+
+    <div class="overlay"></div>
+
+    <!-- Сцены для скролла -->
     <div class="scene" data-scene="0">
         <div class="scene-content">
             <div class="text-block">
                 <h2>Почти 4 года</h2>
-                <p>Наша история</p>
+                <p>Наша история началась</p>
             </div>
         </div>
     </div>
@@ -183,7 +239,7 @@
         <div class="scene-content">
             <div class="text-block">
                 <h2>Сквозь расстояние</h2>
-                <p>Любовь сильнее</p>
+                <p>Любовь преодолевает всё</p>
             </div>
         </div>
     </div>
@@ -191,8 +247,8 @@
     <div class="scene" data-scene="2">
         <div class="scene-content">
             <div class="text-block">
-                <h2>Каждый день</h2>
-                <p>Выбираю тебя</p>
+                <h2>Каждый миг</h2>
+                <p>Рядом с тобой</p>
             </div>
         </div>
     </div>
@@ -200,81 +256,107 @@
     <div class="scene" data-scene="3">
         <div class="scene-content">
             <div class="text-block">
-                <h2>Навсегда</h2>
-                <p>Сегодня и всегда</p>
+                <h2>И я до сих пор</h2>
+                <p>Выбираю тебя каждый день</p>
             </div>
         </div>
     </div>
 
-    <script>
-        const videos = [
-            'https://streetfootball1v1.github.io/valentines/v1.mp4',
-            'https://streetfootball1v1.github.io/valentines/v2.mp4',
-            'https://streetfootball1v1.github.io/valentines/v3.mp4',
-            'https://streetfootball1v1.github.io/valentines/v4.mp4',
-            'https://streetfootball1v1.github.io/valentines/v5.mp4'
-        ];
+    <div class="scene" data-scene="4">
+        <div class="scene-content">
+            <div class="text-block">
+                <h2>Навсегда</h2>
+                <p>Сегодня, завтра, всегда</p>
+            </div>
+        </div>
+    </div>
 
-        let current = 0;
-        let scrubber = null;
+    <div class="progress">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="scene-counter" id="sceneCounter">01 / 05</div>
+    </div>
+
+    <script>
+        let currentScene = 0;
+        let isStarted = false;
 
         function start() {
             document.getElementById('start').classList.add('hidden');
-            scrubber = new VideoScrubber();
+            isStarted = true;
+            
+            // Активируем первую сцену
+            updateScene(0);
+            
+            // Запускаем видео
+            document.querySelectorAll('.video-scene video').forEach((v, i) => {
+                if (i === 0) v.play().catch(() => {});
+            });
         }
 
-        class VideoScrubber {
-            constructor() {
-                this.bgVideo = document.getElementById('bgVideo');
-                this.mainVideo = document.getElementById('mainVideo');
-                this.sceneHeight = window.innerHeight * 3;
+        function updateScene(index) {
+            // Скрываем все
+            document.querySelectorAll('.video-scene').forEach((el, i) => {
+                el.classList.toggle('active', i === index);
                 
-                this.loadVideo(0);
-                window.addEventListener('scroll', this.onScroll.bind(this), { passive: true });
-            }
-            
-            loadVideo(index) {
-                current = index;
-                const src = videos[index];
-                
-                this.bgVideo.src = src;
-                this.mainVideo.src = src;
-                
-                this.bgVideo.load();
-                this.mainVideo.load();
-                
-                this.bgVideo.play().catch(() => {});
-                this.mainVideo.play().catch(() => {});
-            }
-            
-            onScroll() {
-                const y = window.pageYOffset;
-                const scene = Math.min(Math.floor(y / this.sceneHeight), 4);
-                
-                if (scene !== current) {
-                    this.loadVideo(scene);
+                const video = el.querySelector('video');
+                if (i === index) {
+                    video.play().catch(() => {});
+                } else {
+                    video.pause();
                 }
-                
-                // Scrubbing
-                const sceneY = y - (scene * this.sceneHeight);
-                const progress = sceneY / this.sceneHeight;
-                
-                // Для видео с ключевыми кадрами каждый 1 кадр
-                const duration = 5.03; // ваша длительность
-                const time = (progress * duration) % duration;
-                
-                if (Math.abs(this.mainVideo.currentTime - time) > 0.05) {
-                    this.mainVideo.currentTime = time;
-                    this.bgVideo.currentTime = time;
-                }
-                
-                // Text
-                document.querySelectorAll('.text-block').forEach((t, i) => {
-                    const show = i === scene && progress > 0.2 && progress < 0.8;
-                    t.classList.toggle('visible', show);
-                });
-            }
+            });
+            
+            currentScene = index;
+            document.getElementById('sceneCounter').textContent = 
+                `0${index + 1} / 05`;
         }
+
+        // Scroll handler
+        window.addEventListener('scroll', () => {
+            if (!isStarted) return;
+            
+            const scrollY = window.pageYOffset;
+            const sceneHeight = window.innerHeight * 3;
+            const totalHeight = sceneHeight * 5;
+            
+            // Глобальный прогресс
+            const progress = Math.min(scrollY / (totalHeight - window.innerHeight), 1);
+            document.getElementById('progressFill').style.width = `${progress * 100}%`;
+            
+            // Текущая сцена
+            const sceneIndex = Math.min(Math.floor(scrollY / sceneHeight), 4);
+            
+            if (sceneIndex !== currentScene) {
+                updateScene(sceneIndex);
+            }
+            
+            // Прогресс внутри сцены (0-1)
+            const sceneProgress = (scrollY % sceneHeight) / sceneHeight;
+            
+            // Scrubbing видео
+            const video = document.querySelector(`.video-scene[data-scene="${sceneIndex}"] video`);
+            if (video && video.duration) {
+                const targetTime = sceneProgress * video.duration;
+                
+                // Плавное приближение
+                const diff = targetTime - video.currentTime;
+                if (Math.abs(diff) > 0.1) {
+                    video.currentTime = targetTime;
+                }
+            }
+            
+            // Показ текста (20% - 80%)
+            document.querySelectorAll('.text-block').forEach((block, i) => {
+                if (i === sceneIndex) {
+                    const show = sceneProgress > 0.2 && sceneProgress < 0.8;
+                    block.classList.toggle('visible', show);
+                } else {
+                    block.classList.remove('visible');
+                }
+            });
+        }, { passive: true });
     </script>
 
 </body>
