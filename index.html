@@ -3,315 +3,163 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Для моей Снежаны</title>
+<title>Под тем дождём</title>
+
 <style>
-:root {
-    --p1: #ffafbd; --p2: #ffc3a0;
-    --accent: #ff4d6d;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
-
-body, html {
+html, body {
     height: 100%;
-    background: #fff0f3;
-    font-family: 'Verdana', sans-serif;
-    overflow: hidden;
-    color: #5a3e3e;
+    scroll-behavior: smooth;
 }
 
-/* Живой фон */
-.bg-decor {
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    background: radial-gradient(circle at 20% 30%, #fff5f6 0%, #ffe4e9 100%);
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: linear-gradient(to bottom, #f5f5f5, #eaeaea);
+    color: #1c1c1c;
+    overflow-x: hidden;
 }
 
-.bokeh {
-    position: absolute;
-    width: 400px; height: 400px;
-    background: var(--p1);
-    filter: blur(100px);
-    border-radius: 50%;
-    opacity: 0.3;
-    animation: drift 20s infinite alternate;
-}
-
-@keyframes drift {
-    from { transform: translate(-10%, -10%); }
-    to { transform: translate(20%, 20%); }
-}
-
-/* Передний план */
-.foreground-layer {
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 100;
-}
-
-/* Скролл контейнер */
+/* Контейнер скролла */
 .scroll-container {
     height: 100vh;
     overflow-y: scroll;
     scroll-snap-type: y mandatory;
-    scrollbar-width: none;
 }
-.scroll-container::-webkit-scrollbar { display: none; }
 
 .section {
     height: 100vh;
-    width: 100%;
+    scroll-snap-align: start;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    scroll-snap-align: start;
-    position: relative;
-    perspective: 1500px;
+    padding: 60px 20px;
+    text-align: center;
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 1.2s ease, transform 1.2s ease;
 }
 
-/* Стиль окна */
-.window-outer {
-    position: relative;
-    padding: 15px;
-    background: rgba(255, 255, 255, 0.4);
-    backdrop-filter: blur(10px);
-    border-radius: 35px;
-    border: 2px solid rgba(255, 255, 255, 0.7);
-    box-shadow: 0 40px 100px rgba(255, 77, 109, 0.15);
-    transition: all 1s cubic-bezier(0.165, 0.84, 0.44, 1);
-    opacity: 0;
-    transform: scale(0.8) translateY(50px);
-}
-.section.active .window-outer {
+.section.active {
     opacity: 1;
-    transform: scale(1) translateY(0);
-    transition-delay: 0.3s;
+    transform: translateY(0);
 }
 
-.window-inner {
-    width: 854px; max-width: 90vw; height: 480px; max-height: 50vh;
-    border-radius: 25px;
-    overflow: hidden;
-    background: #000;
-    box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+/* Видео */
+video {
+    width: 85%;
+    max-width: 950px;
+    border-radius: 14px;
+    box-shadow: 0 40px 100px rgba(0,0,0,0.08);
 }
 
-video { width: 100%; height: 100%; object-fit: cover; }
-
-/* Подпись */
-.caption-plate {
-    margin-top: -30px;
-    z-index: 10;
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(15px);
-    padding: 20px 60px;
-    border-radius: 50px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-    border: 1px solid #fff;
-    opacity: 0;
-    transition: 1s ease 0.8s;
-}
-.section.active .caption-plate { opacity: 1; }
-
-.caption-plate h2 {
-    font-size: 1.6rem;
-    background: linear-gradient(45deg, var(--accent), #ff85a1);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-/* Финальная открытка */
-.letter-container {
-    display: none;
-    width: 600px;
-    background: #fff;
-    padding: 60px;
-    border-radius: 5px;
-    box-shadow: 30px 30px 0 rgba(255, 77, 109, 0.1);
-    border: 1px solid #eee;
-    position: relative;
-    font-family: 'Georgia', serif;
-}
-
-.btn-magic {
-    background: var(--accent);
-    color: white;
-    padding: 25px 60px;
-    border-radius: 100px;
-    border: none;
+/* Текст */
+.caption {
+    margin-top: 40px;
     font-size: 1.4rem;
-    cursor: pointer;
-    box-shadow: 0 15px 40px rgba(255, 77, 109, 0.4);
-    transition: 0.4s;
-}
-.btn-magic:hover { transform: translateY(-5px) scale(1.05); }
-
-#typewriter { line-height: 2; font-size: 1.2rem; }
-
-/* Лоадер */
-#loader {
-    position: fixed; inset: 0; background: #fff; z-index: 2000;
-    display: flex; justify-content: center; align-items: center;
+    font-weight: 300;
+    line-height: 1.9;
+    max-width: 800px;
+    letter-spacing: 0.3px;
 }
 
-/* Сердечки */
-.p-item {
-    transition: transform 0.3s ease, opacity 1s ease;
-    animation: heartbeat 4s infinite ease-in-out;
+.final {
+    font-size: 2rem;
+    font-weight: 300;
+    letter-spacing: 3px;
 }
 
-@keyframes heartbeat {
-    0%, 100% { transform: scale(1); opacity: 0.2; }
-    50% { transform: scale(1.2); opacity: 0.4; }
+/* Адаптив */
+@media (max-width: 768px) {
+    video {
+        width: 100%;
+    }
+    .caption {
+        font-size: 1.1rem;
+    }
+    .final {
+        font-size: 1.5rem;
+    }
 }
 </style>
 </head>
+
 <body>
 
-<div id="loader">✨ Создаем магию...</div>
-
-<div class="bg-decor">
-    <div class="bokeh" style="top: 10%; left: 10%;"></div>
-    <div class="bokeh" style="bottom: 10%; right: 10%; background: #ffc3a0;"></div>
-</div>
-
-<div class="foreground-layer" id="fg"></div>
-
-<audio id="bg-music" loop>
-    <source src="https://www.chosic.com/wp-content/uploads/2021/05/Starlight-City-Night-Piano.mp3" type="audio/mpeg">
-</audio>
-
 <div class="scroll-container">
+
     <section class="section">
-        <div class="window-outer">
-            <div class="window-inner"><video src="V1.mp4" autoplay muted loop playsinline></video></div>
+        <video src="V1.mp4" autoplay muted loop playsinline></video>
+        <div class="caption">
+            Мы жили почти напротив друг друга.<br>
+            И я тогда ещё не знал,<br>
+            что в одном из этих окон — вся моя жизнь.
         </div>
-        <div class="caption-plate"><h2>Почти 4 года…</h2></div>
     </section>
 
     <section class="section">
-        <div class="window-outer">
-            <div class="window-inner"><video src="V2.mp4" autoplay muted loop playsinline></video></div>
+        <video src="V2.mp4" autoplay muted loop playsinline></video>
+        <div class="caption">
+            Было холодно. Шёл дождь.<br><br>
+            У меня не было денег на рестораны.<br>
+            Только разговоры.<br>
+            И сердце, которое уже выбрало.
         </div>
-        <div class="caption-plate"><h2>Сквозь расстояние</h2></div>
     </section>
 
     <section class="section">
-        <div class="window-outer">
-            <div class="window-inner"><video src="V3.mp4" autoplay muted loop playsinline></video></div>
+        <video src="V3.mp4" autoplay muted loop playsinline></video>
+        <div class="caption">
+            Самым трудным за эти годы был я.<br>
+            Мой характер. Моё упрямство.<br><br>
+            Я был ребёнком.<br>
+            Но ты осталась.
         </div>
-        <div class="caption-plate"><h2>Наши сердца нашли путь</h2></div>
     </section>
 
     <section class="section">
-        <div class="window-outer">
-            <div class="window-inner"><video src="V4.mp4" autoplay muted loop playsinline></video></div>
+        <video src="V4.mp4" autoplay muted loop playsinline></video>
+        <div class="caption">
+            Благодаря тебе я вырос.<br>
+            Стал сильнее.<br><br>
+            Стал тем, кем являюсь сейчас.
         </div>
-        <div class="caption-plate"><h2>И я до сих пор…</h2></div>
     </section>
 
     <section class="section">
-        <div class="window-outer">
-            <div class="window-inner"><video src="V5.mp4" autoplay muted loop playsinline></video></div>
+        <video src="V5.mp4" autoplay muted loop playsinline></video>
+        <div class="caption">
+            И если бы мне снова пришлось стоять<br>
+            под тем холодным дождём…<br><br>
+            Я бы снова выбрал тебя.
         </div>
-        <div class="caption-plate"><h2>Выбираю тебя. Всегда.</h2></div>
     </section>
 
     <section class="section">
-        <button class="btn-magic" id="openBtn">ПОСМОТРИ МНЕ В ГЛАЗА</button>
-        <div class="letter-container" id="card">
-            <div id="typewriter"></div>
+        <div class="final">
+            ВСЕГДА.
         </div>
     </section>
+
 </div>
 
 <script>
-// Параллакс сердечек
-const fg = document.getElementById('fg');
-for(let i=0; i<15; i++) {
-    const heart = document.createElement('div');
-    heart.innerHTML = '❤️';
-    heart.style.position = 'absolute';
-    heart.style.left = Math.random() * 100 + 'vw';
-    heart.style.top = Math.random() * 100 + 'vh';
-    heart.style.fontSize = (Math.random() * 30 + 20) + 'px';
-    heart.style.opacity = '0.2';
-    heart.className = 'p-item';
-    fg.appendChild(heart);
-}
-
-document.addEventListener('mousemove', (e) => {
-    const x = (e.clientX / window.innerWidth - 0.5);
-    const y = (e.clientY / window.innerHeight - 0.5);
-
-    document.querySelectorAll('.p-item').forEach(h => {
-        h.style.transform = `translate(${x * 50}px, ${y * 50}px)`;
-    });
-
-    const win = document.querySelector('.section.active .window-outer');
-    if(win) {
-        win.style.transform = `rotateY(${x * 20}deg) rotateX(${-y * 20}deg)`;
-    }
-});
-
-// Лоадер
-window.onload = () => {
-    setTimeout(() => {
-        document.getElementById('loader').style.opacity = '0';
-        setTimeout(() => document.getElementById('loader').remove(), 1000);
-    }, 1500);
-};
-
-// IntersectionObserver для секций
-const obs = new IntersectionObserver(entries => {
+/* Плавное появление секций */
+const observer = new IntersectionObserver(entries => {
     entries.forEach(entry => {
-        if(entry.isIntersecting) entry.target.classList.add('active');
-    });
-}, { threshold: 0.5 });
-document.querySelectorAll('.section').forEach(s => obs.observe(s));
-
-// Логика финальной открытки
-const message = "Моя любимая Снежана!\n\nЯ долго думал, как передать всё то, что чувствую. Эти 4 года пролетели как один миг, но каждый этот миг бесценен, потому что в нем была ты. Ты — мой свет, мой дом и моё самое большое счастье. \n\nЯ люблю тебя. Сегодня, завтра и вечно.";
-
-document.getElementById('openBtn').onclick = function() {
-    document.getElementById('bg-music').play();
-    this.style.display = 'none';
-    const card = document.getElementById('card');
-    card.style.display = 'block';
-
-    let i = 0;
-    function type() {
-        if (i < message.length) {
-            const char = message.charAt(i);
-            document.getElementById('typewriter').innerHTML += char === '\n' ? '<br>' : char;
-            i++;
-            setTimeout(type, 50);
+        if (entry.isIntersecting) {
+            entry.target.classList.add("active");
         }
-    }
-    type();
-};
+    });
+}, { threshold: 0.4 });
 
-// Улетающие сердечки при клике
-document.body.addEventListener('click', (e) => {
-    const heart = document.createElement('div');
-    heart.innerHTML = '❤️';
-    heart.style.position = 'absolute';
-    heart.style.left = e.clientX + 'px';
-    heart.style.top = e.clientY + 'px';
-    heart.style.fontSize = '24px';
-    heart.style.opacity = 1;
-    heart.style.transition = 'all 1s ease-out';
-    document.body.appendChild(heart);
-
-    setTimeout(() => {
-        heart.style.transform = 'translateY(-100px) scale(1.5)';
-        heart.style.opacity = 0;
-    }, 10);
-
-    setTimeout(() => heart.remove(), 1100);
+document.querySelectorAll(".section").forEach(section => {
+    observer.observe(section);
 });
 </script>
 
