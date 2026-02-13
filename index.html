@@ -8,8 +8,8 @@
         :root {
             --bg-color: #0a0a0a;
             --frame-border: #1a1a1a;
-            --text-color: #e0e0e0;
-            --accent-glow: rgba(255, 255, 255, 0.05);
+            --text-color: #f0f0f0;
+            --accent-glow: rgba(255, 255, 255, 0.03);
         }
 
         * {
@@ -22,19 +22,19 @@
             height: 100%;
             background-color: var(--bg-color);
             color: var(--text-color);
-            font-family: 'Georgia', serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             overflow: hidden;
             user-select: none;
         }
 
-        /* Эффект зернистости (Film Grain) */
+        /* Зернистость пленки */
         .film-grain {
             position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
             z-index: 100;
             pointer-events: none;
-            opacity: 0.04;
+            opacity: 0.05;
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3%3Ffilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
         }
 
@@ -44,7 +44,7 @@
             overflow-y: scroll;
             scroll-snap-type: y mandatory;
             scroll-behavior: smooth;
-            background: radial-gradient(circle, #1a1a1a 0%, #050505 100%);
+            background: radial-gradient(circle at center, #1a1a1a 0%, #050505 100%);
         }
 
         .section {
@@ -55,18 +55,19 @@
             justify-content: center;
             align-items: center;
             scroll-snap-align: start;
-            perspective: 1000px;
+            perspective: 1200px;
             position: relative;
         }
 
-        /* Окно с видео */
+        /* Окно с видео (854x480) */
         .window-wrapper {
             position: relative;
             width: 854px;
             height: 480px;
-            transition: transform 0.1s ease-out, opacity 1s ease;
+            transition: transform 0.1s ease-out, opacity 1.5s ease;
             transform-style: preserve-3d;
-            opacity: 0; /* Для Fade-in */
+            opacity: 0;
+            will-change: transform, opacity;
         }
 
         .section.active .window-wrapper {
@@ -77,65 +78,93 @@
             width: 100%;
             height: 100%;
             background: #000;
-            border: 12px solid var(--frame-border);
-            border-radius: 4px;
+            border: 10px solid var(--frame-border);
+            border-radius: 2px;
             box-shadow: 
-                0 30px 60px rgba(0,0,0,0.8),
-                0 0 20px var(--accent-glow);
+                0 40px 100px rgba(0,0,0,0.9),
+                0 0 40px var(--accent-glow);
             overflow: hidden;
-            position: relative;
         }
 
         video {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            filter: contrast(1.1) brightness(1.05);
+            filter: contrast(1.15) brightness(1.05);
             display: block;
         }
 
-        /* Текст под окном */
+        /* Текст */
         .caption {
-            margin-top: 30px;
-            font-size: 1.5rem;
+            margin-top: 40px;
+            font-size: 1.2rem;
             font-weight: 300;
-            letter-spacing: 2px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
             opacity: 0;
-            transform: translateY(20px);
-            transition: all 1.2s ease 0.5s;
+            transform: translateY(30px);
+            transition: all 1.5s cubic-bezier(0.23, 1, 0.32, 1) 0.5s;
             text-align: center;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            color: rgba(255,255,255,0.7);
         }
 
         .section.active .caption {
-            opacity: 0.8;
+            opacity: 1;
             transform: translateY(0);
+        }
+
+        /* Навигационные точки */
+        .nav-dots {
+            position: fixed;
+            right: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+
+        .section.active-dot .dot {
+            background: #fff;
+            box-shadow: 0 0 10px #fff;
+            transform: scale(1.5);
         }
 
         /* Loader */
         #loader {
             position: fixed;
             inset: 0;
-            background: var(--bg-color);
+            background: #050505;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 1000;
-            transition: opacity 0.8s ease;
+            transition: opacity 1s ease;
         }
 
         .spinner {
-            width: 40px;
-            height: 40px;
-            border: 2px solid rgba(255,255,255,0.1);
+            width: 30px;
+            height: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
             border-top-color: #fff;
             border-radius: 50%;
-            animation: spin 1s linear infinite;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 20px;
         }
 
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Скрытие скроллбара */
+        /* Убираем скроллбар */
         .scroll-container::-webkit-scrollbar { display: none; }
         .scroll-container { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
@@ -144,51 +173,54 @@
 
     <div id="loader">
         <div class="spinner"></div>
+        <p style="letter-spacing: 2px; font-size: 0.8rem;">ЗАГРУЗКА ИСТОРИИ</p>
     </div>
 
     <div class="film-grain"></div>
 
+    <div class="nav-dots" id="dots-container"></div>
+
     <div class="scroll-container" id="main-scroll">
-        <section class="section">
-            <div class="window-wrapper" data-tilt>
+        <section class="section" data-index="0">
+            <div class="window-wrapper">
                 <div class="video-frame">
-                    <video src="v1.mp4" autoplay muted loop playsinline></video>
+                    <video src="V1.mp4" autoplay muted loop playsinline></video>
                 </div>
             </div>
             <div class="caption">Почти 4 года…</div>
         </section>
 
-        <section class="section">
-            <div class="window-wrapper" data-tilt>
+        <section class="section" data-index="1">
+            <div class="window-wrapper">
                 <div class="video-frame">
-                    <video src="v2.mp4" autoplay muted loop playsinline></video>
+                    <video src="V2.mp4" autoplay muted loop playsinline></video>
                 </div>
             </div>
             <div class="caption">Сквозь расстояние и время</div>
         </section>
 
-        <section class="section">
-            <div class="window-wrapper" data-tilt>
+        <section class="section" data-index="2">
+            <div class="window-wrapper">
                 <div class="video-frame">
-                    <video src="v3.mp4" autoplay muted loop playsinline></video>
+                    <video src="V3.mp4" autoplay muted loop playsinline></video>
                 </div>
             </div>
             <div class="caption">Наши сердца нашли путь</div>
         </section>
 
-        <section class="section">
-            <div class="window-wrapper" data-tilt>
+        <section class="section" data-index="3">
+            <div class="window-wrapper">
                 <div class="video-frame">
-                    <video src="v4.mp4" autoplay muted loop playsinline></video>
+                    <video src="V4.mp4" autoplay muted loop playsinline></video>
                 </div>
             </div>
             <div class="caption">И я до сих пор…</div>
         </section>
 
-        <section class="section">
-            <div class="window-wrapper" data-tilt>
+        <section class="section" data-index="4">
+            <div class="window-wrapper">
                 <div class="video-frame">
-                    <video src="v5.mp4" autoplay muted loop playsinline></video>
+                    <video src="V5.mp4" autoplay muted loop playsinline></video>
                 </div>
             </div>
             <div class="caption">Выбираю тебя. Сегодня. Завтра. Всегда.</div>
@@ -196,28 +228,36 @@
     </div>
 
     <script>
-        // 1. Обработка Loader
+        // Создание точек навигации
+        const sections = document.querySelectorAll('.section');
+        const dotsContainer = document.getElementById('dots-container');
+        sections.forEach(() => {
+            const dot = document.createElement('div');
+            dot.className = 'dot';
+            dotsContainer.appendChild(dot);
+        });
+        const dots = document.querySelectorAll('.dot');
+
+        // Loader
         window.addEventListener('load', () => {
             const loader = document.getElementById('loader');
             setTimeout(() => {
                 loader.style.opacity = '0';
-                setTimeout(() => loader.remove(), 800);
-            }, 1000); // Небольшая задержка для плавности
+                setTimeout(() => loader.remove(), 1000);
+            }, 1500);
         });
 
-        // 2. Наблюдатель за секциями (Scroll Snap + Fade)
-        const sections = document.querySelectorAll('.section');
-        const observerOptions = {
-            threshold: 0.6
-        };
-
+        // Наблюдатель (Scroll Snap + Активные состояния)
+        const observerOptions = { threshold: 0.6 };
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
+                const index = entry.target.getAttribute('data-index');
                 if (entry.isIntersecting) {
                     entry.target.classList.add('active');
-                    // Перезапуск видео при входе (опционально, для синхронизации)
-                    const video = entry.target.querySelector('video');
-                    if(video) video.play();
+                    dots[index].parentElement.classList.add('active-dot'); // Мы добавим класс обертке или самой точке
+                    // Для упрощения просто подсветим нужную точку:
+                    dots.forEach((d, i) => d.style.background = i == index ? '#fff' : 'rgba(255,255,255,0.2)');
+                    dots.forEach((d, i) => d.style.transform = i == index ? 'scale(1.5)' : 'scale(1)');
                 } else {
                     entry.target.classList.remove('active');
                 }
@@ -226,21 +266,17 @@
 
         sections.forEach(section => observer.observe(section));
 
-        // 3. Параллакс мыши (Tilt эффект)
-        const wrappers = document.querySelectorAll('.window-wrapper');
-
+        // Параллакс наклона (Tilt)
         document.addEventListener('mousemove', (e) => {
-            const x = e.clientX / window.innerWidth - 0.5;
-            const y = e.clientY / window.innerHeight - 0.5;
+            const x = (e.clientX / window.innerWidth) - 0.5;
+            const y = (e.clientY / window.innerHeight) - 0.5;
 
-            wrappers.forEach(wrapper => {
-                // Применяем наклон только к активной секции для оптимизации
-                if (wrapper.parentElement.classList.contains('active')) {
-                    const rotateY = x * 10; // макс 5 градусов
-                    const rotateX = -y * 10;
-                    wrapper.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-                }
-            });
+            const activeWrapper = document.querySelector('.section.active .window-wrapper');
+            if (activeWrapper) {
+                const rotY = x * 12; // Коэффициент наклона
+                const rotX = -y * 12;
+                activeWrapper.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+            }
         });
     </script>
 </body>
