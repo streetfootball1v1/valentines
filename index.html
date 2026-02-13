@@ -45,17 +45,25 @@ body {
     transition: opacity 1.2s ease, transform 1.2s ease;
 }
 
+/* Первая секция видна сразу */
+.section:first-child {
+    opacity: 1;
+    transform: translateY(0);
+}
+
 .section.active {
     opacity: 1;
     transform: translateY(0);
 }
 
-/* Видео */
+/* Видео с fallback-фоном */
 video {
     width: 85%;
     max-width: 950px;
     border-radius: 14px;
     box-shadow: 0 40px 100px rgba(0,0,0,0.08);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    transition: opacity 0.5s ease;
 }
 
 /* Текст */
@@ -66,12 +74,58 @@ video {
     line-height: 1.9;
     max-width: 800px;
     letter-spacing: 0.3px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 1s ease 0.3s, transform 1s ease 0.3s;
+}
+
+.section.active .caption {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .final {
     font-size: 2rem;
     font-weight: 300;
     letter-spacing: 3px;
+    opacity: 0;
+    transform: scale(0.9);
+    transition: all 1.5s ease;
+}
+
+.section.active .final {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Дата под финалом */
+.final-date {
+    font-size: 1rem;
+    color: #666;
+    margin-top: 20px;
+    letter-spacing: 2px;
+    opacity: 0;
+    transition: opacity 1s ease 0.5s;
+}
+
+.section.active .final-date {
+    opacity: 1;
+}
+
+/* Индикатор прокрутки */
+.scroll-hint {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0.4;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+    40% { transform: translateX(-50%) translateY(-10px); }
+    60% { transform: translateX(-50%) translateY(-5px); }
 }
 
 /* Адаптив */
@@ -81,9 +135,14 @@ video {
     }
     .caption {
         font-size: 1.1rem;
+        padding: 0 15px;
     }
     .final {
         font-size: 1.5rem;
+        letter-spacing: 2px;
+    }
+    .final-date {
+        font-size: 0.9rem;
     }
 }
 </style>
@@ -94,16 +153,21 @@ video {
 <div class="scroll-container">
 
     <section class="section">
-        <video src="V1.mp4" autoplay muted loop playsinline></video>
+        <video src="V1.mp4" autoplay muted loop playsinline poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect fill='%23667eea' width='1' height='1'/%3E%3C/svg%3E"></video>
         <div class="caption">
             Мы жили почти напротив друг друга.<br>
             И я тогда ещё не знал,<br>
             что в одном из этих окон — вся моя жизнь.
         </div>
+        <div class="scroll-hint">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M12 5v14M19 12l-7 7-7-7"/>
+            </svg>
+        </div>
     </section>
 
     <section class="section">
-        <video src="V2.mp4" autoplay muted loop playsinline></video>
+        <video src="V2.mp4" autoplay muted loop playsinline poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect fill='%23764ba2' width='1' height='1'/%3E%3C/svg%3E"></video>
         <div class="caption">
             Было холодно. Шёл дождь.<br><br>
             У меня не было денег на рестораны.<br>
@@ -113,7 +177,7 @@ video {
     </section>
 
     <section class="section">
-        <video src="V3.mp4" autoplay muted loop playsinline></video>
+        <video src="V3.mp4" autoplay muted loop playsinline poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect fill='%23667eea' width='1' height='1'/%3E%3C/svg%3E"></video>
         <div class="caption">
             Самым трудным за эти годы был я.<br>
             Мой характер. Моё упрямство.<br><br>
@@ -123,7 +187,7 @@ video {
     </section>
 
     <section class="section">
-        <video src="V4.mp4" autoplay muted loop playsinline></video>
+        <video src="V4.mp4" autoplay muted loop playsinline poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect fill='%23764ba2' width='1' height='1'/%3E%3C/svg%3E"></video>
         <div class="caption">
             Благодаря тебе я вырос.<br>
             Стал сильнее.<br><br>
@@ -132,7 +196,7 @@ video {
     </section>
 
     <section class="section">
-        <video src="V5.mp4" autoplay muted loop playsinline></video>
+        <video src="V5.mp4" autoplay muted loop playsinline poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect fill='%23667eea' width='1' height='1'/%3E%3C/svg%3E"></video>
         <div class="caption">
             И если бы мне снова пришлось стоять<br>
             под тем холодным дождём…<br><br>
@@ -144,6 +208,7 @@ video {
         <div class="final">
             ВСЕГДА.
         </div>
+        <div class="final-date">08.09</div>
     </section>
 
 </div>
@@ -161,6 +226,18 @@ const observer = new IntersectionObserver(entries => {
 document.querySelectorAll(".section").forEach(section => {
     observer.observe(section);
 });
+
+/* Скрыть подсказку после первого скролла */
+const scrollHint = document.querySelector('.scroll-hint');
+const firstSection = document.querySelector('.section');
+
+if (scrollHint && firstSection) {
+    document.querySelector('.scroll-container').addEventListener('scroll', () => {
+        if (firstSection.scrollTop > 50) {
+            scrollHint.style.opacity = '0';
+        }
+    }, { once: true });
+}
 </script>
 
 </body>
