@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Почти 4 года — Наша история</title>
     <style>
         * {
@@ -16,25 +16,23 @@
         }
         
         body {
-            font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+            font-family: 'Cormorant Garamond', Georgia, serif;
             background: #000;
             color: #fff;
             overflow-x: hidden;
         }
         
-        /* Cinematic overlay for text readability */
         .cinematic-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100vh;
-            background: radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.4) 70%, rgba(0,0,0,0.7) 100%);
+            background: radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.5) 100%);
             pointer-events: none;
             z-index: 10;
         }
         
-        /* Video container - fixed position for all videos */
         .video-container {
             position: fixed;
             top: 0;
@@ -62,14 +60,12 @@
             object-fit: cover;
         }
         
-        /* Scenes - tall sections for deep scroll */
         .scene {
             position: relative;
             height: 300vh;
             z-index: 20;
         }
         
-        /* Text content centered */
         .scene-content {
             position: sticky;
             top: 0;
@@ -86,7 +82,7 @@
             padding: 2rem;
             opacity: 0;
             transform: translateY(30px);
-            transition: opacity 0.8s ease, transform 0.8s ease;
+            transition: all 0.8s ease;
         }
         
         .text-block.visible {
@@ -95,23 +91,19 @@
         }
         
         .text-block h2 {
-            font-size: clamp(2.5rem, 8vw, 6rem);
+            font-size: clamp(2.5rem, 8vw, 5rem);
             font-weight: 300;
             letter-spacing: 0.15em;
-            line-height: 1.2;
             text-shadow: 0 4px 30px rgba(0,0,0,0.8);
             margin-bottom: 1rem;
         }
         
         .text-block p {
-            font-size: clamp(1.2rem, 3vw, 2rem);
-            font-weight: 300;
+            font-size: clamp(1.2rem, 3vw, 1.8rem);
             letter-spacing: 0.2em;
             color: #ffb6c1;
-            text-shadow: 0 2px 20px rgba(0,0,0,0.6);
         }
         
-        /* Progress indicator */
         .progress-bar {
             position: fixed;
             bottom: 40px;
@@ -121,19 +113,15 @@
             height: 2px;
             background: rgba(255,255,255,0.2);
             z-index: 100;
-            border-radius: 2px;
         }
         
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #ff69b4, #ffb6c1);
+            background: #ff69b4;
             width: 0%;
-            border-radius: 2px;
-            transition: width 0.1s linear;
-            box-shadow: 0 0 10px rgba(255,105,180,0.5);
+            box-shadow: 0 0 10px #ff69b4;
         }
         
-        /* Scene indicator */
         .scene-indicator {
             position: fixed;
             bottom: 60px;
@@ -145,8 +133,8 @@
             z-index: 100;
         }
         
-        /* Loading screen */
-        #loading {
+        /* Start button for autoplay policy */
+        #start-screen {
             position: fixed;
             top: 0;
             left: 0;
@@ -157,109 +145,99 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            z-index: 1000;
-            transition: opacity 1s ease, visibility 1s;
+            z-index: 2000;
+            transition: opacity 1s;
         }
         
-        #loading.hidden {
+        #start-screen.hidden {
             opacity: 0;
-            visibility: hidden;
+            pointer-events: none;
         }
         
-        .loading-text {
-            color: #ffb6c1;
-            font-size: 1.2rem;
-            letter-spacing: 0.5em;
-            margin-top: 2rem;
+        .start-btn {
+            width: 100px;
+            height: 100px;
+            border: 2px solid #ff69b4;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #ff69b4;
+            font-size: 1rem;
+            letter-spacing: 0.2em;
         }
         
-        .loading-bar {
-            width: 200px;
-            height: 2px;
-            background: rgba(255,255,255,0.1);
-            margin-top: 1rem;
-            border-radius: 2px;
-            overflow: hidden;
-        }
-        
-        .loading-progress {
-            height: 100%;
+        .start-btn:hover {
             background: #ff69b4;
-            width: 0%;
-            transition: width 0.3s;
+            color: #000;
+            transform: scale(1.1);
         }
         
-        /* Scroll hint */
-        .scroll-hint {
-            position: fixed;
-            bottom: 100px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: rgba(255,255,255,0.5);
-            font-size: 0.9rem;
+        .start-text {
+            margin-top: 2rem;
+            color: #ffb6c1;
             letter-spacing: 0.3em;
-            z-index: 100;
-            animation: bounce 2s infinite;
-            opacity: 1;
-            transition: opacity 0.5s;
         }
         
-        .scroll-hint.hidden {
-            opacity: 0;
-        }
-        
-        @keyframes bounce {
-            0%, 100% { transform: translateX(-50%) translateY(0); }
-            50% { transform: translateX(-50%) translateY(-10px); }
+        /* Debug info */
+        #debug {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            color: #0f0;
+            font-family: monospace;
+            font-size: 12px;
+            z-index: 3000;
+            background: rgba(0,0,0,0.8);
+            padding: 10px;
+            display: none;
         }
     </style>
 </head>
 <body>
 
-    <!-- Loading screen -->
-    <div id="loading">
-        <div class="loading-text">ЗАГРУЗКА ИСТОРИИ</div>
-        <div class="loading-bar">
-            <div class="loading-progress" id="loadingProgress"></div>
-        </div>
+    <div id="debug"></div>
+
+    <div id="start-screen">
+        <div class="start-btn" onclick="startExperience()">НАЧАТЬ</div>
+        <div class="start-text">НАЖМИТЕ ДЛЯ ПРОСМОТРА</div>
     </div>
 
-    <!-- Cinematic overlay -->
     <div class="cinematic-overlay"></div>
 
-    <!-- Video containers (fixed, overlapping) -->
-    <!-- GitHub Pages URLs -->
+    <!-- Videos with crossOrigin for CORS -->
     <div class="video-container" data-scene="0">
-        <video id="video1" playsinline muted preload="auto" loop>
+        <video id="video1" playsinline muted preload="auto" crossorigin="anonymous">
             <source src="https://streetfootball1v1.github.io/valentines/v1.mp4" type="video/mp4">
         </video>
     </div>
     
     <div class="video-container" data-scene="1">
-        <video id="video2" playsinline muted preload="auto" loop>
+        <video id="video2" playsinline muted preload="auto" crossorigin="anonymous">
             <source src="https://streetfootball1v1.github.io/valentines/v2.mp4" type="video/mp4">
         </video>
     </div>
     
     <div class="video-container" data-scene="2">
-        <video id="video3" playsinline muted preload="auto" loop>
+        <video id="video3" playsinline muted preload="auto" crossorigin="anonymous">
             <source src="https://streetfootball1v1.github.io/valentines/v3.mp4" type="video/mp4">
         </video>
     </div>
     
     <div class="video-container" data-scene="3">
-        <video id="video4" playsinline muted preload="auto" loop>
+        <video id="video4" playsinline muted preload="auto" crossorigin="anonymous">
             <source src="https://streetfootball1v1.github.io/valentines/v4.mp4" type="video/mp4">
         </video>
     </div>
     
     <div class="video-container" data-scene="4">
-        <video id="video5" playsinline muted preload="auto" loop>
+        <video id="video5" playsinline muted preload="auto" crossorigin="anonymous">
             <source src="https://streetfootball1v1.github.io/valentines/v5.mp4" type="video/mp4">
         </video>
     </div>
 
-    <!-- Scrollable scenes -->
     <div class="scene" data-scene="0">
         <div class="scene-content">
             <div class="text-block">
@@ -305,36 +283,50 @@
         </div>
     </div>
 
-    <!-- UI elements -->
     <div class="progress-bar">
         <div class="progress-fill" id="progressFill"></div>
     </div>
     
     <div class="scene-indicator" id="sceneIndicator">01 / 05</div>
-    
-    <div class="scroll-hint" id="scrollHint">ЛИСТАЙ ВНИЗ</div>
 
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Playfair+Display:wght@300;400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&display=swap" rel="stylesheet">
 
     <script>
-        // Video Scrubbing Controller
+        const DEBUG = true;
+        const debugEl = document.getElementById('debug');
+        if (DEBUG) debugEl.style.display = 'block';
+        
+        function log(msg) {
+            console.log(msg);
+            if (DEBUG) debugEl.innerHTML += msg + '<br>';
+        }
+
+        let scrubber = null;
+        let isStarted = false;
+
+        window.startExperience = function() {
+            document.getElementById('start-screen').classList.add('hidden');
+            isStarted = true;
+            
+            // Initialize scrubber after user interaction
+            scrubber = new VideoScrubber();
+        };
+
         class VideoScrubber {
             constructor() {
                 this.videos = [];
                 this.scenes = [];
-                this.sceneHeight = window.innerHeight * 3; // 300vh
+                this.sceneHeight = window.innerHeight * 3;
                 this.currentScene = 0;
                 this.targetTime = 0;
-                this.smoothing = 0.1; // Interpolation factor
+                this.smoothing = 0.15;
                 this.isScrolling = false;
-                this.scrollTimeout = null;
-                this.lastScrollY = 0;
                 
                 this.init();
             }
             
             init() {
-                // Collect videos and scenes
+                // Collect videos
                 for (let i = 0; i < 5; i++) {
                     const video = document.getElementById(`video${i + 1}`);
                     const scene = document.querySelector(`.scene[data-scene="${i}"]`);
@@ -345,201 +337,161 @@
                             element: video,
                             container: container,
                             duration: 0,
-                            loaded: false
+                            loaded: false,
+                            frameRate: 30
                         });
                         this.scenes.push(scene);
+                        
+                        // Force play to enable scrubbing
+                        video.play().catch(e => log(`Video ${i+1} play error: ${e.message}`));
                     }
                 }
                 
-                // Wait for videos to load metadata
+                // Wait for metadata
                 this.loadVideos();
                 
-                // Bind events with passive listener for performance
                 window.addEventListener('scroll', this.onScroll.bind(this), { passive: true });
                 window.addEventListener('resize', this.onResize.bind(this));
                 
-                // Start animation loop
                 this.animate();
             }
             
             loadVideos() {
-                let loadedCount = 0;
-                const totalVideos = this.videos.length;
+                let loaded = 0;
+                const total = this.videos.length;
                 
-                this.videos.forEach((videoObj, index) => {
-                    const video = videoObj.element;
+                this.videos.forEach((v, i) => {
+                    const video = v.element;
                     
-                    // Handle loadedmetadata
-                    const onMetadata = () => {
-                        videoObj.duration = video.duration || 10; // fallback 10s
-                        videoObj.loaded = true;
-                        loadedCount++;
-                        this.updateLoadingProgress(loadedCount, totalVideos);
+                    const checkLoaded = () => {
+                        // Try to get duration multiple ways
+                        let dur = video.duration;
+                        
+                        // If duration is invalid, try seeking
+                        if (!dur || dur === Infinity || isNaN(dur)) {
+                            video.currentTime = 0.1;
+                            dur = video.duration;
+                        }
+                        
+                        if (dur && dur !== Infinity && !isNaN(dur)) {
+                            v.duration = dur;
+                            v.loaded = true;
+                            loaded++;
+                            log(`Video ${i+1}: ${dur.toFixed(2)}s`);
+                            
+                            if (loaded === total) {
+                                log('All videos ready');
+                                this.updateScene(0);
+                            }
+                        } else {
+                            // Fallback: assume 5 seconds
+                            v.duration = 5;
+                            v.loaded = true;
+                            loaded++;
+                            log(`Video ${i+1}: fallback 5s`);
+                            
+                            if (loaded === total) {
+                                this.updateScene(0);
+                            }
+                        }
                     };
                     
-                    // Handle errors (proceed anyway)
-                    const onError = () => {
-                        console.warn(`Video ${index + 1} failed to load, using fallback`);
-                        videoObj.duration = 10;
-                        videoObj.loaded = true;
-                        loadedCount++;
-                        this.updateLoadingProgress(loadedCount, totalVideos);
-                    };
-                    
-                    video.addEventListener('loadedmetadata', onMetadata, { once: true });
-                    video.addEventListener('error', onError, { once: true });
-                    
-                    // Force load
-                    video.load();
-                    
-                    // Fallback if already cached
                     if (video.readyState >= 2) {
-                        onMetadata();
+                        checkLoaded();
+                    } else {
+                        video.addEventListener('loadeddata', checkLoaded, { once: true });
+                        video.addEventListener('error', () => {
+                            v.duration = 5;
+                            v.loaded = true;
+                            loaded++;
+                            log(`Video ${i+1}: error, using 5s`);
+                            if (loaded === total) this.updateScene(0);
+                        }, { once: true });
                     }
                 });
-                
-                // Timeout fallback (5 seconds)
-                setTimeout(() => {
-                    if (loadedCount < totalVideos) {
-                        this.videos.forEach(v => {
-                            if (!v.loaded) {
-                                v.loaded = true;
-                                v.duration = 10;
-                                loadedCount++;
-                            }
-                        });
-                        this.updateLoadingProgress(loadedCount, totalVideos);
-                    }
-                }, 5000);
-            }
-            
-            updateLoadingProgress(loaded, total) {
-                const progress = (loaded / total) * 100;
-                document.getElementById('loadingProgress').style.width = `${progress}%`;
-                
-                if (loaded === total) {
-                    setTimeout(() => {
-                        document.getElementById('loading').classList.add('hidden');
-                        this.updateScene(0);
-                    }, 300);
-                }
             }
             
             onScroll() {
                 this.isScrolling = true;
-                
                 clearTimeout(this.scrollTimeout);
                 this.scrollTimeout = setTimeout(() => {
                     this.isScrolling = false;
-                }, 150);
+                }, 100);
                 
                 const scrollY = window.pageYOffset;
-                this.lastScrollY = scrollY;
+                const totalH = this.sceneHeight * this.scenes.length;
+                const progress = Math.min(scrollY / (totalH - window.innerHeight), 1);
                 
-                const totalHeight = this.sceneHeight * this.scenes.length;
-                const scrollProgress = Math.min(scrollY / (totalHeight - window.innerHeight), 1);
+                document.getElementById('progressFill').style.width = `${progress * 100}%`;
                 
-                // Update global progress bar
-                document.getElementById('progressFill').style.width = `${scrollProgress * 100}%`;
+                const sceneIdx = Math.min(Math.floor(scrollY / this.sceneHeight), this.scenes.length - 1);
                 
-                // Determine current scene
-                const sceneIndex = Math.min(
-                    Math.floor(scrollY / this.sceneHeight),
-                    this.scenes.length - 1
-                );
-                
-                if (sceneIndex !== this.currentScene) {
-                    this.updateScene(sceneIndex);
+                if (sceneIdx !== this.currentScene) {
+                    this.updateScene(sceneIdx);
                 }
                 
-                // Hide scroll hint after first scroll
-                if (scrollY > 50) {
-                    document.getElementById('scrollHint').classList.add('hidden');
-                }
+                const sceneScroll = scrollY - (sceneIdx * this.sceneHeight);
+                const sceneProg = Math.max(0, Math.min(sceneScroll / this.sceneHeight, 1));
                 
-                // Calculate scene progress (0-1 within current scene)
-                const sceneScroll = scrollY - (sceneIndex * this.sceneHeight);
-                const sceneProgress = Math.max(0, Math.min(sceneScroll / this.sceneHeight, 1));
+                this.updateText(sceneIdx, sceneProg);
+                document.getElementById('sceneIndicator').textContent = `0${sceneIdx + 1} / 05`;
                 
-                // Update text visibility
-                this.updateTextVisibility(sceneIndex, sceneProgress);
-                
-                // Update scene indicator
-                document.getElementById('sceneIndicator').textContent = 
-                    `0${sceneIndex + 1} / 0${this.scenes.length}`;
+                // Store for animation loop
+                this.lastSceneProgress = sceneProg;
             }
             
-            updateScene(index) {
-                this.currentScene = index;
-                
-                // Update video visibility with crossfade
-                this.videos.forEach((videoObj, i) => {
-                    if (i === index) {
-                        videoObj.container.classList.add('active');
-                        // Try to play (may be blocked by browser)
-                        const playPromise = videoObj.element.play();
-                        if (playPromise) {
-                            playPromise.catch(() => {});
-                        }
-                    } else {
-                        videoObj.container.classList.remove('active');
-                        videoObj.element.pause();
-                    }
+            updateScene(idx) {
+                this.currentScene = idx;
+                this.videos.forEach((v, i) => {
+                    v.container.classList.toggle('active', i === idx);
+                    if (i === idx) v.element.play().catch(() => {});
+                    else v.element.pause();
                 });
             }
             
-            updateTextVisibility(sceneIndex, progress) {
-                const textBlock = this.scenes[sceneIndex]?.querySelector('.text-block');
-                if (!textBlock) return;
-                
-                // Show text between 20% and 80% of scene
-                if (progress > 0.2 && progress < 0.8) {
-                    textBlock.classList.add('visible');
-                } else {
-                    textBlock.classList.remove('visible');
-                }
+            updateText(idx, prog) {
+                const text = this.scenes[idx]?.querySelector('.text-block');
+                if (!text) return;
+                text.classList.toggle('visible', prog > 0.2 && prog < 0.8);
             }
             
             animate() {
                 requestAnimationFrame(this.animate.bind(this));
                 
-                const currentVideoObj = this.videos[this.currentScene];
-                if (!currentVideoObj || !currentVideoObj.loaded) return;
+                const v = this.videos[this.currentScene];
+                if (!v || !v.loaded) return;
                 
-                // Calculate target time based on scroll position within scene
+                // Calculate target from stored progress or recalculate
+                let prog = this.lastSceneProgress || 0;
+                
+                // Recalculate if needed
+                const scrollY = window.pageYOffset;
                 const sceneStart = this.currentScene * this.sceneHeight;
-                const sceneScroll = this.lastScrollY - sceneStart;
-                const sceneProgress = Math.max(0, Math.min(sceneScroll / this.sceneHeight, 0.999));
+                prog = Math.max(0, Math.min((scrollY - sceneStart) / this.sceneHeight, 0.999));
                 
-                // Map progress to video time
-                this.targetTime = sceneProgress * currentVideoObj.duration;
+                this.targetTime = prog * v.duration;
                 
-                // Smooth interpolation (scrubbing)
-                const video = currentVideoObj.element;
-                const currentTime = video.currentTime || 0;
-                const diff = this.targetTime - currentTime;
+                const video = v.element;
+                const current = video.currentTime || 0;
+                const diff = this.targetTime - current;
                 
-                // Apply smoothing with threshold
-                if (Math.abs(diff) > 0.03) {
-                    // Smooth approach
-                    video.currentTime = currentTime + diff * this.smoothing;
-                } else if (!this.isScrolling) {
-                    // Snap to target when not scrolling
-                    video.currentTime = this.targetTime;
+                // Adaptive smoothing
+                const smooth = this.isScrolling ? 0.2 : 0.5;
+                
+                if (Math.abs(diff) > 0.05) {
+                    const newTime = current + diff * smooth;
+                    // Clamp to valid range
+                    video.currentTime = Math.max(0, Math.min(newTime, v.duration - 0.01));
+                    
+                    if (DEBUG && Math.random() < 0.01) {
+                        log(`Scene ${this.currentScene+1}: ${prog.toFixed(2)} -> ${newTime.toFixed(2)}s`);
+                    }
                 }
             }
             
             onResize() {
                 this.sceneHeight = window.innerHeight * 3;
-                this.onScroll(); // Recalculate
             }
-        }
-        
-        // Initialize when DOM is ready
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => new VideoScrubber());
-        } else {
-            new VideoScrubber();
         }
     </script>
 </body>
